@@ -4,6 +4,8 @@ import type { Metadata } from 'next';
 
 import './globals.css';
 
+import { ReactQueryProvider } from '@/utils/providers';
+
 import { Footer } from '@/components/Footer/Footer';
 import { Navbar } from '@/components/Navbar/Navbar';
 
@@ -31,9 +33,11 @@ export default function RootLayout({
     <html lang="en">
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
         <div className="min-h-svh md:min-h-screen">
-          <Navbar />
-          <main>{children}</main>
-          <Footer />
+          <ReactQueryProvider>
+            <Navbar />
+            <main>{children}</main>
+            <Footer />
+          </ReactQueryProvider>
         </div>
       </body>
     </html>
