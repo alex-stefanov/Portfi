@@ -21,7 +21,7 @@ export const GoogleLogin = () => {
         throw new Error(error.message);
       }
     } catch (e) {
-      console.error('Something went wrong');
+      console.error('Something went wrongg');
       // toast.error('Something went wrong. Please try again.');
     }
   };
