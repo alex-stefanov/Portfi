@@ -1,4 +1,4 @@
-import { Github, Mail, MessageCircle } from 'lucide-react';
+import { Github, MessageCircle } from 'lucide-react';
 
 import { GoogleLogin } from '@/features/(auth)/google-login/GoogleLogin';
 
@@ -28,8 +28,6 @@ export default function LoginPage() {
           <GoogleLogin />
           <Button
             variant="outline"
-            // onClick={() => handleLogin('discord')}
-            // disabled={isLoading}
             className="rounded border border-[#7289da] bg-[#7289da] px-4 py-2 text-white shadow hover:bg-[#677bc4] hover:text-white"
           >
             <MessageCircle className="mr-2 h-5 w-5" />
@@ -37,8 +35,6 @@ export default function LoginPage() {
           </Button>
           <Button
             variant="outline"
-            // onClick={() => handleLogin('github')}
-            // disabled={isLoading}
             className="rounded border border-[#333] bg-[#333] px-4 py-2 text-white shadow hover:bg-[#2b2b2b] hover:text-white"
           >
             <Github className="mr-2 h-5 w-5" />
