@@ -1,9 +1,11 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
-VisualStudioVersion = 17.12.35527.113 d17.12
+VisualStudioVersion = 17.12.35527.113
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Portfi.Data", "Portfi.Data\Portfi.Data.csproj", "{BE66FD85-B77B-4559-8022-5693D7593D9A}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Portfi.Data", "Portfi.Data\Portfi.Data.csproj", "{BE66FD85-B77B-4559-8022-5693D7593D9A}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Portfi.Core", "Portfi.Core\Portfi.Core.csproj", "{F1636F7A-4EEE-42FE-A362-A734E3CFBFB1}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -15,6 +17,10 @@ Global
 		{BE66FD85-B77B-4559-8022-5693D7593D9A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{BE66FD85-B77B-4559-8022-5693D7593D9A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{BE66FD85-B77B-4559-8022-5693D7593D9A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F1636F7A-4EEE-42FE-A362-A734E3CFBFB1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F1636F7A-4EEE-42FE-A362-A734E3CFBFB1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F1636F7A-4EEE-42FE-A362-A734E3CFBFB1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F1636F7A-4EEE-42FE-A362-A734E3CFBFB1}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
