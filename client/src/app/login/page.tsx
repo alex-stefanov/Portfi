@@ -1,7 +1,6 @@
-'use client';
-
 import { Github, Mail, MessageCircle } from 'lucide-react';
-import { useState } from 'react';
+
+import { GoogleLogin } from '@/features/(auth)/google-login/GoogleLogin';
 
 import { Button } from '@/components/ui/button';
 import {
@@ -14,19 +13,6 @@ import {
 } from '@/components/ui/card';
 
 export default function LoginPage() {
-  const [isLoading, setIsLoading] = useState(false);
-
-  const handleLogin = async (provider: string) => {
-    setIsLoading(true);
-    try {
-      // await signIn(provider, { callbackUrl: "/" })
-    } catch (error) {
-      console.error('Login error:', error);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
   return (
     <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-primary/20 to-secondary/20">
       <Card className="w-full max-w-md shadow-xl">
@@ -39,18 +25,11 @@ export default function LoginPage() {
           </CardDescription>
         </CardHeader>
         <CardContent className="grid gap-4">
+          <GoogleLogin />
           <Button
             variant="outline"
-            onClick={() => handleLogin('google')}
-            disabled={isLoading}
-          >
-            <Mail className="mr-2 h-4 w-4" />
-            Sign in with Google
-          </Button>
-          <Button
-            variant="outline"
-            onClick={() => handleLogin('discord')}
-            disabled={isLoading}
+            // onClick={() => handleLogin('discord')}
+            // disabled={isLoading}
             className="rounded border border-[#7289da] bg-[#7289da] px-4 py-2 text-white shadow hover:bg-[#677bc4] hover:text-white"
           >
             <MessageCircle className="mr-2 h-5 w-5" />
@@ -58,8 +37,8 @@ export default function LoginPage() {
           </Button>
           <Button
             variant="outline"
-            onClick={() => handleLogin('github')}
-            disabled={isLoading}
+            // onClick={() => handleLogin('github')}
+            // disabled={isLoading}
             className="rounded border border-[#333] bg-[#333] px-4 py-2 text-white shadow hover:bg-[#2b2b2b] hover:text-white"
           >
             <Github className="mr-2 h-5 w-5" />
