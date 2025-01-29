@@ -26,6 +26,14 @@ public class Portfolio
     [JsonPropertyName("person_id")]
     [Description("The unique identifier of the person (Google ID or normal ID).")]
     public string PersonId { get; set; } = null!;
+    
+    /// <summary>
+    /// Collection containing the names of the person.
+    /// </summary>
+    [Required]
+    [JsonPropertyName("names")]
+    [Description("Array of the names of the person.")]
+    public string[] PersonNames { get; set; } = [];
 
     /// <summary>
     /// Biography or description of the person.
@@ -101,26 +109,26 @@ public class Portfolio
     /// </summary>
     [JsonPropertyName("projects")]
     [Description("A collection of projects in the portfolio.")]
-    public ICollection<Project> Projects { get; set; } = [];
+    public IEnumerable<Project> Projects { get; set; } = [];
 
     /// <summary>
     /// Collection of views for the portfolio.
     /// </summary>
     [JsonPropertyName("views")]
     [Description("A collection of views for the portfolio.")]
-    public ICollection<PortfolioView> PortfolioViews { get; set; } = [];
+    public IEnumerable<PortfolioView> PortfolioViews { get; set; } = [];
 
     /// <summary>
     /// Collection of downloads of the portfolio.
     /// </summary>
     [JsonPropertyName("downloads")]
     [Description("A collection of downloads of the portfolio.")]
-    public ICollection<PortfolioDownload> PortfolioDownloads { get; set; } = [];
+    public IEnumerable<PortfolioDownload> PortfolioDownloads { get; set; } = [];
 
     /// <summary>
     /// Collection of portfolio links with their active status.
     /// </summary>
     [JsonPropertyName("portfolio_links")]
     [Description("A collection of portfolio links with their active status.")]
-    public ICollection<Dictionary<string, bool>> PortfolioLinks { get; set; } = [];
+    public IEnumerable<Dictionary<string, bool>> PortfolioLinks { get; set; } = [];
 }
