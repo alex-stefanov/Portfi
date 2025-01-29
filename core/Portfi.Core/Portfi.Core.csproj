@@ -7,11 +7,13 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="8.0.0" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.6.2" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\Portfi.Data\Portfi.Data.csproj" />
+    <ProjectReference Include="..\Portfi.Infrastructure\Portfi.Infrastructure.csproj" />
   </ItemGroup>
 
 </Project>
