@@ -1,9 +1,10 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
+using Microsoft.AspNetCore.Mvc;
 using MODELS = Portfi.Data.Models;
-using RESPONSES = Portfi.Core.Models.Responses;
-using static Portfi.Data.Common.Constants.PortfolioConstants;
-using Portfi.Data.Common.Enums;
+using ENUMS = Portfi.Infrastructure.Common.Enums;
+using RESPONSES = Portfi.Infrastructure.Models.Responses;
+using static Portfi.Infrastructure.Common.Constants.PortfolioConstants;
+
 namespace Portfi.Core.Controllers;
 
 [ApiController]
@@ -755,9 +756,9 @@ public class PortfolioController(
     {
         var foundProject = new MODELS.Project();
 
-        _ = Enum.TryParse(categories[0], out ProjectCategory myEnum);
+        _ = Enum.TryParse(categories[0], out ENUMS.ProjectCategory myEnum);
 
-        foundProject.Categories = new HashSet<ProjectCategory>([myEnum]);
+        foundProject.Categories = new HashSet<ENUMS.ProjectCategory>([myEnum]);
 
         return Ok(foundProject);
     }
@@ -786,9 +787,9 @@ public class PortfolioController(
     {
         var foundProject = new MODELS.Project();
 
-        _ = Enum.TryParse("Active", out ProjectCategory myEnum);
+        _ = Enum.TryParse("Active", out ENUMS.ProjectCategory myEnum);
 
-        foundProject.Categories = new HashSet<ProjectCategory>([myEnum]);
+        foundProject.Categories = new HashSet<ENUMS.ProjectCategory>([myEnum]);
 
         return Ok(foundProject);
     }
