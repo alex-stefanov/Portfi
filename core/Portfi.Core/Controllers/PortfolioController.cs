@@ -1,13 +1,29 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 using MODELS = Portfi.Data.Models;
+using SERVICES = Portfi.Infrastructure.Services.Interfaces;
+using RESPONSES = Portfi.Infrastructure.Models.Responses;
 using static Portfi.Infrastructure.Common.Constants.PortfolioConstants;
 
 namespace Portfi.Core.Controllers;
 
+/// <summary>
+/// Contains API operations for working with portfolios.
+/// </summary>
+/// <response code="400">When request malforms.</response>
+/// <response code="401">When authentication fails.</response>
+/// <response code="500">When an internal server error occurres.</response>
+/// <param name="portfolioService">the portfolio service</param>
+/// <param name="logger">the logger</param>
+[Authorize]
 [ApiController]
 [Route("api/portfolio")]
+[ProducesResponseType(StatusCodes.Status401Unauthorized, Type = typeof(void))]
+[ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(ValidationProblemDetails))]
+[ProducesResponseType(StatusCodes.Status500InternalServerError, Type = typeof(RESPONSES.ErrorResponse))]
 public class PortfolioController(
+    SERVICES.IPortfolioService portfolioService,
     ILogger<PortfolioController> logger)
     : ControllerBase
 {

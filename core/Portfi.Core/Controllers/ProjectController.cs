@@ -3,12 +3,27 @@ using Microsoft.AspNetCore.Mvc;
 using MODELS = Portfi.Data.Models;
 using ENUMS = Portfi.Infrastructure.Common.Enums;
 using RESPONSES = Portfi.Infrastructure.Models.Responses;
+using SERVICES = Portfi.Infrastructure.Services.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 
 namespace Portfi.Core.Controllers;
 
+/// <summary>
+/// Contains API operations for working with projects.
+/// </summary>
+/// <response code="400">When request malforms.</response>
+/// <response code="401">When authentication fails.</response>
+/// <response code="500">When an internal server error occurres.</response>
+/// <param name="projectService">the project service</param>
+/// <param name="logger">the logger</param>
+[Authorize]
 [ApiController]
 [Route("api/project")]
+[ProducesResponseType(StatusCodes.Status401Unauthorized, Type = typeof(void))]
+[ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(ValidationProblemDetails))]
+[ProducesResponseType(StatusCodes.Status500InternalServerError, Type = typeof(RESPONSES.ErrorResponse))]
 public class ProjectController(
+    SERVICES.IProjectService projectService,
     ILogger<ProjectController> logger)
     : ControllerBase
 {
