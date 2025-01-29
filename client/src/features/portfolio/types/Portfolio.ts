@@ -29,3 +29,13 @@ export type Portfolio = {
   socialLinks: SocialLinks;
   projects: Project[];
 };
+
+export enum SocialLinksEnum {
+  Github = 'Github',
+  LinkedIn = 'LinkedIn',
+  X = 'X',
+  Instagram = 'Instagram',
+  Facebook = 'Facebook',
+}
+
+export const SocialLinksArr = Object.values(SocialLinksEnum);

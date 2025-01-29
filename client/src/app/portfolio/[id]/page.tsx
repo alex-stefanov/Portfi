@@ -8,9 +8,9 @@ import type { Portfolio as PortfolioType } from '@/features/portfolio/types/Port
 const portfolios: PortfolioType[] = [
   {
     id: '1',
-    title: 'Creative Design Studio',
+    title: 'Web Developer',
     author: 'Alice Johnson',
-    avatar: '/placeholder.svg?height=60&width=60',
+    avatar: 'https://www.gravatar.com/avatar/2c7d99fe281ecd3bcd65ab915bac6dd5?s=250',
     description:
       'A showcase of innovative web designs and interactive user experiences.',
     tags: ['UI/UX', 'Web Design', 'Animation'],
@@ -30,7 +30,7 @@ const portfolios: PortfolioType[] = [
     socialLinks: {
       github: 'https://github.com/alicejohnson',
       linkedin: 'https://linkedin.com/in/alicejohnson',
-      twitter: 'https://twitter.com/alicejohnson',
+      twitter: 'https://x.com/alicejohnson',
     },
     projects: [
       {
@@ -69,9 +69,5 @@ export default async function PortfolioPage({
     notFound();
   }
 
-  return (
-    <div className="min-h-screen bg-background">
-      <Portfolio portfolio={portfolio} />
-    </div>
-  );
+  return <Portfolio portfolio={portfolio} />;
 }
