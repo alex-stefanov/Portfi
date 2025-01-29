@@ -1,6 +1,6 @@
 ﻿using System.Text.Json.Serialization;
 
-namespace Portfi.Core.Models.Responses;
+namespace Portfi.Infrastructure.Models.Responses;
 
 /// <summary>
 /// Represents a GitHub repository with selected properties.
