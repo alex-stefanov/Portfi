@@ -10,4 +10,8 @@
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="9.0.1" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\Portfi.Infrastructure\Portfi.Infrastructure.csproj" />
+  </ItemGroup>
+
 </Project>
