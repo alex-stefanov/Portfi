@@ -2,8 +2,8 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
 using MODELS = Portfi.Data.Models;
-using SERVICES = Portfi.Infrastructure.Services.Interfaces;
 using RESPONSES = Portfi.Infrastructure.Models.Responses;
+using SERVICES = Portfi.Infrastructure.Services.Interfaces;
 using static Portfi.Infrastructure.Common.Constants.PortfolioConstants;
 
 namespace Portfi.Core.Controllers;

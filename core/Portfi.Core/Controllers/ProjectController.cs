@@ -1,10 +1,10 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 using MODELS = Portfi.Data.Models;
 using ENUMS = Portfi.Infrastructure.Common.Enums;
 using RESPONSES = Portfi.Infrastructure.Models.Responses;
 using SERVICES = Portfi.Infrastructure.Services.Interfaces;
-using Microsoft.AspNetCore.Authorization;
 
 namespace Portfi.Core.Controllers;
 
