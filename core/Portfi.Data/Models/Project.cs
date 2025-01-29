@@ -2,7 +2,7 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Text.Json.Serialization;
-using ENUMS = Portfi.Data.Common.Enums;
+using ENUMS = Portfi.Infrastructure.Common.Enums;
 
 namespace Portfi.Data.Models;
 

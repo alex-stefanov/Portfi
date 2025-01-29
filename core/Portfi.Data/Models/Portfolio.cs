@@ -1,8 +1,8 @@
 ﻿using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.Text.Json.Serialization;
-using ENUMS = Portfi.Data.Common.Enums;
-using static Portfi.Data.Common.Constants.PortfolioConstants;
+using ENUMS = Portfi.Infrastructure.Common.Enums;
+using static Portfi.Infrastructure.Common.Constants.PortfolioConstants;
 
 namespace Portfi.Data.Models;
 
@@ -66,6 +66,14 @@ public class Portfolio
     [JsonPropertyName("main_color")]
     [Description("The name of the main color.")]
     public string MainColor { get; set; } = DefaultMainColorValue;
+
+    /// <summary>
+    /// Likes of the portfolio.
+    /// </summary>
+    [Required]
+    [JsonPropertyName("likes")]
+    [Description("How many likes a portfolio has")]
+    public int Likes { get; set; }
 
     /// <summary>
     /// Indicates whether the portfolio is public.
