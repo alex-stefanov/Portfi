@@ -68,7 +68,7 @@ export const PortfolioHeader = ({ portfolio }: { portfolio: Portfolio }) => {
   };
   return (
     <header className="bg-slate-800 py-8 text-primary-foreground">
-      <div className="container mx-auto px-4">
+      <div className="container">
         <div className="mb-4 flex items-center justify-between">
           <div className="flex items-center space-x-4">
             <Image

@@ -1,15 +1,11 @@
 import { notFound } from 'next/navigation';
 
-import { ImageGallery } from '@/features/portfolio/components/ImageGallery';
-import { PortfolioDetails } from '@/features/portfolio/components/PortfolioDetails';
-import { PortfolioHeader } from '@/features/portfolio/components/PortfolioHeader';
-import { ProjectList } from '@/features/portfolio/components/ProjectList';
-import ThemeCustomizer from '@/features/portfolio/components/ThemeCustomizer';
+import { Portfolio } from '@/features/portfolio/components/Portfolio';
 
-import type { Portfolio } from '@/features/portfolio/types/Portfolio';
+import type { Portfolio as PortfolioType } from '@/features/portfolio/types/Portfolio';
 
 // This would typically come from a database
-const portfolios: Portfolio[] = [
+const portfolios: PortfolioType[] = [
   {
     id: '1',
     title: 'Creative Design Studio',
@@ -75,13 +71,7 @@ export default async function PortfolioPage({
 
   return (
     <div className="min-h-screen bg-background">
-      <PortfolioHeader portfolio={portfolio} />
-      <main className="container mx-auto px-4 py-8">
-        <ImageGallery images={portfolio.images} />
-        <PortfolioDetails portfolio={portfolio} />
-        <ProjectList projects={portfolio.projects} />
-        <ThemeCustomizer />
-      </main>
+      <Portfolio portfolio={portfolio} />
     </div>
   );
 }

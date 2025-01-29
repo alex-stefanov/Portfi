@@ -3,7 +3,7 @@ import { Button } from '@/components/ui/button';
 export const Hero = () => {
   return (
     <section className="bg-gradient-to-r from-slate-700 to-blue-950 py-20 lg:py-40">
-      <div className="container mx-auto text-center">
+      <div className="container text-center">
         <h1 className="mb-6 text-4xl font-bold text-white md:text-6xl">
           Build a Professional Portfolio with Ease
         </h1>
