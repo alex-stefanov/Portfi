@@ -7,101 +7,95 @@ using RESPONSES = Portfi.Infrastructure.Models.Responses;
 
 namespace Portfi.Infrastructure.Services.Implementations;
 
+/// <inheritdoc/>
 public class ProjectService(
-    REPOSITORIES.IRepository<MODELS.Project, Guid> repository)
+    REPOSITORIES.IRepository<MODELS.Project, Guid> projectRepository,
+        REPOSITORIES.IRepository<MODELS.Portfolio, Guid> portfolioRepository)
     : INTERFACES.IProjectService
 {
-    async public Task<bool> AddActiveLinkByProjectId(
+    /// <inheritdoc/>
+    async public Task<MODELS.Project> AddActiveLinkByProjectId(
         string projectId,
         string activeLink)
     {
-        var foundProject = await repository.GetByIdAsync(Guid.Parse(projectId));
-
-        if (foundProject is null)
-        {
-            return false;
-        }
+        var foundProject = await projectRepository.GetByIdAsync(Guid.Parse(projectId)) 
+            ?? throw new ArgumentNullException("Project not found");
 
         foundProject.HostedLink = activeLink;
 
-        return true;
+        return foundProject;
     }
 
-    async public Task<bool> AddCategoriesByProjectId(
+    /// <inheritdoc/>
+    async public Task<MODELS.Project> AddCategoriesByProjectId(
         string projectId,
         IEnumerable<ENUMS.ProjectCategory> categories)
     {
-        var foundProject = await repository.GetByIdAsync(Guid.Parse(projectId));
-
-        if (foundProject is null)
-        {
-            return false;
-        }
+        var foundProject = await projectRepository.GetByIdAsync(Guid.Parse(projectId))
+           ?? throw new ArgumentNullException("Project not found");
 
         foundProject.Categories = categories.ToHashSet();
 
-        return true;
+        return foundProject;
     }
 
-    async public Task<bool> AddDescriptionByProjectId(
+    /// <inheritdoc/>
+    async public Task<MODELS.Project> AddDescriptionByProjectId(
         string projectId,
         string description)
     {
-        var foundProject = await repository.GetByIdAsync(Guid.Parse(projectId));
-
-        if (foundProject is null)
-        {
-            return false;
-        }
+        var foundProject = await projectRepository.GetByIdAsync(Guid.Parse(projectId))
+           ?? throw new ArgumentNullException("Project not found");
 
         foundProject.Description = description;
 
-        return true;
+        return foundProject;
     }
 
-    async public Task<bool> DeleteProjectByProjectId(
+    /// <inheritdoc/>
+    async public Task<MODELS.Portfolio> DeleteProjectByProjectId(
         string projectId)
     {
-        var foundProject = await repository.GetByIdAsync(Guid.Parse(projectId));
+        var foundProject = await projectRepository.GetByIdAsync(Guid.Parse(projectId))
+           ?? throw new ArgumentNullException("Project not found");
 
-        if (foundProject is null)
+        Guid portfolioId = foundProject.PortfolioId;
+
+        if(!await projectRepository.DeleteAsync(foundProject))
         {
-            return false;
+            throw new ArgumentNullException($"{nameof(projectRepository)} cannot be deleted");
         }
 
-        return await repository.DeleteAsync(foundProject);
+        var foundPortfolio = await portfolioRepository.GetByIdAsync(portfolioId)
+            ?? throw new ArgumentNullException("Portfolio not found");
+
+        return foundPortfolio;
     }
 
-    async public Task<bool> EditActiveLinkByProjectId(
+    /// <inheritdoc/>
+    async public Task<MODELS.Project> EditActiveLinkByProjectId(
         string projectId,
         string newActiveLink)
     {
-        var foundProject = await repository.GetByIdAsync(Guid.Parse(projectId));
-
-        if (foundProject is null)
-        {
-            return false;
-        }
+        var foundProject = await projectRepository.GetByIdAsync(Guid.Parse(projectId))
+            ?? throw new ArgumentNullException("Project not found");
 
         if (foundProject.HostedLink != newActiveLink)
         {
             foundProject.HostedLink = newActiveLink;
         }
 
-        return true;
+        return foundProject;
 
     }
 
-    async public Task<bool> EditCategoriesByProjectId(
+    /// <inheritdoc/>
+    async public Task<MODELS.Project> EditCategoriesByProjectId(
         string projectId,
         IEnumerable<ENUMS.ProjectCategory> categories)
     {
-        var foundProject = await repository.GetByIdAsync(Guid.Parse(projectId));
-
-        if (foundProject is null)
-        {
-            return false;
-        }
+        var foundProject = await projectRepository.GetByIdAsync(Guid.Parse(projectId))
+            ?? throw new ArgumentNullException("Project not found");
 
         foundProject.Categories ??= [];
 
@@ -114,28 +108,26 @@ public class ProjectService(
             foundProject.Categories.UnionWith(newCategoriesSet);
         }
 
-        return true;
+        return foundProject;
     }
 
-    async public Task<bool> EditDescriptionByProjectId(
+    /// <inheritdoc/>
+    async public Task<MODELS.Project> EditDescriptionByProjectId(
         string projectId,
         string newDescription)
     {
-        var foundProject = await repository.GetByIdAsync(Guid.Parse(projectId));
-
-        if (foundProject is null)
-        {
-            return false;
-        }
+        var foundProject = await projectRepository.GetByIdAsync(Guid.Parse(projectId))
+             ?? throw new ArgumentNullException("Project not found");
 
         if (foundProject.Description != newDescription)
         {
             foundProject.Description = newDescription;
         }
 
-        return true;
+        return foundProject;
     }
 
+    /// <inheritdoc/>
     async public Task<HashSet<RESPONSES.GitHubRepository>> GetGithubProjectsByUsername(
         string username,
         HttpClient httpClient)
@@ -161,15 +153,12 @@ public class ProjectService(
         }
     }
 
-    async public Task<bool> RemoveActiveLinkByProjectId(
+    /// <inheritdoc/>
+    async public Task<MODELS.Project> RemoveActiveLinkByProjectId(
         string projectId)
     {
-        var foundProject = await repository.GetByIdAsync(Guid.Parse(projectId));
-
-        if (foundProject is null)
-        {
-            return false;
-        }
+        var foundProject = await projectRepository.GetByIdAsync(Guid.Parse(projectId))
+             ?? throw new ArgumentNullException("Project not found");
 
         if (!(string.IsNullOrEmpty(foundProject.HostedLink)
             || string.IsNullOrWhiteSpace(foundProject.HostedLink)))
@@ -177,36 +166,30 @@ public class ProjectService(
             foundProject.HostedLink = string.Empty;
         }
 
-        return true;
+        return foundProject;
     }
 
-    async public Task<bool> RemoveAllCategoriesByProjectId(
+    /// <inheritdoc/>
+    async public Task<MODELS.Project> RemoveAllCategoriesByProjectId(
         string projectId)
     {
-        var foundProject = await repository.GetByIdAsync(Guid.Parse(projectId));
-
-        if (foundProject is null)
-        {
-            return false;
-        }
+        var foundProject = await projectRepository.GetByIdAsync(Guid.Parse(projectId))
+             ?? throw new ArgumentNullException("Project not found");
 
         if (foundProject.Categories.Any())
         {
             foundProject.Categories = [];
         }
 
-        return true;
+        return foundProject;
     }
 
-    async public Task<bool> RemoveDescriptionByProjectId(
+    /// <inheritdoc/>
+    async public Task<MODELS.Project> RemoveDescriptionByProjectId(
         string projectId)
     {
-        var foundProject = await repository.GetByIdAsync(Guid.Parse(projectId));
-
-        if (foundProject is null)
-        {
-            return false;
-        }
+        var foundProject = await projectRepository.GetByIdAsync(Guid.Parse(projectId))
+             ?? throw new ArgumentNullException("Project not found");
 
         if (!(string.IsNullOrEmpty(foundProject.Description)
             || string.IsNullOrWhiteSpace(foundProject.Description)))
@@ -214,6 +197,6 @@ public class ProjectService(
             foundProject.Description = string.Empty;
         }
 
-        return true;
+        return foundProject;
     }
 }
