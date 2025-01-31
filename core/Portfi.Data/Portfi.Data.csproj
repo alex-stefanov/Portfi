@@ -7,11 +7,11 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="9.0.1" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="8.0.0" />
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Portfi.Infrastructure\Portfi.Infrastructure.csproj" />
+    <ProjectReference Include="..\Portfi.Common\Portfi.Common.csproj" />
   </ItemGroup>
 
 </Project>

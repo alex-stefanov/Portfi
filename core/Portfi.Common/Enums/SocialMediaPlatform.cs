@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel;
 
-namespace Portfi.Infrastructure.Common.Enums;
+namespace Portfi.Common.Enums;
 
 /// <summary>
 /// Represents the type of social media platform.
