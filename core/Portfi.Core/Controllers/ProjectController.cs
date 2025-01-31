@@ -1,11 +1,10 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using System.Net.Http.Headers;
+using System.ComponentModel.DataAnnotations;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Authorization;
 using MODELS = Portfi.Data.Models;
 using ENUMS = Portfi.Common.Enums;
 using RESPONSES = Portfi.Infrastructure.Models.Responses;
 using SERVICES = Portfi.Infrastructure.Services.Interfaces;
-using System.Net.Http.Headers;
 
 namespace Portfi.Core.Controllers;
 
@@ -27,6 +26,11 @@ public class ProjectController(
     ILogger<ProjectController> logger)
     : ControllerBase
 {
+    private static readonly HttpClient httpClient = new()
+    {
+        BaseAddress = new Uri("https://api.github.com/"),
+    };
+
     #region GET Requests:
 
     /// <summary>
@@ -47,7 +51,13 @@ public class ProjectController(
         [FromQuery(Name = "username")]
         string username)
     {
-        return Ok();
+        httpClient.DefaultRequestHeaders.UserAgent
+            .Add(new ProductInfoHeaderValue("Portfi", "1.0"));
+
+        var gitHubRepositories = await projectService
+            .GetGithubProjectsByUsername(username, httpClient);
+
+        return Ok(gitHubRepositories);
     }
 
     #endregion
