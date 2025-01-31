@@ -2,9 +2,10 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
 using MODELS = Portfi.Data.Models;
-using ENUMS = Portfi.Infrastructure.Common.Enums;
+using ENUMS = Portfi.Common.Enums;
 using RESPONSES = Portfi.Infrastructure.Models.Responses;
 using SERVICES = Portfi.Infrastructure.Services.Interfaces;
+using System.Net.Http.Headers;
 
 namespace Portfi.Core.Controllers;
 
@@ -16,7 +17,6 @@ namespace Portfi.Core.Controllers;
 /// <response code="500">When an internal server error occurres.</response>
 /// <param name="projectService">the project service</param>
 /// <param name="logger">the logger</param>
-[Authorize]
 [ApiController]
 [Route("api/project")]
 [ProducesResponseType(StatusCodes.Status401Unauthorized, Type = typeof(void))]
@@ -42,45 +42,12 @@ public class ProjectController(
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     [Produces("application/json")]
-    public IActionResult GetGitHubProjectsByUsername(
+    async public Task<IActionResult> GetGitHubProjectsByUsername(
         [Required]
         [FromQuery(Name = "username")]
         string username)
     {
-        //GET /users/{username}/repos
-
-        var gitHubRepositories = new HashSet<RESPONSES.GitHubRepository>()
-        {
-            new()
-            {
-                Id = 12345,
-                Name = "Test",
-                FullName = "TestovTest",
-                Description = "Description",
-                HtmlUrl = "https://ff",
-                Language = "C#",
-            },
-            new()
-            {
-                Id = 123456,
-                Name = "Test1",
-                FullName = "TestovTest1",
-                Description = "Description1",
-                HtmlUrl = "https://ff1",
-                Language = "F#",
-            },
-            new()
-            {
-                Id = 1234567,
-                Name = "Test11",
-                FullName = "TestovTest11",
-                Description = "Description11",
-                HtmlUrl = "https://ff11",
-                Language = "Q#",
-            }
-        };
-
-        return Ok(gitHubRepositories);
+        return Ok();
     }
 
     #endregion

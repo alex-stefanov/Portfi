@@ -11,8 +11,10 @@ public static class ServiceCollectionExtensions
     {
         services.AddScoped<REPOSITORIES.IRepository<MODELS.Portfolio, Guid>, REPOSITORIES.Repository<MODELS.Portfolio, Guid>>();
         services.AddScoped<REPOSITORIES.IRepository<MODELS.PortfolioDownload, Guid>, REPOSITORIES.Repository<MODELS.PortfolioDownload, Guid>>();
+        services.AddScoped<REPOSITORIES.IRepository<MODELS.PortfolioLink, Guid>, REPOSITORIES.Repository<MODELS.PortfolioLink, Guid>>();
         services.AddScoped<REPOSITORIES.IRepository<MODELS.PortfolioView, Guid>, REPOSITORIES.Repository<MODELS.PortfolioView, Guid>>();
         services.AddScoped<REPOSITORIES.IRepository<MODELS.Project, Guid>, REPOSITORIES.Repository<MODELS.Project, Guid>>();
+        services.AddScoped<REPOSITORIES.IRepository<MODELS.SocialMediaLink, Guid>, REPOSITORIES.Repository<MODELS.SocialMediaLink, Guid>>();
 
         return services;
     }

@@ -13,6 +13,7 @@ public class PortfolioDownload
     /// <summary>
     /// Unique identifier for the download.
     /// </summary>
+    [Key]
     [Required]
     [JsonPropertyName("id")]
     [Description("The unique identifier of the download.")]
@@ -30,6 +31,7 @@ public class PortfolioDownload
     /// Unique identifier of the portfolio that was downloaded.
     /// </summary>
     [Required]
+    [ForeignKey(nameof(Portfolio))]
     [JsonPropertyName("portfolio_id")]
     [Description("The unique identifier of the portfolio that was downloaded.")]
     public Guid PortfolioId { get; set; }
@@ -37,7 +39,6 @@ public class PortfolioDownload
     /// <summary>
     /// Navigation property for the portfolio that was downloaded.
     /// </summary>
-    [Required]
-    [ForeignKey(nameof(PortfolioId))]
+    [JsonIgnore]
     public Portfolio Portfolio { get; set; } = null!;
 }

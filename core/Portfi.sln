@@ -9,6 +9,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Portfi.Core", "Portfi.Core\
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Portfi.Infrastructure", "Portfi.Infrastructure\Portfi.Infrastructure.csproj", "{1E65AF1E-25E4-4CC3-B273-F69C6D9C338C}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Portfi.Common", "Portfi.Common\Portfi.Common.csproj", "{4D8B734F-F819-4B69-B43D-7223629CA3F5}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -27,6 +29,10 @@ Global
 		{1E65AF1E-25E4-4CC3-B273-F69C6D9C338C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{1E65AF1E-25E4-4CC3-B273-F69C6D9C338C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{1E65AF1E-25E4-4CC3-B273-F69C6D9C338C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4D8B734F-F819-4B69-B43D-7223629CA3F5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4D8B734F-F819-4B69-B43D-7223629CA3F5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4D8B734F-F819-4B69-B43D-7223629CA3F5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4D8B734F-F819-4B69-B43D-7223629CA3F5}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

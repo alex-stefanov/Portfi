@@ -1,4 +1,4 @@
-﻿namespace Portfi.Infrastructure.Common.Constants;
+﻿namespace Portfi.Common.Constants;
 
 /// <summary>
 /// Contains constant values related to portfolio settings and defaults.

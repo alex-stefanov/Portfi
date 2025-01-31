@@ -7,7 +7,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Portfi.Data\Portfi.Data.csproj" />
+    <Folder Include="Helpers\" />
   </ItemGroup>
 
 </Project>
