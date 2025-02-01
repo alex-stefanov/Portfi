@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel;
 
-namespace Portfi.Data.Common.Enums;
+namespace Portfi.Common.Enums;
 
 /// <summary>
 /// Represents the category of a project.

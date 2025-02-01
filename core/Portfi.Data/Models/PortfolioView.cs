@@ -13,6 +13,7 @@ public class PortfolioView
     /// <summary>
     /// Unique identifier of the view.
     /// </summary>
+    [Key]
     [Required]
     [JsonPropertyName("id")]
     [Description("The unique identifier of the view.")]
@@ -30,6 +31,7 @@ public class PortfolioView
     /// Unique identifier of the portfolio that was viewed.
     /// </summary>
     [Required]
+    [ForeignKey(nameof(Portfolio))]
     [JsonPropertyName("portfolio_id")]
     [Description("The unique identifier of the portfolio that was viewed.")]
     public Guid PortfolioId { get; set; }
@@ -37,8 +39,7 @@ public class PortfolioView
     /// <summary>
     /// Navigation property for the portfolio that was viewed.
     /// </summary>
-    [Required]
-    [ForeignKey(nameof(PortfolioId))]
+    [JsonIgnore]
     public Portfolio Portfolio { get; set; } = null!;
 
     /// <summary>

@@ -2,7 +2,7 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Text.Json.Serialization;
-using ENUMS = Portfi.Data.Common.Enums;
+using ENUMS = Portfi.Common.Enums;
 
 namespace Portfi.Data.Models;
 
@@ -14,6 +14,7 @@ public class Project
     /// <summary>
     /// Unique identifier of the project.
     /// </summary>
+    [Key]
     [Required]
     [JsonPropertyName("id")]
     [Description("The unique identifier of the project.")]
@@ -23,6 +24,7 @@ public class Project
     /// Unique identifier of the portfolio that contains the project.
     /// </summary>
     [Required]
+    [ForeignKey(nameof(Portfolio))]
     [JsonPropertyName("portfolio_id")]
     [Description("The unique identifier of the portfolio that contains the project.")]
     public Guid PortfolioId { get; set; }
@@ -30,8 +32,7 @@ public class Project
     /// <summary>
     /// Navigation property for the portfolio that contains the project.
     /// </summary>
-    [Required]
-    [ForeignKey(nameof(PortfolioId))]
+    [JsonIgnore]
     public Portfolio Portfolio { get; set; } = null!;
 
     /// <summary>
@@ -61,12 +62,12 @@ public class Project
     /// </summary>
     [JsonPropertyName("images")]
     [Description("An optional collection of images related to the project.")]
-    public ICollection<string> Images { get; set; } = [];
+    public HashSet<string> Images { get; set; } = [];
 
     /// <summary>
-    /// List of categories associated with the project (up to 5).
+    /// Collection of categories associated with the project (up to 5).
     /// </summary>
     [JsonPropertyName("categories")]
     [Description("A list of categories associated with the project (up to 5).")]
-    public ICollection<ENUMS.ProjectCategory> Categories { get; set; } = [];
+    public HashSet<ENUMS.ProjectCategory> Categories { get; set; } = [];
 }

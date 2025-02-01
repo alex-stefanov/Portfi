@@ -1,8 +1,8 @@
 ﻿using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.Text.Json.Serialization;
-using ENUMS = Portfi.Data.Common.Enums;
-using static Portfi.Data.Common.Constants.PortfolioConstants;
+using ENUMS = Portfi.Common.Enums;
+using static Portfi.Common.Constants.PortfolioConstants;
 
 namespace Portfi.Data.Models;
 
@@ -14,6 +14,7 @@ public class Portfolio
     /// <summary>
     /// Unique identifier of the portfolio.
     /// </summary>
+    [Key]
     [Required]
     [JsonPropertyName("id")]
     [Description("The unique identifier of the portfolio.")]
@@ -26,6 +27,14 @@ public class Portfolio
     [JsonPropertyName("person_id")]
     [Description("The unique identifier of the person (Google ID or normal ID).")]
     public string PersonId { get; set; } = null!;
+    
+    /// <summary>
+    /// Collection containing the names of the person.
+    /// </summary>
+    [Required]
+    [JsonPropertyName("names")]
+    [Description("Array of the names of the person.")]
+    public string[] PersonNames { get; set; } = [];
 
     /// <summary>
     /// Biography or description of the person.
@@ -68,6 +77,14 @@ public class Portfolio
     public string MainColor { get; set; } = DefaultMainColorValue;
 
     /// <summary>
+    /// Likes of the portfolio.
+    /// </summary>
+    [Required]
+    [JsonPropertyName("likes")]
+    [Description("How many likes a portfolio has")]
+    public int Likes { get; set; }
+
+    /// <summary>
     /// Indicates whether the portfolio is public.
     /// </summary>
     [JsonPropertyName("is_public")]
@@ -90,37 +107,37 @@ public class Portfolio
     public string? CV { get; set; }
 
     /// <summary>
-    /// Dictionary of social media links with their respective platforms.
+    /// Collection of social media links.
     /// </summary>
     [JsonPropertyName("social_media_links")]
-    [Description("A dictionary of social media links with their respective platforms.")]
-    public Dictionary<string, ENUMS.SocialMediaPlatform> SocialMediaLinks { get; set; } = [];
+    [Description("A collection of social media links.")]
+    public HashSet<SocialMediaLink> SocialMediaLinks { get; set; } = [];
 
     /// <summary>
     /// Collection of projects in the portfolio.
     /// </summary>
     [JsonPropertyName("projects")]
     [Description("A collection of projects in the portfolio.")]
-    public ICollection<Project> Projects { get; set; } = [];
+    public HashSet<Project> Projects { get; set; } = [];
 
     /// <summary>
     /// Collection of views for the portfolio.
     /// </summary>
     [JsonPropertyName("views")]
     [Description("A collection of views for the portfolio.")]
-    public ICollection<PortfolioView> PortfolioViews { get; set; } = [];
+    public HashSet<PortfolioView> PortfolioViews { get; set; } = [];
 
     /// <summary>
     /// Collection of downloads of the portfolio.
     /// </summary>
     [JsonPropertyName("downloads")]
     [Description("A collection of downloads of the portfolio.")]
-    public ICollection<PortfolioDownload> PortfolioDownloads { get; set; } = [];
+    public HashSet<PortfolioDownload> PortfolioDownloads { get; set; } = [];
 
     /// <summary>
-    /// Collection of portfolio links with their active status.
+    /// Collection of portfolio links.
     /// </summary>
     [JsonPropertyName("portfolio_links")]
-    [Description("A collection of portfolio links with their active status.")]
-    public ICollection<Dictionary<string, bool>> PortfolioLinks { get; set; } = [];
+    [Description("A collection of portfolio links.")]
+    public HashSet<Portfolio> PortfolioLinks { get; set; } = [];
 }
