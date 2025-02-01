@@ -1,11 +1,10 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using System.Net.Http.Headers;
+using System.ComponentModel.DataAnnotations;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Authorization;
 using MODELS = Portfi.Data.Models;
 using ENUMS = Portfi.Common.Enums;
 using RESPONSES = Portfi.Infrastructure.Models.Responses;
 using SERVICES = Portfi.Infrastructure.Services.Interfaces;
-using System.Net.Http.Headers;
 
 namespace Portfi.Core.Controllers;
 
@@ -27,6 +26,11 @@ public class ProjectController(
     ILogger<ProjectController> logger)
     : ControllerBase
 {
+    private static readonly HttpClient httpClient = new()
+    {
+        BaseAddress = new Uri("https://api.github.com/"),
+    };
+
     #region GET Requests:
 
     /// <summary>
@@ -47,7 +51,28 @@ public class ProjectController(
         [FromQuery(Name = "username")]
         string username)
     {
-        return Ok();
+        try
+        {
+            logger.LogInformation("Attempting to get GitHub projects for user with username: {Username}", username);
+
+            httpClient.DefaultRequestHeaders.UserAgent
+                .Add(new ProductInfoHeaderValue("Portfi", "1.0"));
+
+            var gitHubRepositories = await projectService
+                .GetGithubProjectsByUsername(username, httpClient);
+
+            return Ok(gitHubRepositories);
+        }
+        catch (ArgumentException ex)
+        {
+            logger.LogError(ex, "An error occurred while getting GitHub projects for user with username: {Username}", username);
+            return StatusCode(StatusCodes.Status500InternalServerError, "An error occurred while processing your request.");
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "An unexpected error occurred while getting GitHub projects for user with username: {Username}", username);
+            return StatusCode(StatusCodes.Status500InternalServerError, "An unexpected error occurred while processing your request.");
+        }
     }
 
     #endregion
@@ -68,7 +93,7 @@ public class ProjectController(
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     [Produces("application/json")]
-    public IActionResult AddProjectDescription(
+   async public Task<IActionResult> AddProjectDescription(
         [Required]
         [FromQuery(Name = "projectID")]
         string projectId,
@@ -76,12 +101,25 @@ public class ProjectController(
         [FromQuery(Name = "description")]
         string description)
     {
-        var foundProject = new MODELS.Project()
+        try
         {
-            Description = description,
-        };
+            logger.LogInformation("Attempting to add description to project with ID: {ProjectId}", projectId);
 
-        return Ok(foundProject);
+            MODELS.Project modifiedProject = await projectService
+                .AddDescriptionByProjectId(projectId, description);
+
+            return Ok(modifiedProject);
+        }
+        catch (ArgumentNullException ex)
+        {
+            logger.LogError(ex, "An error occurred while adding description to project with ID: {ProjectId}", projectId);
+            return StatusCode(StatusCodes.Status500InternalServerError, "An error occurred while processing your request.");
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "An unexpected error occurred while adding description to project with ID: {ProjectId}", projectId);
+            return StatusCode(StatusCodes.Status500InternalServerError, "An unexpected error occurred while processing your request.");
+        }
     }
 
     /// <summary>
@@ -98,7 +136,7 @@ public class ProjectController(
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     [Produces("application/json")]
-    public IActionResult AddActiveLinkToProject(
+    async public Task<IActionResult> AddActiveLinkToProject(
         [Required]
         [FromQuery(Name = "projectID")]
         string projectId,
@@ -106,12 +144,25 @@ public class ProjectController(
         [FromQuery(Name = "activeLink")]
         string activeLink)
     {
-        var foundProject = new MODELS.Project()
+        try
         {
-            HostedLink = activeLink,
-        };
+            logger.LogInformation("Attempting to add active link to project with ID: {ProjectId}", projectId);
 
-        return Ok(foundProject);
+            MODELS.Project modifiedProject = await projectService
+                .AddActiveLinkByProjectId(projectId, activeLink);
+
+            return Ok(modifiedProject);
+        }
+        catch (ArgumentNullException ex)
+        {
+            logger.LogError(ex, "An error occurred while adding active link to project with ID: {ProjectId}", projectId);
+            return StatusCode(StatusCodes.Status500InternalServerError, "An error occurred while processing your request.");
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "An unexpected error occurred while adding active link to project with ID: {ProjectId}", projectId);
+            return StatusCode(StatusCodes.Status500InternalServerError, "An unexpected error occurred while processing your request.");
+        }
     }
 
     /// <summary>
@@ -128,7 +179,7 @@ public class ProjectController(
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     [Produces("application/json")]
-    public IActionResult AddCategoriesToProject(
+    async public Task<IActionResult> AddCategoriesToProject(
         [Required]
         [FromQuery(Name = "projectID")]
         string projectId,
@@ -136,13 +187,30 @@ public class ProjectController(
         [FromQuery(Name = "categories")]
         string[] categories)
     {
-        var foundProject = new MODELS.Project();
+        try
+        {
+            logger.LogInformation("Attempting to add categories to project with ID: {ProjectId}", projectId);
 
-        _ = Enum.TryParse(categories[0], out ENUMS.ProjectCategory myEnum);
+            IEnumerable<ENUMS.ProjectCategory> enumValues = categories
+                .Select(value => Enum.TryParse(value, out ENUMS.ProjectCategory result) ? result : (ENUMS.ProjectCategory?)null)
+                .Where(e => e.HasValue)
+                .Select(e => e!.Value);
 
-        foundProject.Categories = new HashSet<ENUMS.ProjectCategory>([myEnum]);
+            MODELS.Project modifiedProject = await projectService
+                .AddCategoriesByProjectId(projectId, enumValues);
 
-        return Ok(foundProject);
+            return Ok(modifiedProject);
+        }
+        catch (ArgumentNullException ex)
+        {
+            logger.LogError(ex, "An error occurred while adding categories to project with ID: {ProjectId}", projectId);
+            return StatusCode(StatusCodes.Status500InternalServerError, "An error occurred while processing your request.");
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "An unexpected error occurred while adding categories to project with ID: {ProjectId}", projectId);
+            return StatusCode(StatusCodes.Status500InternalServerError, "An unexpected error occurred while processing your request.");
+        }
     }
 
     #endregion
@@ -163,7 +231,7 @@ public class ProjectController(
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     [Produces("application/json")]
-    public IActionResult EditProjectDescription(
+    async public Task<IActionResult> EditProjectDescription(
         [Required]
         [FromQuery(Name = "projectID")]
         string projectId,
@@ -171,12 +239,25 @@ public class ProjectController(
         [FromQuery(Name = "description")]
         string description)
     {
-        var foundProject = new MODELS.Project()
+        try
         {
-            Description = description,
-        };
+            logger.LogInformation("Attempting to edit description to project with ID: {ProjectId}", projectId);
 
-        return Ok(foundProject);
+            MODELS.Project modifiedProject = await projectService
+                .EditDescriptionByProjectId(projectId, description);
+
+            return Ok(modifiedProject);
+        }
+        catch (ArgumentNullException ex)
+        {
+            logger.LogError(ex, "An error occurred while editting description to project with ID: {ProjectId}", projectId);
+            return StatusCode(StatusCodes.Status500InternalServerError, "An error occurred while processing your request.");
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "An unexpected error occurred while editting description to project with ID: {ProjectId}", projectId);
+            return StatusCode(StatusCodes.Status500InternalServerError, "An unexpected error occurred while processing your request.");
+        }
     }
 
     /// <summary>
@@ -193,7 +274,7 @@ public class ProjectController(
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     [Produces("application/json")]
-    public IActionResult EditActiveLinkToProject(
+    async public Task<IActionResult> EditActiveLinkToProject(
         [Required]
         [FromQuery(Name = "projectID")]
         string projectId,
@@ -201,12 +282,25 @@ public class ProjectController(
         [FromQuery(Name = "activeLink")]
         string activeLink)
     {
-        var foundProject = new MODELS.Project()
+        try
         {
-            HostedLink = activeLink,
-        };
+            logger.LogInformation("Attempting to edit active link to project with ID: {ProjectId}", projectId);
 
-        return Ok(foundProject);
+            MODELS.Project modifiedProject = await projectService
+                .EditActiveLinkByProjectId(projectId, activeLink);
+
+            return Ok(modifiedProject);
+        }
+        catch (ArgumentNullException ex)
+        {
+            logger.LogError(ex, "An error occurred while editting active link to project with ID: {ProjectId}", projectId);
+            return StatusCode(StatusCodes.Status500InternalServerError, "An error occurred while processing your request.");
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "An unexpected error occurred while editting active link to project with ID: {ProjectId}", projectId);
+            return StatusCode(StatusCodes.Status500InternalServerError, "An unexpected error occurred while processing your request.");
+        }
     }
 
     /// <summary>
@@ -223,7 +317,7 @@ public class ProjectController(
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     [Produces("application/json")]
-    public IActionResult EditProjectCategories(
+    async public Task<IActionResult> EditProjectCategories(
         [Required]
         [FromQuery(Name = "projectID")]
         string projectId,
@@ -231,13 +325,30 @@ public class ProjectController(
         [FromQuery(Name = "categories")]
         string[] categories)
     {
-        var foundProject = new MODELS.Project();
+        try
+        {
+            logger.LogInformation("Attempting to edit categories to project with ID: {ProjectId}", projectId);
 
-        _ = Enum.TryParse("Active", out ENUMS.ProjectCategory myEnum);
+            IEnumerable<ENUMS.ProjectCategory> enumValues = categories
+                .Select(value => Enum.TryParse(value, out ENUMS.ProjectCategory result) ? result : (ENUMS.ProjectCategory?)null)
+                .Where(e => e.HasValue)
+                .Select(e => e!.Value);
 
-        foundProject.Categories = new HashSet<ENUMS.ProjectCategory>([myEnum]);
+            MODELS.Project modifiedProject = await projectService
+                .EditCategoriesByProjectId(projectId, enumValues);
 
-        return Ok(foundProject);
+            return Ok(modifiedProject);
+        }
+        catch (ArgumentNullException ex)
+        {
+            logger.LogError(ex, "An error occurred while editting categories to project with ID: {ProjectId}", projectId);
+            return StatusCode(StatusCodes.Status500InternalServerError, "An error occurred while processing your request.");
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "An unexpected error occurred while editting categories to project with ID: {ProjectId}", projectId);
+            return StatusCode(StatusCodes.Status500InternalServerError, "An unexpected error occurred while processing your request.");
+        }
     }
 
     #endregion
@@ -257,17 +368,30 @@ public class ProjectController(
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     [Produces("application/json")]
-    public IActionResult RemoveProjectDescription(
+    async public Task<IActionResult> RemoveProjectDescription(
         [Required]
         [FromQuery(Name = "projectID")]
         string projectId)
     {
-        var foundProject = new MODELS.Project()
+        try
         {
-            Description = null,
-        };
+            logger.LogInformation("Attempting to remove description from project with ID: {ProjectId}", projectId);
 
-        return Ok(foundProject);
+            MODELS.Project modifiedProject = await projectService
+                .RemoveDescriptionByProjectId(projectId);
+
+            return Ok(modifiedProject);
+        }
+        catch (ArgumentNullException ex)
+        {
+            logger.LogError(ex, "An error occurred while removing description from project with ID: {ProjectId}", projectId);
+            return StatusCode(StatusCodes.Status500InternalServerError, "An error occurred while processing your request.");
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "An unexpected error occurred while removing description from project with ID: {ProjectId}", projectId);
+            return StatusCode(StatusCodes.Status500InternalServerError, "An unexpected error occurred while processing your request.");
+        }
     }
 
     /// <summary>
@@ -283,17 +407,30 @@ public class ProjectController(
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     [Produces("application/json")]
-    public IActionResult RemoveActiveLinkFromProject(
+    async public Task<IActionResult> RemoveActiveLinkFromProject(
         [Required]
         [FromQuery(Name = "projectID")]
         string projectId)
     {
-        var foundProject = new MODELS.Project()
+        try
         {
-            HostedLink = null,
-        };
+            logger.LogInformation("Attempting to remove active link from project with ID: {ProjectId}", projectId);
 
-        return Ok(foundProject);
+            MODELS.Project modifiedProject = await projectService
+                .RemoveActiveLinkByProjectId(projectId);
+
+            return Ok(modifiedProject);
+        }
+        catch (ArgumentNullException ex)
+        {
+            logger.LogError(ex, "An error occurred while removing active link from project with ID: {ProjectId}", projectId);
+            return StatusCode(StatusCodes.Status500InternalServerError, "An error occurred while processing your request.");
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "An unexpected error occurred while removing active link from project with ID: {ProjectId}", projectId);
+            return StatusCode(StatusCodes.Status500InternalServerError, "An unexpected error occurred while processing your request.");
+        }
     }
 
     /// <summary>
@@ -309,17 +446,30 @@ public class ProjectController(
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     [Produces("application/json")]
-    public IActionResult ClearProjectCategories(
+    async public Task<IActionResult> ClearProjectCategories(
         [Required]
         [FromQuery(Name = "projectID")]
         string projectId)
     {
-        var foundProject = new MODELS.Project
+        try
         {
-            Categories = []
-        };
+            logger.LogInformation("Attempting to clear categories from project with ID: {ProjectId}", projectId);
 
-        return Ok(foundProject);
+            MODELS.Project modifiedProject = await projectService
+                .RemoveAllCategoriesByProjectId(projectId);
+
+            return Ok(modifiedProject);
+        }
+        catch (ArgumentNullException ex)
+        {
+            logger.LogError(ex, "An error occurred while clearing categories from project with ID: {ProjectId}", projectId);
+            return StatusCode(StatusCodes.Status500InternalServerError, "An error occurred while processing your request.");
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "An unexpected error occurred while clearing categories from project with ID: {ProjectId}", projectId);
+            return StatusCode(StatusCodes.Status500InternalServerError, "An unexpected error occurred while processing your request.");
+        }
     }
 
     /// <summary>
@@ -335,17 +485,30 @@ public class ProjectController(
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     [Produces("application/json")]
-    public IActionResult RemoveProjectByProjectId(
+    async public Task<IActionResult> RemoveProjectByProjectId(
         [Required]
         [FromQuery(Name = "projectID")]
         string projectId)
     {
-        var foundPortfolio = new MODELS.Portfolio()
+        try
         {
+            logger.LogInformation("Attempting to delete project with ID: {ProjectId}", projectId);
 
-        };
+            MODELS.Portfolio correspondingPortfolio = await projectService
+                .DeleteProjectByProjectId(projectId);
 
-        return Ok(foundPortfolio);
+            return Ok(correspondingPortfolio);
+        }
+        catch (ArgumentNullException ex)
+        {
+            logger.LogError(ex, "An error occurred while deleting project with ID: {ProjectId}", projectId);
+            return StatusCode(StatusCodes.Status500InternalServerError, "An error occurred while processing your request.");
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "An unexpected error occurred while deleting project with ID: {ProjectId}", projectId);
+            return StatusCode(StatusCodes.Status500InternalServerError, "An unexpected error occurred while processing your request.");
+        }
     }
 
     #endregion

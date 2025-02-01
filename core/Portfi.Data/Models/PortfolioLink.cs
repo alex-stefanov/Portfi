@@ -23,7 +23,7 @@ public class PortfolioLink
     /// </summary>
     [ForeignKey(nameof(Portfolio))]
     [JsonPropertyName("portfolio_id")]
-    [Description("The id of the coresponding portfolio.")]
+    [Description("The id of the corresponding portfolio.")]
     public Guid PortfolioId { get; set; }
 
     /// <summary>
