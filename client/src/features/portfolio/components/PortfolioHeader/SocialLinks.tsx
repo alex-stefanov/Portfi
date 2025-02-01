@@ -53,7 +53,7 @@ export const SocialLinks = ({ socialLinks }: { socialLinks: TSocialLinks }) => {
           return (
             <div key={platform} className="relative">
               <a href={link} target="_blank" rel="noopener noreferrer">
-                <Icon className="h-6 w-6" />
+                <Icon className="h-5 w-5" />
               </a>
             </div>
           );

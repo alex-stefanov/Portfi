@@ -1,13 +1,12 @@
 'use client';
 
-import { Download, Github, Linkedin, Star, Twitter, Upload, X } from 'lucide-react';
+import { Download, Github, Linkedin, Twitter, Upload, X } from 'lucide-react';
 import { useState } from 'react';
 
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardFooter } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
-// import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 
 import type { Portfolio } from '../types/Portfolio';
@@ -65,15 +64,6 @@ export const PortfolioDetails = ({ portfolio }: { portfolio: Portfolio }) => {
             ) : (
               <p>{description}</p>
             )}
-          </div>
-          <div className="flex items-center">
-            {[...Array(5)].map((_, i) => (
-              <Star
-                key={i}
-                className={`h-5 w-5 ${i < Math.floor(portfolio.rating) ? 'fill-current text-yellow-400' : 'text-gray-300'}`}
-              />
-            ))}
-            <span className="ml-2">{portfolio.rating.toFixed(1)}</span>
           </div>
         </div>
         <div className="mb-4">
@@ -148,36 +138,6 @@ export const PortfolioDetails = ({ portfolio }: { portfolio: Portfolio }) => {
           )}
         </div>
       </CardContent>
-      <CardFooter className="flex justify-between bg-muted p-6">
-        <div className="flex gap-4">
-          <a
-            href={portfolio.socialLinks.github}
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Github className="h-6 w-6" />
-          </a>
-          <a
-            href={portfolio.socialLinks.linkedin}
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Linkedin className="h-6 w-6" />
-          </a>
-          <a
-            href={portfolio.socialLinks.twitter}
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Twitter className="h-6 w-6" />
-          </a>
-        </div>
-        {isEditing ? (
-          <Button onClick={handleSave}>Save Changes</Button>
-        ) : (
-          <Button onClick={() => setIsEditing(true)}>Edit Details</Button>
-        )}
-      </CardFooter>
     </Card>
   );
 };

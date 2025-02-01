@@ -74,7 +74,7 @@ const UserDropdownMenu = () => {
     user && (
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
-          <Button variant="ghost" className="relative h-9 w-9 rounded-full">
+          <Button variant="ghost" className="relative rounded-full" size="icon">
             <Avatar>
               <AvatarImage src={user.avatar_url} />
               <AvatarFallback>User</AvatarFallback>
