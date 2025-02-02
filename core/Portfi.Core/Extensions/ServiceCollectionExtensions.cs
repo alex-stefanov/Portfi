@@ -1,30 +1,74 @@
-﻿using MODELS = Portfi.Data.Models;
+﻿using System.Reflection;
+using Microsoft.Extensions.DependencyInjection;
+using MODELS = Portfi.Data.Models;
 using REPOSITORIES = Portfi.Data.Repositories;
 using SERVICES = Portfi.Infrastructure.Services;
 
-namespace Portfi.Core.Extensions;
-
-public static class ServiceCollectionExtensions
+namespace Portfi.Core.Extensions
 {
-    public static IServiceCollection RegisterRepositories(
-        this IServiceCollection services)
+    public static class ServiceCollectionExtensions
     {
-        services.AddScoped<REPOSITORIES.IRepository<MODELS.Portfolio, Guid>, REPOSITORIES.Repository<MODELS.Portfolio, Guid>>();
-        services.AddScoped<REPOSITORIES.IRepository<MODELS.PortfolioDownload, Guid>, REPOSITORIES.Repository<MODELS.PortfolioDownload, Guid>>();
-        services.AddScoped<REPOSITORIES.IRepository<MODELS.PortfolioLink, Guid>, REPOSITORIES.Repository<MODELS.PortfolioLink, Guid>>();
-        services.AddScoped<REPOSITORIES.IRepository<MODELS.PortfolioView, Guid>, REPOSITORIES.Repository<MODELS.PortfolioView, Guid>>();
-        services.AddScoped<REPOSITORIES.IRepository<MODELS.Project, Guid>, REPOSITORIES.Repository<MODELS.Project, Guid>>();
-        services.AddScoped<REPOSITORIES.IRepository<MODELS.SocialMediaLink, Guid>, REPOSITORIES.Repository<MODELS.SocialMediaLink, Guid>>();
+        public static IServiceCollection RegisterRepositories(this IServiceCollection services, Assembly modelsAssembly)
+        {
+            Type[] typesToExclude = new Type[] { };
 
-        return services;
-    }
+            Type[] modelTypes = modelsAssembly
+                .GetTypes()
+                .Where(t => !t.IsAbstract && !t.IsInterface)
+                .ToArray();
 
-    public static IServiceCollection RegisterUserDefinedServices(
-        this IServiceCollection services)
-    {
-        services.AddScoped<SERVICES.Interfaces.IPortfolioService, SERVICES.Implementations.PortfolioService>();
-        services.AddScoped<SERVICES.Interfaces.IProjectService, SERVICES.Implementations.ProjectService>();
+            foreach (Type type in modelTypes)
+            {
+                if (!typesToExclude.Contains(type))
+                {
+                    Type repositoryInterface = typeof(REPOSITORIES.IRepository<,>);
+                    Type repositoryInstanceType = typeof(REPOSITORIES.Repository<,>);
 
-        return services;
+                    PropertyInfo? idPropInfo = type
+                        .GetProperties()
+                        .FirstOrDefault(p => p.Name.Equals("Id", StringComparison.OrdinalIgnoreCase));
+
+                    Type[] constructArgs = new Type[2];
+                    constructArgs[0] = type;
+                    constructArgs[1] = idPropInfo?.PropertyType ?? typeof(object);
+
+                    repositoryInterface = repositoryInterface.MakeGenericType(constructArgs);
+                    repositoryInstanceType = repositoryInstanceType.MakeGenericType(constructArgs);
+
+                    services.AddScoped(repositoryInterface, repositoryInstanceType);
+                }
+            }
+
+            return services;
+        }
+
+        public static IServiceCollection RegisterUserDefinedServices(this IServiceCollection services, Assembly serviceAssembly)
+        {
+            Type[] serviceInterfaceTypes = serviceAssembly
+                .GetTypes()
+                .Where(t => t.IsInterface && t.Namespace?.StartsWith("Portfi.Infrastructure.Services.Interfaces") == true)
+                .ToArray();
+
+            Type[] serviceTypes = serviceAssembly
+                .GetTypes()
+                .Where(t => !t.IsInterface && !t.IsAbstract &&
+                            t.Namespace?.StartsWith("Portfi.Infrastructure.Services.Implementations") == true)
+                .ToArray();
+
+            foreach (Type serviceInterfaceType in serviceInterfaceTypes)
+            {
+                Type? serviceType = serviceTypes
+                    .FirstOrDefault(t => $"I{t.Name}".Equals(serviceInterfaceType.Name, StringComparison.OrdinalIgnoreCase));
+
+                if (serviceType == null)
+                {
+                    throw new NullReferenceException($"Service type could not be found for {serviceInterfaceType.Name}");
+                }
+
+                services.AddScoped(serviceInterfaceType, serviceType);
+            }
+
+            return services;
+        }
     }
 }
