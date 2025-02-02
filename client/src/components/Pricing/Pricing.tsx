@@ -33,7 +33,7 @@ const plans = [
 export const Pricing = () => {
   return (
     <section id="pricing" className="bg-gray-50 py-20">
-      <div className="container mx-auto">
+      <div className="container">
         <h2 className="mb-12 text-center text-3xl font-bold">Choose Your Plan</h2>
         <div className="grid grid-cols-1 gap-8 md:grid-cols-3">
           {plans.map((plan, index) => (

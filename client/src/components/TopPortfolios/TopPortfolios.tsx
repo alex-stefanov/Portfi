@@ -123,7 +123,7 @@ const portfolios = [
 export const TopPortfolios = () => {
   return (
     <section id="top-portfolios" className="bg-gray-50 py-20">
-      <div className="container mx-auto">
+      <div className="container">
         <h2 className="mb-12 text-center text-3xl font-bold">Top User Portfolios</h2>
         <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3">
           {portfolios.map((portfolio) => (

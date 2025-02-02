@@ -28,7 +28,7 @@ const features = [
 export const Features = () => {
   return (
     <section id="features" className="bg-gray-50 py-20">
-      <div className="container mx-auto">
+      <div className="container">
         <h2 className="mb-12 text-center text-3xl font-bold">Why Choose Portfio?</h2>
         <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-4">
           {features.map((feature, index) => (

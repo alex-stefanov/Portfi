@@ -10,6 +10,10 @@ export type Project = {
   id: string;
   title: string;
   description: string;
+  technologies: string[];
+  images: string[];
+  liveUrl: string;
+  sourceCode: string;
 };
 
 export type Portfolio = {
@@ -29,3 +33,13 @@ export type Portfolio = {
   socialLinks: SocialLinks;
   projects: Project[];
 };
+
+export enum SocialLinksEnum {
+  Github = 'Github',
+  LinkedIn = 'LinkedIn',
+  X = 'X',
+  Instagram = 'Instagram',
+  Facebook = 'Facebook',
+}
+
+export const SocialLinksArr = Object.values(SocialLinksEnum);

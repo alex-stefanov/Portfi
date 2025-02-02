@@ -29,7 +29,7 @@ export const Navbar = () => {
 
   return (
     <header className="border-b bg-white px-6 py-4">
-      <div className="container mx-auto flex items-center justify-between">
+      <div className="container flex items-center justify-between">
         <Link href="/" className="flex items-center space-x-2">
           <Activity className="h-6 w-6 text-primary" />
           <span className="text-xl font-bold text-gray-900">Portfio</span>
@@ -74,7 +74,7 @@ const UserDropdownMenu = () => {
     user && (
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
-          <Button variant="ghost" className="relative h-9 w-9 rounded-full">
+          <Button variant="ghost" className="relative rounded-full" size="icon">
             <Avatar>
               <AvatarImage src={user.avatar_url} />
               <AvatarFallback>User</AvatarFallback>

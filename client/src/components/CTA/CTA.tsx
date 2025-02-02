@@ -3,7 +3,7 @@ import { Button } from '@/components/ui/button';
 export const CTA = () => {
   return (
     <section className="bg-primary py-20">
-      <div className="container mx-auto text-center">
+      <div className="container text-center">
         <h2 className="mb-4 text-3xl font-bold text-white">
           Showcase Your Work Like a Pro
         </h2>
