@@ -129,7 +129,7 @@ export const PortfolioDetails = ({ portfolio }: { portfolio: Portfolio }) => {
             <Download className="mr-2 h-4 w-4" /> Download CV
           </Button>
           <Button variant="outline">
-            <Download className="mr-2 h-4 w-4" /> Download Portfolio PDF
+            <Download className="mr-2 h-4 w-4" /> Download PDF
           </Button>
           {isEditing && (
             <Button variant="outline">

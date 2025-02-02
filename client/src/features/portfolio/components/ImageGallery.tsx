@@ -39,7 +39,7 @@ export const ImageGallery = ({ images }: ImageGalleryProps) => {
   };
 
   return (
-    <div className="container mb-8">
+    <div className="mb-8">
       <div className="relative mb-4 h-96 w-full">
         <Image
           src={images[currentIndex] || '/placeholder.svg'}

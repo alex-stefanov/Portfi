@@ -46,14 +46,14 @@ export const SocialLinks = ({ socialLinks }: { socialLinks: TSocialLinks }) => {
 
   return (
     <div className="relative flex items-start justify-start gap-1.5">
-      <div className="relative flex space-x-4">
+      <div className="relative flex space-x-6">
         {Object.entries(socialLinks).map(([platform, link]) => {
           const Icon = socialIcons[platform as keyof TSocialLinks];
 
           return (
             <div key={platform} className="relative">
               <a href={link} target="_blank" rel="noopener noreferrer">
-                <Icon className="h-5 w-5" />
+                <Icon className="h-7 w-7" />
               </a>
             </div>
           );

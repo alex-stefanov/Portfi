@@ -12,7 +12,7 @@ export default {
     container: {
       center: true,
       padding: {
-        DEFAULT: '1.4155rem',
+        DEFAULT: '1.0155rem',
       },
     },
     extend: {

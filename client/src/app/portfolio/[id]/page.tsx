@@ -31,6 +31,8 @@ const portfolios: PortfolioType[] = [
       github: 'https://github.com/alicejohnson',
       linkedin: 'https://linkedin.com/in/alicejohnson',
       twitter: 'https://x.com/alicejohnson',
+      instagram: "https://instagram.com/alicejohnson",
+      facebook: "https://facebook.com/alicejohnson",
     },
     projects: [
       {
@@ -69,5 +71,9 @@ export default async function PortfolioPage({
     notFound();
   }
 
-  return <Portfolio portfolio={portfolio} />;
+  return (
+    <div className="container">
+      <Portfolio portfolio={portfolio} />
+    </div>
+  );
 }
