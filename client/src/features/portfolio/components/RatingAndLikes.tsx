@@ -1,6 +1,6 @@
 'use client';
 
-import { Heart, Star, ThumbsDown, ThumbsUp } from 'lucide-react';
+import { Star, ThumbsUp } from 'lucide-react';
 import React, { useState } from 'react';
 
 import clsx from 'clsx';

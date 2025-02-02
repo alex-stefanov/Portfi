@@ -14,6 +14,8 @@ export const useAuthSession = () => {
 
       const { id, user_metadata, email } = data.session.user;
 
+
+
       return {
         id,
         avatar_url: user_metadata.avatar_url as string,

@@ -1,18 +1,18 @@
 'use client';
 
-import { Download, Github, Linkedin, Twitter, Upload, X } from 'lucide-react';
+import { Download, Upload, X } from 'lucide-react';
 import { useState } from 'react';
 
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardFooter } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 
 import type { Portfolio } from '../types/Portfolio';
 
 export const PortfolioDetails = ({ portfolio }: { portfolio: Portfolio }) => {
-  const [isEditing, setIsEditing] = useState(false);
+  const [isEditing] = useState(false);
   const [description, setDescription] = useState(portfolio.description);
   const [tags, setTags] = useState(portfolio.tags);
   const [newTag, setNewTag] = useState('');
@@ -39,14 +39,6 @@ export const PortfolioDetails = ({ portfolio }: { portfolio: Portfolio }) => {
 
   const removeTechnology = (techToRemove: string) => {
     setTechnologies(technologies.filter((tech) => tech !== techToRemove));
-  };
-
-  const handleSave = () => {
-    // Save the changes to backend
-    console.log('Saving updated description:', description);
-    console.log('Saving updated tags:', tags);
-    console.log('Saving updated technologies:', technologies);
-    setIsEditing(false);
   };
 
   return (
