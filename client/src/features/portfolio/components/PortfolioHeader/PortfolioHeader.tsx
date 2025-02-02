@@ -44,8 +44,8 @@ const UserProfile = ({
       </Avatar>
       <div className="flex flex-col items-center text-center sm:items-start sm:text-left">
         <PortfolioTitle title={title} />
-        <p className="text-md mb-5">{author}</p>
-        <p className="text-sm sm:text-left">
+        <p className="text-[1.15rem] mb-5">{author}</p>
+        <p className="sm:text-left">
           A highly motivated and results-oriented full-stack web developer.
         </p>
       </div>

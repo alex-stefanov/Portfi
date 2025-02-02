@@ -30,11 +30,7 @@ const LikeOrUnlike = () => {
       size="sm"
     >
       <ThumbsUp
-        className={clsx(
-          'cursor-pointer',
-          isLiked && 'fill-current text-blue-500',
-          // isLiked ? 'fill-current text-blue-500' : 'text-slate-700',
-        )}
+        className={clsx('cursor-pointer', isLiked && 'fill-current text-blue-500')}
         size={22}
       />
 
@@ -45,19 +41,28 @@ const LikeOrUnlike = () => {
 
 const PortfolioRating = ({ rating }: { rating: number }) => {
   return (
-    <div className="flex items-center gap-1">
-      {[...Array(5)].map((_, i) => (
-        <Star
-          key={i}
-          className={clsx(
-            'h-5 w-5',
-            i < Math.floor(rating)
-              ? 'fill-current text-yellow-600'
-              : 'text-gray-300',
-          )}
-        />
-      ))}
-      <span className="ml-2">{rating.toFixed(1)}</span>
-    </div>
+    <Button size="default" variant="outline" className="h-auto cursor-pointer px-10">
+      <div className="flex flex-col">
+        <div className="mb-1 flex gap-1">
+          {[...Array(5)].map((_, i) => (
+            <Star
+              size={20}
+              key={i}
+              className={clsx(
+                i < Math.floor(rating)
+                  ? 'fill-current text-yellow-500'
+                  : 'text-gray-300',
+              )}
+            />
+          ))}
+        </div>
+
+        <p>
+          <span>{rating.toFixed(1)}</span> out of 5
+        </p>
+
+        <p className="font-light text-slate-700">340 reviews</p>
+      </div>
+    </Button>
   );
 };
