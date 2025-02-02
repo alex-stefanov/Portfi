@@ -10,6 +10,10 @@ export type Project = {
   id: string;
   title: string;
   description: string;
+  technologies: string[];
+  images: string[];
+  liveUrl: string;
+  sourceCode: string;
 };
 
 export type Portfolio = {

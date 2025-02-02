@@ -9,11 +9,11 @@ import type { Portfolio as TPortfolio } from '../types/Portfolio';
 
 export const Portfolio = ({ portfolio }: { portfolio: TPortfolio }) => {
   return (
-    <div className="mt-4 space-y-5">
+    <div className="my-4 space-y-5">
       <PortfolioHeader portfolio={portfolio} />
       <RateAndLike rating={portfolio.rating} />
       <PortfolioDetails portfolio={portfolio} />
-      <ImageGallery images={portfolio.images} />
+      {/* <ImageGallery images={portfolio.images} /> */}
       <ProjectList projects={portfolio.projects} />
       <ThemeCustomizer />
     </div>

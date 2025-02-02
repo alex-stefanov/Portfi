@@ -50,7 +50,7 @@ export const PortfolioDetails = ({ portfolio }: { portfolio: Portfolio }) => {
   };
 
   return (
-    <Card className="mb-8">
+    <Card className="!mb-14">
       <CardContent className="p-6">
         <div className="mb-4 flex items-start justify-between">
           <div>

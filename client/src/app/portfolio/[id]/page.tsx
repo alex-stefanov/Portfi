@@ -31,31 +31,54 @@ const portfolios: PortfolioType[] = [
       github: 'https://github.com/alicejohnson',
       linkedin: 'https://linkedin.com/in/alicejohnson',
       twitter: 'https://x.com/alicejohnson',
-      instagram: "https://instagram.com/alicejohnson",
-      facebook: "https://facebook.com/alicejohnson",
+      instagram: 'https://instagram.com/alicejohnson',
+      facebook: 'https://facebook.com/alicejohnson',
     },
     projects: [
       {
-        id: '1',
+        id: '1a',
         title: 'E-commerce Redesign',
         description:
           'Complete overhaul of an e-commerce platform focusing on UX improvements.',
+        images: [
+          'https://webdevkalo.vercel.app/_next/image?url=%2Fimages%2Fartspacehub.webp&w=1080&q=95',
+          'https://picsum.photos/500/400?random=2',
+          'https://picsum.photos/500/400?random=3',
+        ],
+        liveUrl: 'https://picsum.photos/500/400?random=1',
+        sourceCode: 'https://picsum.photos/500/400?random=1',
+        technologies: ['React', 'NextJS', 'Tailwind', 'Prisma', 'Postgres'],
       },
       {
-        id: '2',
+        id: '2b',
         title: 'Interactive Data Visualization',
         description:
-          'Created an interactive dashboard for visualizing complex datasets.',
+          'Complete overhaul of an e-commerce platform focusing on UX improvements.',
+        images: [
+          'https://webdevkalo.vercel.app/_next/image?url=%2Fimages%2Fshrinkify.webp&w=1080&q=95',
+          'https://picsum.photos/500/300?random=5',
+          'https://picsum.photos/500/400?random=6',
+        ],
+        liveUrl: 'https://picsum.photos/500/400?random=1',
+        sourceCode: 'https://picsum.photos/500/400?random=1',
+        technologies: ['HTML', 'CSS', 'JavaScript'],
       },
       {
         id: '3',
         title: 'Mobile App UI Kit',
         description:
           'Designed a comprehensive UI kit for rapid mobile app development.',
+        images: [
+          'https://webdevkalo.vercel.app/_next/image?url=%2Fimages%2Fwheredoigo.webp&w=1080&q=95',
+          'https://picsum.photos/500/400?random=8',
+          'https://picsum.photos/500/300?random=9',
+        ],
+        liveUrl: 'https://picsum.photos/500/400?random=1',
+        sourceCode: 'https://picsum.photos/500/400?random=1',
+        technologies: ['NextJS', 'C#', 'Github Actions'],
       },
     ],
   },
-  // ... other portfolios
 ];
 
 export default async function PortfolioPage({
