@@ -1,7 +1,7 @@
 'use client';
 
 import { Star, ThumbsUp } from 'lucide-react';
-import React, { useState } from 'react';
+import { useState } from 'react';
 
 import clsx from 'clsx';
 
@@ -19,7 +19,27 @@ export const RateAndLike = ({ rating }: { rating: number }) => {
 const LikeOrUnlike = () => {
   const [isLiked, setIsLiked] = useState(false);
 
-  const likesHandler = () => {
+  const likesHandler = async () => {
+    // Uncomment
+
+    // const url = 'add api url here';
+
+    // try {
+    //   const res = await fetch(url, {
+    //     credentials: 'include',
+    //   });
+
+    //   if (!res.ok) {
+    //     const error = await res.text();
+    //     throw new Error(error);
+    //   }
+
+    //   const data = await res.json();
+    // } catch (err) {
+    //   const errMsg = err instanceof Error ? err.message : 'An error occurred';
+    //   console.error(errMsg);
+    // }
+
     setIsLiked((prev) => !prev);
   };
 

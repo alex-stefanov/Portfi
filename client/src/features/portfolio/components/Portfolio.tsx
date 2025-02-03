@@ -2,7 +2,6 @@ import { PortfolioDetails } from './PortfolioDetails';
 import { PortfolioHeader } from './PortfolioHeader/PortfolioHeader';
 import { ProjectList } from './ProjectList';
 import { RateAndLike } from './RatingAndLikes';
-import ThemeCustomizer from './ThemeCustomizer';
 
 import type { Portfolio as TPortfolio } from '../types/Portfolio';
 
@@ -13,7 +12,6 @@ export const Portfolio = ({ portfolio }: { portfolio: TPortfolio }) => {
       <RateAndLike rating={portfolio.rating} />
       <PortfolioDetails portfolio={portfolio} />
       <ProjectList projects={portfolio.projects} />
-      <ThemeCustomizer />
     </div>
   );
 };

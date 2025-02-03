@@ -1,3 +1,5 @@
+'use client';
+
 import { useQuery } from '@tanstack/react-query';
 
 import { reactQueryKeys } from '@/constants/reactQueryKeys';
@@ -14,12 +16,11 @@ export const useAuthSession = () => {
 
       const { id, user_metadata, email } = data.session.user;
 
-
-
       return {
         id,
         avatar_url: user_metadata.avatar_url as string,
         email: email as string,
+        session: data.session.access_token,
       };
     },
     staleTime: 60 * 1000 * 10,
