@@ -34,6 +34,11 @@ type UserDetails = {
     place: string;
   };
 
+  currentPosition?: {
+    companyName: string;
+    position: string;
+  };
+
   workExperience?: {
     yearFrom: number;
     yearTo: number;

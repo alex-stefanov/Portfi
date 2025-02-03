@@ -2,7 +2,7 @@ import { notFound } from 'next/navigation';
 
 import { Portfolio } from '@/features/portfolio/components/Portfolio';
 
-import { extractAuthCookie } from '@/utils/supabase/extractAuthCookie';
+// import { extractAuthCookie } from '@/utils/supabase/extractAuthCookie';
 
 import type { Portfolio as PortfolioType } from '@/features/portfolio/types/Portfolio';
 
@@ -77,6 +77,10 @@ const portfolios: PortfolioType[] = [
             'Led the development of design systems and improved accessibility features.',
         },
       ],
+      currentPosition: {
+        companyName: 'Google',
+        position: 'Backend Developer',
+      },
     },
     title: 'Web Developer',
     description:
