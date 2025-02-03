@@ -2,7 +2,7 @@ import { notFound } from 'next/navigation';
 
 import { Portfolio } from '@/features/portfolio/components/Portfolio';
 
-import { extractAuthCookie } from '@/utils/supabase/extractAuthCookie';
+// import { extractAuthCookie } from '@/utils/supabase/extractAuthCookie';
 
 import type { Portfolio as PortfolioType } from '@/features/portfolio/types/Portfolio';
 
@@ -77,10 +77,14 @@ const portfolios: PortfolioType[] = [
             'Led the development of design systems and improved accessibility features.',
         },
       ],
+      currentPosition: {
+        companyName: 'Google',
+        position: 'Backend Developer',
+      },
     },
     title: 'Web Developer',
     description:
-      'A showcase of innovative web designs and interactive user experiences.',
+      'Backend developer specializing in scalable, high-performance systems. Expertise in Node.js, Python, and cloud architecture. Building efficient APIs and database solutions for modern web applications. Passionate about clean code and DevOps. Optimizing workflows and improving system reliability.',
     tags: ['UI/UX', 'Web Design', 'Animation'],
     technologies: ['React', 'Three.js', 'GSAP'],
     projectCount: 15,
