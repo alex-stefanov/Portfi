@@ -84,7 +84,7 @@ const portfolios: PortfolioType[] = [
     },
     title: 'Web Developer',
     description:
-      'Backend developer specializing in scalable, high-performance systems. With expertise in Node.js, Python, and cloud architecture, he builds efficient APIs and database solutions for modern web applications. Passionate about clean code and DevOps, he enjoys optimizing workflows and improving system reliability.',
+      'Backend developer specializing in scalable, high-performance systems. Expertise in Node.js, Python, and cloud architecture. Building efficient APIs and database solutions for modern web applications. Passionate about clean code and DevOps. Optimizing workflows and improving system reliability.',
     tags: ['UI/UX', 'Web Design', 'Animation'],
     technologies: ['React', 'Three.js', 'GSAP'],
     projectCount: 15,
