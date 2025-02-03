@@ -13,8 +13,8 @@ export const PortfolioHeader = ({ portfolio }: { portfolio: Portfolio }) => {
     <header className="space-y-14 rounded-xl bg-slate-800 px-4 pb-8 pt-16 text-primary-foreground sm:px-8 md:px-12">
       <section className="h-full gap-2 sm:flex sm:items-start sm:justify-between">
         <UserProfile
-          author={portfolio.author}
-          avatar={portfolio.avatar}
+          author={portfolio.userDetails.realName}
+          avatar={portfolio.userDetails.realName}
           title={portfolio.title}
         />
       </section>
@@ -44,7 +44,7 @@ const UserProfile = ({
       </Avatar>
       <div className="flex flex-col items-center text-center sm:items-start sm:text-left">
         <PortfolioTitle title={title} />
-        <p className="text-[1.15rem] mb-5">{author}</p>
+        <p className="mb-5 text-[1.15rem]">{author}</p>
         <p className="sm:text-left">
           A highly motivated and results-oriented full-stack web developer.
         </p>
