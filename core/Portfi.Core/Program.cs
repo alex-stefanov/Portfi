@@ -17,8 +17,8 @@ builder.Services
     });
 
 builder.Services
-    .RegisterRepositories()
-    .RegisterUserDefinedServices();
+    .RegisterRepositories(typeof(DATA.PortfiDbContext).Assembly)  
+    .RegisterUserDefinedServices(typeof(Portfi.Infrastructure.Services.Interfaces.IPortfolioService).Assembly);
 
 builder.Services
     .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)

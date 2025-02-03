@@ -53,25 +53,27 @@ public class ProjectController(
     {
         try
         {
-            logger.LogInformation("Attempting to get GitHub projects for user with username: {Username}", username);
+            logger.LogInformation("Fetching GitHub projects for username: {Username}", username);
 
-            httpClient.DefaultRequestHeaders.UserAgent
-                .Add(new ProductInfoHeaderValue("Portfi", "1.0"));
+            httpClient.DefaultRequestHeaders.UserAgent.Add(new ProductInfoHeaderValue("Portfi", "1.0"));
 
-            var gitHubRepositories = await projectService
-                .GetGithubProjectsByUsername(username, httpClient);
-
+            var gitHubRepositories = await projectService.GetGithubProjectsByUsername(username, httpClient);
             return Ok(gitHubRepositories);
         }
         catch (ArgumentException ex)
         {
-            logger.LogError(ex, "An error occurred while getting GitHub projects for user with username: {Username}", username);
-            return StatusCode(StatusCodes.Status500InternalServerError, "An error occurred while processing your request.");
+            logger.LogError(ex, "Invalid GitHub username: {Username}", username);
+            return BadRequest("Invalid GitHub username provided.");
+        }
+        catch (HttpRequestException ex)
+        {
+            logger.LogError(ex, "Failed to retrieve GitHub projects for username: {Username}", username);
+            return StatusCode(StatusCodes.Status500InternalServerError, "Could not fetch GitHub repositories. Please try again later.");
         }
         catch (Exception ex)
         {
-            logger.LogError(ex, "An unexpected error occurred while getting GitHub projects for user with username: {Username}", username);
-            return StatusCode(StatusCodes.Status500InternalServerError, "An unexpected error occurred while processing your request.");
+            logger.LogError(ex, "Unexpected error while fetching GitHub projects for username: {Username}", username);
+            return StatusCode(StatusCodes.Status500InternalServerError, "An unexpected error occurred. Please contact support.");
         }
     }
 
@@ -112,13 +114,13 @@ public class ProjectController(
         }
         catch (ArgumentNullException ex)
         {
-            logger.LogError(ex, "An error occurred while adding description to project with ID: {ProjectId}", projectId);
-            return StatusCode(StatusCodes.Status500InternalServerError, "An error occurred while processing your request.");
+            logger.LogError(ex, "Project with ID {ProjectId} not found", projectId);
+            return NotFound($"Project with ID {projectId} not found.");
         }
         catch (Exception ex)
         {
-            logger.LogError(ex, "An unexpected error occurred while adding description to project with ID: {ProjectId}", projectId);
-            return StatusCode(StatusCodes.Status500InternalServerError, "An unexpected error occurred while processing your request.");
+            logger.LogError(ex, "Unexpected error while adding description to project ID: {ProjectId}", projectId);
+            return StatusCode(StatusCodes.Status500InternalServerError, "An error occurred while adding the project description.");
         }
     }
 
@@ -423,13 +425,13 @@ public class ProjectController(
         }
         catch (ArgumentNullException ex)
         {
-            logger.LogError(ex, "An error occurred while removing active link from project with ID: {ProjectId}", projectId);
-            return StatusCode(StatusCodes.Status500InternalServerError, "An error occurred while processing your request.");
+            logger.LogError(ex, "Project with ID {ProjectId} not found", projectId);
+            return NotFound($"Project with ID {projectId} not found.");
         }
         catch (Exception ex)
         {
-            logger.LogError(ex, "An unexpected error occurred while removing active link from project with ID: {ProjectId}", projectId);
-            return StatusCode(StatusCodes.Status500InternalServerError, "An unexpected error occurred while processing your request.");
+            logger.LogError(ex, "Unexpected error while removing active link from project ID: {ProjectId}", projectId);
+            return StatusCode(StatusCodes.Status500InternalServerError, "An error occurred while removing the active link.");
         }
     }
 
@@ -492,22 +494,25 @@ public class ProjectController(
     {
         try
         {
-            logger.LogInformation("Attempting to delete project with ID: {ProjectId}", projectId);
+            logger.LogInformation("Deleting project with ID: {ProjectId}", projectId);
 
-            MODELS.Portfolio correspondingPortfolio = await projectService
-                .DeleteProjectByProjectId(projectId);
-
+            MODELS.Portfolio correspondingPortfolio = await projectService.DeleteProjectByProjectId(projectId);
             return Ok(correspondingPortfolio);
         }
         catch (ArgumentNullException ex)
         {
-            logger.LogError(ex, "An error occurred while deleting project with ID: {ProjectId}", projectId);
-            return StatusCode(StatusCodes.Status500InternalServerError, "An error occurred while processing your request.");
+            logger.LogError(ex, "Project with ID {ProjectId} not found", projectId);
+            return NotFound($"Project with ID {projectId} not found.");
+        }
+        catch (InvalidOperationException ex)
+        {
+            logger.LogError(ex, "Failed to delete project with ID: {ProjectId}", projectId);
+            return Conflict("Project could not be deleted due to an internal constraint.");
         }
         catch (Exception ex)
         {
-            logger.LogError(ex, "An unexpected error occurred while deleting project with ID: {ProjectId}", projectId);
-            return StatusCode(StatusCodes.Status500InternalServerError, "An unexpected error occurred while processing your request.");
+            logger.LogError(ex, "Unexpected error while deleting project ID: {ProjectId}", projectId);
+            return StatusCode(StatusCodes.Status500InternalServerError, "An unexpected error occurred while deleting the project.");
         }
     }
 
