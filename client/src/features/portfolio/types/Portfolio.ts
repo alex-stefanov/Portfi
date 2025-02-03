@@ -16,11 +16,37 @@ export type Project = {
   sourceCode: string;
 };
 
+type UserDetails = {
+  id: string;
+  avatar: string;
+  realName: string;
+  email: string;
+
+  location?: {
+    country: string;
+    state?: string;
+    city: string;
+  };
+
+  education?: {
+    yearFrom: number;
+    yearTo: number;
+    place: string;
+  };
+
+  workExperience?: {
+    yearFrom: number;
+    yearTo: number;
+    companyName: string;
+    position: string;
+    positionDescription: string;
+  }[];
+};
+
 export type Portfolio = {
   id: string;
+  authorId: string;
   title: string;
-  author: string;
-  avatar: string;
   description: string;
   tags: string[];
   technologies: string[];
@@ -32,6 +58,7 @@ export type Portfolio = {
   cv: string;
   socialLinks: SocialLinks;
   projects: Project[];
+  userDetails: UserDetails;
 };
 
 export enum SocialLinksEnum {

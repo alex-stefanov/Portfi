@@ -22,8 +22,11 @@ export const GoogleLogin = () => {
       if (error) {
         throw new Error(error.message);
       }
-    } catch (e) {
-      console.error(e);
+    } catch (err: unknown) {
+      const errMsg =
+        err instanceof Error ? err.message : 'An unknown error occurred';
+
+      console.error(errMsg);
     }
   };
 
