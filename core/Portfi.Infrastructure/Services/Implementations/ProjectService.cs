@@ -10,7 +10,7 @@ namespace Portfi.Infrastructure.Services.Implementations;
 /// <inheritdoc/>
 public class ProjectService(
     REPOSITORIES.IRepository<MODELS.Project, Guid> projectRepository,
-        REPOSITORIES.IRepository<MODELS.Portfolio, Guid> portfolioRepository)
+    REPOSITORIES.IRepository<MODELS.Portfolio, Guid> portfolioRepository)
     : INTERFACES.IProjectService
 {
     /// <inheritdoc/>

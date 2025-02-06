@@ -55,9 +55,12 @@ public class ProjectController(
         {
             logger.LogInformation("Fetching GitHub projects for username: {Username}", username);
 
-            httpClient.DefaultRequestHeaders.UserAgent.Add(new ProductInfoHeaderValue("Portfi", "1.0"));
+            httpClient.DefaultRequestHeaders.UserAgent
+                .Add(new ProductInfoHeaderValue("Portfi", "1.0"));
 
-            var gitHubRepositories = await projectService.GetGithubProjectsByUsername(username, httpClient);
+            var gitHubRepositories = await projectService
+                .GetGithubProjectsByUsername(username, httpClient);
+
             return Ok(gitHubRepositories);
         }
         catch (ArgumentException ex)
@@ -194,7 +197,9 @@ public class ProjectController(
             logger.LogInformation("Attempting to add categories to project with ID: {ProjectId}", projectId);
 
             IEnumerable<ENUMS.ProjectCategory> enumValues = categories
-                .Select(value => Enum.TryParse(value, out ENUMS.ProjectCategory result) ? result : (ENUMS.ProjectCategory?)null)
+                .Select(value => Enum.TryParse(value, out ENUMS.ProjectCategory result) 
+                    ? result 
+                    : (ENUMS.ProjectCategory?)null)
                 .Where(e => e.HasValue)
                 .Select(e => e!.Value);
 
@@ -332,7 +337,9 @@ public class ProjectController(
             logger.LogInformation("Attempting to edit categories to project with ID: {ProjectId}", projectId);
 
             IEnumerable<ENUMS.ProjectCategory> enumValues = categories
-                .Select(value => Enum.TryParse(value, out ENUMS.ProjectCategory result) ? result : (ENUMS.ProjectCategory?)null)
+                .Select(value => Enum.TryParse(value, out ENUMS.ProjectCategory result) 
+                    ? result 
+                    : (ENUMS.ProjectCategory?)null)
                 .Where(e => e.HasValue)
                 .Select(e => e!.Value);
 
@@ -496,7 +503,9 @@ public class ProjectController(
         {
             logger.LogInformation("Deleting project with ID: {ProjectId}", projectId);
 
-            MODELS.Portfolio correspondingPortfolio = await projectService.DeleteProjectByProjectId(projectId);
+            MODELS.Portfolio correspondingPortfolio = await projectService
+                .DeleteProjectByProjectId(projectId);
+
             return Ok(correspondingPortfolio);
         }
         catch (ArgumentNullException ex)
