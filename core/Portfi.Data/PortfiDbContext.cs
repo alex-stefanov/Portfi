@@ -16,6 +16,10 @@ namespace Portfi.Data
 
         public DbSet<MODELS.PortfolioDownload> PortfolioDownloads { get; set; }
 
+        public DbSet<MODELS.SocialMediaLink> SocialMediaLinks { get; set; }
+
+        public DbSet<MODELS.PortfolioLink> PortfolioLinks { get; set; }
+
         #endregion
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -34,6 +38,16 @@ namespace Portfi.Data
 
             modelBuilder.Entity<MODELS.Portfolio>()
                 .HasMany(p => p.PortfolioDownloads)
+                .WithOne()
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<MODELS.Portfolio>()
+                .HasMany(p => p.SocialMediaLinks)
+                .WithOne()
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<MODELS.Portfolio>()
+                .HasMany(p => p.PortfolioLinks)
                 .WithOne()
                 .OnDelete(DeleteBehavior.Cascade);
         }

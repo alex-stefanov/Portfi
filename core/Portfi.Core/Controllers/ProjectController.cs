@@ -58,7 +58,7 @@ public class ProjectController(
         try
         {
             #region Get User
-
+            
             string decodedToken = string.Empty;
 
             try
@@ -325,8 +325,8 @@ public class ProjectController(
             logger.LogInformation("Attempting to add categories to project with ID: {ProjectId}.", projectId);
 
             IEnumerable<ENUMS.ProjectCategory> enumValues = categories
-                .Select(value => Enum.TryParse(value, out ENUMS.ProjectCategory result)
-                    ? result
+                .Select(value => Enum.TryParse(value, out ENUMS.ProjectCategory result) 
+                    ? result 
                     : (ENUMS.ProjectCategory?)null)
                 .Where(e => e.HasValue)
                 .Select(e => e!.Value);
@@ -561,8 +561,8 @@ public class ProjectController(
             logger.LogInformation("Attempting to edit categories to project with ID: {ProjectId}.", projectId);
 
             IEnumerable<ENUMS.ProjectCategory> enumValues = categories
-                .Select(value => Enum.TryParse(value, out ENUMS.ProjectCategory result)
-                    ? result
+                .Select(value => Enum.TryParse(value, out ENUMS.ProjectCategory result) 
+                    ? result 
                     : (ENUMS.ProjectCategory?)null)
                 .Where(e => e.HasValue)
                 .Select(e => e!.Value);
@@ -857,7 +857,7 @@ public class ProjectController(
 
             MODELS.Portfolio correspondingPortfolio = await projectService
                 .DeleteProjectByProjectId(projectId);
-
+                
             return Ok(correspondingPortfolio);
         }
         catch (ArgumentNullException ex)

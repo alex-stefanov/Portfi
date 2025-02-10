@@ -1,4 +1,4 @@
-import { Geist, Geist_Mono } from 'next/font/google';
+import { Open_Sans } from 'next/font/google';
 
 import type { Metadata } from 'next';
 
@@ -9,13 +9,8 @@ import { ReactQueryProvider } from '@/utils/providers';
 import { Footer } from '@/components/Footer/Footer';
 import { Navbar } from '@/components/Navbar/Navbar';
 
-const geistSans = Geist({
-  variable: '--font-geist-sans',
-  subsets: ['latin'],
-});
-
-const geistMono = Geist_Mono({
-  variable: '--font-geist-mono',
+const globalFont = Open_Sans({
+  variable: '--font-global',
   subsets: ['latin'],
 });
 
@@ -31,7 +26,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+      <body className={`${globalFont.variable} font-global antialiased`}>
         <div className="min-h-svh md:min-h-screen">
           <ReactQueryProvider>
             <Navbar />
