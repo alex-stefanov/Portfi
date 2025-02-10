@@ -16,7 +16,7 @@ public class SocialMediaLink
     /// </summary>
     [Key]
     [JsonPropertyName("id")]
-    [Description("unique identifier of the social media link.")]
+    [Description("Unique identifier of the social media link.")]
     public Guid Id { get; set; }
 
     /// <summary>
