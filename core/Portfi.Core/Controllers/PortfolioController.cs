@@ -1,10 +1,13 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using Supabase;
+using Newtonsoft.Json;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
+using Portfi.Common.Helpers;
 using MODELS = Portfi.Data.Models;
+using EXCEPTIONS = Portfi.Common.Exceptions;
 using RESPONSES = Portfi.Infrastructure.Models.Responses;
 using SERVICES = Portfi.Infrastructure.Services.Interfaces;
-using static Portfi.Common.Constants.PortfolioConstants;
 
 namespace Portfi.Core.Controllers;
 
@@ -24,6 +27,7 @@ namespace Portfi.Core.Controllers;
 [ProducesResponseType(StatusCodes.Status500InternalServerError, Type = typeof(RESPONSES.ErrorResponse))]
 public class PortfolioController(
     SERVICES.IPortfolioService portfolioService,
+    Client supabase,
     ILogger<PortfolioController> logger)
     : ControllerBase
 {
@@ -41,16 +45,54 @@ public class PortfolioController(
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     [Produces("application/json")]
-    public IActionResult GetExamplePortfolioIds()
+    async public Task<IActionResult> GetExamplePortfolioIds()
     {
-        var examplePortfolioIds = new List<string>
+        try
         {
-            Guid.NewGuid().ToString(),
-            Guid.NewGuid().ToString(),
-            Guid.NewGuid().ToString()
-        };
+            #region Get User
 
-        return Ok(examplePortfolioIds);
+            string decodedToken = string.Empty;
+
+            try
+            {
+                decodedToken = Request.Cookies
+                    .TryGetDecodedToken();
+            }
+            catch (ArgumentNullException ex)
+            {
+                logger.LogError(ex.Message);
+
+                return StatusCode(StatusCodes.Status500InternalServerError, ex.Message);
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex, "Unexpected error while decoding cookies.");
+
+                return StatusCode(StatusCodes.Status500InternalServerError, "An unexpected error occurred. Please contact support.");
+            }
+
+            var user = await supabase.Auth
+                .GetUser(decodedToken);
+
+            #endregion
+
+            logger.LogInformation("Attempting to get example portfolios.");
+
+            IEnumerable<MODELS.Portfolio> examplePortfolios = await portfolioService
+                .GetExamplePortfolios();
+
+            return Ok(examplePortfolios);
+        }
+        catch (ArgumentException ex)
+        {
+            logger.LogError(ex, "Example portfolios couldn't be fetched.");
+            return NotFound("Example portfolios couldn't be fetched.");
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "Unexpected error while getting example portfolios.");
+            return StatusCode(StatusCodes.Status500InternalServerError, "An error occurred while getting the example portfolios.");
+        }
     }
 
     /// <summary>
@@ -66,17 +108,58 @@ public class PortfolioController(
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     [Produces("application/json")]
-    public IActionResult GetPortfolioById(
+    async public Task<IActionResult> GetPortfolioById(
         [Required]
         [FromQuery(Name = "portfolioID")]
         string portfolioId)
     {
-        var foundPortfolio = new MODELS.Portfolio()
+        try
         {
-            PersonId = "ff",
-        };
+            #region Get User
 
-        return Ok(foundPortfolio);
+            string decodedToken = string.Empty;
+
+            try
+            {
+                decodedToken = Request.Cookies
+                    .TryGetDecodedToken();
+            }
+            catch (ArgumentNullException ex)
+            {
+                logger.LogError(ex.Message);
+
+                return StatusCode(StatusCodes.Status500InternalServerError, ex.Message);
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex, "Unexpected error while decoding cookies.");
+
+                return StatusCode(StatusCodes.Status500InternalServerError, "An unexpected error occurred. Please contact support.");
+            }
+
+            var user = await supabase.Auth
+                .GetUser(decodedToken);
+
+            #endregion
+
+            logger.LogInformation("Attempting to get portfolio with ID: {PortfolioId}.", portfolioId);
+
+            MODELS.Portfolio foundPortfolio = await portfolioService
+                .GetPortfolioById(
+                    portfolioId);
+
+            return Ok(foundPortfolio);
+        }
+        catch (ArgumentNullException ex)
+        {
+            logger.LogError(ex, "Portfolio with ID {PortfolioId} not found.", portfolioId);
+            return NotFound($"Portfolio with ID {portfolioId} not found.");
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "Unexpected error while getting portfolio with ID: {PortfolioId}.", portfolioId);
+            return StatusCode(StatusCodes.Status500InternalServerError, "An error occurred while getting the portfolio.");
+        }
     }
 
     #endregion
@@ -98,7 +181,7 @@ public class PortfolioController(
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     [Produces("application/json")]
-    public IActionResult CreatePortfolio(
+    async public Task<IActionResult> CreatePortfolio(
         [Required]
         [FromQuery(Name = "userID")]
         string userId,
@@ -109,14 +192,55 @@ public class PortfolioController(
         [FromQuery(Name = "names")]
         string[] names)
     {
-        var newPorfolio = new MODELS.Portfolio()
+        try
         {
-            PersonId = userId,
-            Biography = biography,
-            PersonNames = names,
-        };
+            #region Get User
 
-        return Ok(newPorfolio);
+            string decodedToken = string.Empty;
+
+            try
+            {
+                decodedToken = Request.Cookies
+                    .TryGetDecodedToken();
+            }
+            catch (ArgumentNullException ex)
+            {
+                logger.LogError(ex.Message);
+
+                return StatusCode(StatusCodes.Status500InternalServerError, ex.Message);
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex, "Unexpected error while decoding cookies.");
+
+                return StatusCode(StatusCodes.Status500InternalServerError, "An unexpected error occurred. Please contact support.");
+            }
+
+            var user = await supabase.Auth
+                .GetUser(decodedToken);
+
+            #endregion
+
+            logger.LogInformation("Attempting to create portfolio with user ID: {UserId}.", userId);
+
+            MODELS.Portfolio modifiedPortfolio = await portfolioService
+                .CreatePortfolioByInfo(
+                    userId,
+                    biography,
+                    names);
+
+            return Ok(modifiedPortfolio);
+        }
+        catch (ArgumentNullException ex)
+        {
+            logger.LogError(ex, "Portfolio for user with ID {UserId} already exists.", userId);
+            return NotFound($"Portfolio for user with ID {userId} already exists.");
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "Unexpected error while creating portfolio for user with ID: {UserId}.", userId);
+            return StatusCode(StatusCodes.Status500InternalServerError, "An error occurred while creatting the portfolio.");
+        }
     }
 
     /// <summary>
@@ -133,7 +257,7 @@ public class PortfolioController(
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     [Produces("application/json")]
-    public IActionResult AddSocialMediaLinks(
+    async public Task<IActionResult> AddSocialMediaLinks(
         [Required]
         [FromQuery(Name = "portfolioID")]
         string portfolioId,
@@ -141,12 +265,59 @@ public class PortfolioController(
         [FromQuery(Name = "socialMediaLinks")]
         string socialMediaLinks)
     {
-        var foundPortfolio = new MODELS.Portfolio()
+        try
         {
-            PersonId = "ff",
-        };
+            #region Get User
 
-        return Ok(foundPortfolio);
+            string decodedToken = string.Empty;
+
+            try
+            {
+                decodedToken = Request.Cookies
+                    .TryGetDecodedToken();
+            }
+            catch (ArgumentNullException ex)
+            {
+                logger.LogError(ex.Message);
+
+                return StatusCode(StatusCodes.Status500InternalServerError, ex.Message);
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex, "Unexpected error while decoding cookies.");
+
+                return StatusCode(StatusCodes.Status500InternalServerError, "An unexpected error occurred. Please contact support.");
+            }
+
+            var user = await supabase.Auth
+                .GetUser(decodedToken);
+
+            #endregion
+
+            logger.LogInformation("Attempting to add social media links for portfolio with ID: {PortfolioId}.", portfolioId);
+
+            MODELS.Portfolio modifiedPortfolio = await portfolioService
+                .AddSocialMediaLinks(
+                    portfolioId,
+                    socialMediaLinks);
+
+            return Ok(modifiedPortfolio);
+        }
+        catch (ArgumentNullException ex)
+        {
+            logger.LogError(ex, "Portfolio with ID {PortfolioId} not found.", portfolioId);
+            return NotFound($"Portfolio with ID {portfolioId} not found.");
+        }
+        catch (JsonException ex)
+        {
+            logger.LogError(ex, "Social media links couldn't be deserialized.");
+            return NotFound("Social media links couldn't be deserialized.");
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "Unexpected error while adding social media links for portfolio with ID: {PortfolioId}.", portfolioId);
+            return StatusCode(StatusCodes.Status500InternalServerError, "An error occurred while adding the social media links.");
+        }
     }
 
     /// <summary>
@@ -163,7 +334,7 @@ public class PortfolioController(
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     [Produces("application/json")]
-    public IActionResult UploadAvatar(
+    async public Task<IActionResult> UploadAvatar(
         [Required]
         [FromQuery(Name = "portfolioID")]
         string portfolioId,
@@ -171,12 +342,59 @@ public class PortfolioController(
         [FromQuery(Name = "avatarURL")]
         string avatarURL)
     {
-        var foundPortfolio = new MODELS.Portfolio()
+        try
         {
-            Avatar = avatarURL,
-        };
+            #region Get User
 
-        return Ok(foundPortfolio);
+            string decodedToken = string.Empty;
+
+            try
+            {
+                decodedToken = Request.Cookies
+                    .TryGetDecodedToken();
+            }
+            catch (ArgumentNullException ex)
+            {
+                logger.LogError(ex.Message);
+
+                return StatusCode(StatusCodes.Status500InternalServerError, ex.Message);
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex, "Unexpected error while decoding cookies.");
+
+                return StatusCode(StatusCodes.Status500InternalServerError, "An unexpected error occurred. Please contact support.");
+            }
+
+            var user = await supabase.Auth
+                .GetUser(decodedToken);
+
+            #endregion
+
+            logger.LogInformation("Attempting to upload avatar URL for portfolio with ID: {PortfolioId}.", portfolioId);
+
+            MODELS.Portfolio modifiedPortfolio = await portfolioService
+                .UplaodAvatarByPortfolioId(
+                    portfolioId,
+                    avatarURL);
+
+            return Ok(modifiedPortfolio);
+        }
+        catch (ArgumentNullException ex)
+        {
+            logger.LogError(ex, "Portfolio with ID {PortfolioId} not found.", portfolioId);
+            return NotFound($"Portfolio with ID {portfolioId} not found.");
+        }
+        catch (EXCEPTIONS.ItemNotUpdatedException ex)
+        {
+            logger.LogError(ex, "Portfolio with ID {PortfolioId} couldn't be updated.", portfolioId);
+            return StatusCode(StatusCodes.Status500InternalServerError, $"Portfolio couldn't be updated.");
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "Unexpected error while uploadding avatar URL for portfolio with ID: {PortfolioId}.", portfolioId);
+            return StatusCode(StatusCodes.Status500InternalServerError, "An error occurred while uploadding the avatar URL.");
+        }
     }
 
     /// <summary>
@@ -193,7 +411,7 @@ public class PortfolioController(
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     [Produces("application/json")]
-    public IActionResult UploadCV(
+    async public Task<IActionResult> UploadCV(
         [Required]
         [FromQuery(Name = "portfolioID")]
         string portfolioId,
@@ -201,19 +419,66 @@ public class PortfolioController(
         [FromQuery(Name = "cv")]
         string cvURL)
     {
-        var foundPortfolio = new MODELS.Portfolio()
+        try
         {
-            CV = cvURL,
-        };
+            #region Get User
 
-        return Ok(foundPortfolio);
+            string decodedToken = string.Empty;
+
+            try
+            {
+                decodedToken = Request.Cookies
+                    .TryGetDecodedToken();
+            }
+            catch (ArgumentNullException ex)
+            {
+                logger.LogError(ex.Message);
+
+                return StatusCode(StatusCodes.Status500InternalServerError, ex.Message);
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex, "Unexpected error while decoding cookies.");
+
+                return StatusCode(StatusCodes.Status500InternalServerError, "An unexpected error occurred. Please contact support.");
+            }
+
+            var user = await supabase.Auth
+                .GetUser(decodedToken);
+
+            #endregion
+
+            logger.LogInformation("Attempting to upload CV URL for portfolio with ID: {PortfolioId}.", portfolioId);
+
+            MODELS.Portfolio modifiedPortfolio = await portfolioService
+                .UplaodCVByPortfolioId(
+                    portfolioId,
+                    cvURL);
+
+            return Ok(modifiedPortfolio);
+        }
+        catch (ArgumentNullException ex)
+        {
+            logger.LogError(ex, "Portfolio with ID {PortfolioId} not found.", portfolioId);
+            return NotFound($"Portfolio with ID {portfolioId} not found.");
+        }
+        catch (EXCEPTIONS.ItemNotUpdatedException ex)
+        {
+            logger.LogError(ex, "Portfolio with ID {PortfolioId} couldn't be updated.", portfolioId);
+            return StatusCode(StatusCodes.Status500InternalServerError, $"Portfolio couldn't be updated.");
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "Unexpected error while uploadding CV URL for portfolio with ID: {PortfolioId}.", portfolioId);
+            return StatusCode(StatusCodes.Status500InternalServerError, "An error occurred while uploadding the CV URL.");
+        }
     }
 
     /// <summary>
     /// Adds projects to a portfolio by specified portfolio ID.
     /// </summary>
     /// <param name="portfolioId">the portfolio ID</param>
-    /// <param name="projects">the portfolio ID</param>
+    /// <param name="projects">the projects source codes</param>
     /// <returns>The portfolio that had projects added.</returns>
     /// <response code="200">Returns the portfolio that had projects added to it.</response>
     /// <response code="401">If the user is unauthorized (invalid or missing JWT).</response>
@@ -223,7 +488,7 @@ public class PortfolioController(
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     [Produces("application/json")]
-    public IActionResult AddProjects(
+    async public Task<IActionResult> AddProjects(
         [Required]
         [FromQuery(Name = "portfolioID")]
         string portfolioId,
@@ -231,42 +496,54 @@ public class PortfolioController(
         [FromQuery(Name = "projects")]
         string[] projects)
     {
-        var foundPortfolio = new MODELS.Portfolio()
+        try
         {
+            #region Get User
 
-        };
+            string decodedToken = string.Empty;
 
-        return Ok(foundPortfolio);
-    }
+            try
+            {
+                decodedToken = Request.Cookies
+                    .TryGetDecodedToken();
+            }
+            catch (ArgumentNullException ex)
+            {
+                logger.LogError(ex.Message);
 
-    /// <summary>
-    /// Adds a project to a portfolio by specified portfolio ID.
-    /// </summary>
-    /// <param name="portfolioId">the portfolio ID</param>
-    /// <param name="sourceCodeLink">the source code link</param>
-    /// <returns>The project that was added.</returns>
-    /// <response code="200">Returns the project was added.</response>
-    /// <response code="401">If the user is unauthorized (invalid or missing JWT).</response>
-    /// <response code="500">If there is a server error.</response>
-    [HttpPost("addProjectToPortfolio")]
-    [ProducesResponseType(typeof(MODELS.Project), StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    [Produces("application/json")]
-    public IActionResult AddProjectToPortfolio(
-        [Required]
-        [FromQuery(Name = "portfolioID")]
-        string portfolioId,
-        [Required]
-        [FromQuery(Name = "sourceCodeLink")]
-        string sourceCodeLink)
-    {
-        var foundProject = new MODELS.Project()
+                return StatusCode(StatusCodes.Status500InternalServerError, ex.Message);
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex, "Unexpected error while decoding cookies.");
+
+                return StatusCode(StatusCodes.Status500InternalServerError, "An unexpected error occurred. Please contact support.");
+            }
+
+            var user = await supabase.Auth
+                .GetUser(decodedToken);
+
+            #endregion
+
+            logger.LogInformation("Attempting to add projects for portfolio with ID: {PortfolioId}.", portfolioId);
+
+            MODELS.Portfolio modifiedPortfolio = await portfolioService
+                .AddProjectsByPortfolioId(
+                    portfolioId,
+                    projects);
+
+            return Ok(modifiedPortfolio);
+        }
+        catch (ArgumentNullException ex)
         {
-            SourceCodeLink = sourceCodeLink,
-        };
-
-        return Ok(foundProject);
+            logger.LogError(ex, "Portfolio with ID {PortfolioId} not found.", portfolioId);
+            return NotFound($"Portfolio with ID {portfolioId} not found.");
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "Unexpected error while adding projects for portfolio with ID: {PortfolioId}.", portfolioId);
+            return StatusCode(StatusCodes.Status500InternalServerError, "An error occurred while adding the projects.");
+        }
     }
 
     #endregion
@@ -274,10 +551,10 @@ public class PortfolioController(
     #region PATCH Requests:
 
     /// <summary>
-    /// Edits a social link from a portfolio by a specified portfolio ID.
+    /// Edits a social link from a portfolio by a specified ID.
     /// </summary>
-    /// <param name="portfolioId">the portfolio ID</param>
-    /// <param name="socialMediaLinks">the social media link</param>
+    /// <param name="socialMediaLinkId">the id of the social media link to be editted</param>
+    /// <param name="newSocialMediaLink">the new social media link</param>
     /// <returns>The portfolio that had social media link edited.</returns>
     /// <response code="200">Returns the portfolio that had social media link edited.</response>
     /// <response code="401">If the user is unauthorized (invalid or missing JWT).</response>
@@ -287,20 +564,67 @@ public class PortfolioController(
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     [Produces("application/json")]
-    public IActionResult EditSocialMediaLink(
+    async public Task<IActionResult> EditSocialMediaLink(
         [Required]
-        [FromQuery(Name = "portfolioID")]
-        string portfolioId,
+        [FromQuery(Name = "socialMediaLinkId")]
+        string socialMediaLinkId,
         [Required]
-        [FromQuery(Name = "socialMediaLink")]
-        string socialMediaLink)
+        [FromQuery(Name = "newSocialMediaLink")]
+        string newSocialMediaLink)
     {
-        var foundPortfolio = new MODELS.Portfolio()
+        try
         {
-            PersonId = "ff",
-        };
+            #region Get User
 
-        return Ok(foundPortfolio);
+            string decodedToken = string.Empty;
+
+            try
+            {
+                decodedToken = Request.Cookies
+                    .TryGetDecodedToken();
+            }
+            catch (ArgumentNullException ex)
+            {
+                logger.LogError(ex.Message);
+
+                return StatusCode(StatusCodes.Status500InternalServerError, ex.Message);
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex, "Unexpected error while decoding cookies.");
+
+                return StatusCode(StatusCodes.Status500InternalServerError, "An unexpected error occurred. Please contact support.");
+            }
+
+            var user = await supabase.Auth
+                .GetUser(decodedToken);
+
+            #endregion
+
+            logger.LogInformation("Attempting to edit social media link with ID: {SocialMediaLinkId}.", socialMediaLinkId);
+
+            MODELS.Portfolio modifiedPortfolio = await portfolioService
+                .EditSocialMediaLinkById(
+                    socialMediaLinkId,
+                    newSocialMediaLink);
+
+            return Ok(modifiedPortfolio);
+        }
+        catch (ArgumentNullException ex)
+        {
+            logger.LogError(ex, "Social media link with ID {SocialMediaLinkId} not found.", socialMediaLinkId);
+            return NotFound($"Social media link with ID {socialMediaLinkId} not found.");
+        }
+        catch (EXCEPTIONS.ItemNotUpdatedException ex)
+        {
+            logger.LogError(ex, "Portfolio couldn't be updated");
+            return StatusCode(StatusCodes.Status500InternalServerError, "Portfolio couldn't be updated.");
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "Unexpected error while editting social media link with ID: {SocialMediaLinkId}.", socialMediaLinkId);
+            return StatusCode(StatusCodes.Status500InternalServerError, "An error occurred while editting the social media link.");
+        }
     }
 
     /// <summary>
@@ -317,7 +641,7 @@ public class PortfolioController(
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     [Produces("application/json")]
-    public IActionResult EditBiography(
+    async public Task<IActionResult> EditBiography(
         [Required]
         [FromQuery(Name = "portfolioID")]
         string portfolioId,
@@ -325,12 +649,59 @@ public class PortfolioController(
         [FromQuery(Name = "biography")]
         string biography)
     {
-        var foundPortfolio = new MODELS.Portfolio()
+        try
         {
-            Biography = biography,
-        };
+            #region Get User
 
-        return Ok(foundPortfolio);
+            string decodedToken = string.Empty;
+
+            try
+            {
+                decodedToken = Request.Cookies
+                    .TryGetDecodedToken();
+            }
+            catch (ArgumentNullException ex)
+            {
+                logger.LogError(ex.Message);
+
+                return StatusCode(StatusCodes.Status500InternalServerError, ex.Message);
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex, "Unexpected error while decoding cookies.");
+
+                return StatusCode(StatusCodes.Status500InternalServerError, "An unexpected error occurred. Please contact support.");
+            }
+
+            var user = await supabase.Auth
+                .GetUser(decodedToken);
+
+            #endregion
+
+            logger.LogInformation("Attempting to edit biography for portfolio with ID: {PortfolioId}.", portfolioId);
+
+            MODELS.Portfolio modifiedPortfolio = await portfolioService
+                .EditBiographyByPortfolioId(
+                    portfolioId,
+                    biography);
+
+            return Ok(modifiedPortfolio);
+        }
+        catch (ArgumentNullException ex)
+        {
+            logger.LogError(ex, "Portfolio with ID {PortfolioId} not found.", portfolioId);
+            return NotFound($"Portfolio with ID {portfolioId} not found.");
+        }
+        catch (EXCEPTIONS.ItemNotUpdatedException ex)
+        {
+            logger.LogError(ex, "Portfolio with ID {PortfolioId} couldn't be updated.", portfolioId);
+            return StatusCode(StatusCodes.Status500InternalServerError, "Portfolio couldn't be updated.");
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "Unexpected error while editting biography for portfolio with ID: {PortfolioId}.", portfolioId);
+            return StatusCode(StatusCodes.Status500InternalServerError, "An error occurred while editting the biography.");
+        }
     }
 
     /// <summary>
@@ -348,7 +719,7 @@ public class PortfolioController(
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     [Produces("application/json")]
-    public IActionResult EditTheme(
+    async public Task<IActionResult> EditTheme(
         [Required]
         [FromQuery(Name = "portfolioID")]
         string portfolioId,
@@ -357,13 +728,60 @@ public class PortfolioController(
         [FromQuery(Name = "mainColor")]
         string? mainColor)
     {
-        var foundPortfolio = new MODELS.Portfolio()
+        try
         {
-            BackgroundTheme = backgroundTheme ?? DefaultBackgroundThemeValue,
-            MainColor = mainColor ?? DefaultMainColorValue,
-        };
+            #region Get User
 
-        return Ok(foundPortfolio);
+            string decodedToken = string.Empty;
+
+            try
+            {
+                decodedToken = Request.Cookies
+                    .TryGetDecodedToken();
+            }
+            catch (ArgumentNullException ex)
+            {
+                logger.LogError(ex.Message);
+
+                return StatusCode(StatusCodes.Status500InternalServerError, ex.Message);
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex, "Unexpected error while decoding cookies.");
+
+                return StatusCode(StatusCodes.Status500InternalServerError, "An unexpected error occurred. Please contact support.");
+            }
+
+            var user = await supabase.Auth
+                .GetUser(decodedToken);
+
+            #endregion
+
+            logger.LogInformation("Attempting to edit theme for portfolio with ID: {PortfolioId}.", portfolioId);
+
+            MODELS.Portfolio modifiedPortfolio = await portfolioService
+                .EditThemeByPortfolioId(
+                    portfolioId,
+                    backgroundTheme,
+                    mainColor);
+
+            return Ok(modifiedPortfolio);
+        }
+        catch (ArgumentNullException ex)
+        {
+            logger.LogError(ex, "Portfolio with ID {PortfolioId} not found.", portfolioId);
+            return NotFound($"Portfolio with ID {portfolioId} not found.");
+        }
+        catch (EXCEPTIONS.ItemNotUpdatedException ex)
+        {
+            logger.LogError(ex, "Portfolio with ID {PortfolioId} couldn't be updated.", portfolioId);
+            return StatusCode(StatusCodes.Status500InternalServerError, "Portfolio couldn't be updated.");
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "Unexpected error while editting theme for portfolio with ID: {PortfolioId}.", portfolioId);
+            return StatusCode(StatusCodes.Status500InternalServerError, "An error occurred while editting the theme.");
+        }
     }
 
     /// <summary>
@@ -379,18 +797,63 @@ public class PortfolioController(
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     [Produces("application/json")]
-    public IActionResult SetDefaultTheme(
+    async public Task<IActionResult> SetDefaultTheme(
         [Required]
         [FromQuery(Name = "portfolioID")]
         string portfolioId)
     {
-        var foundPortfolio = new MODELS.Portfolio()
+        try
         {
-            BackgroundTheme = DefaultBackgroundThemeValue,
-            MainColor = DefaultMainColorValue,
-        };
+            #region Get User
 
-        return Ok(foundPortfolio);
+            string decodedToken = string.Empty;
+
+            try
+            {
+                decodedToken = Request.Cookies
+                    .TryGetDecodedToken();
+            }
+            catch (ArgumentNullException ex)
+            {
+                logger.LogError(ex.Message);
+
+                return StatusCode(StatusCodes.Status500InternalServerError, ex.Message);
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex, "Unexpected error while decoding cookies.");
+
+                return StatusCode(StatusCodes.Status500InternalServerError, "An unexpected error occurred. Please contact support.");
+            }
+
+            var user = await supabase.Auth
+                .GetUser(decodedToken);
+
+            #endregion
+
+            logger.LogInformation("Attempting to set default theme for portfolio with ID: {PortfolioId}.", portfolioId);
+
+            MODELS.Portfolio modifiedPortfolio = await portfolioService
+                .SetDefaultThemeByportfolioId(
+                    portfolioId);
+
+            return Ok(modifiedPortfolio);
+        }
+        catch (ArgumentNullException ex)
+        {
+            logger.LogError(ex, "Portfolio with ID {PortfolioId} not found.", portfolioId);
+            return NotFound($"Portfolio with ID {portfolioId} not found.");
+        }
+        catch (EXCEPTIONS.ItemNotUpdatedException ex)
+        {
+            logger.LogError(ex, "Portfolio with ID {PortfolioId} couldn't be updated.", portfolioId);
+            return StatusCode(StatusCodes.Status500InternalServerError, "Portfolio couldn't be updated.");
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "Unexpected error while setting defualt theme for portfolio with ID: {PortfolioId}.", portfolioId);
+            return StatusCode(StatusCodes.Status500InternalServerError, "An error occurred while setting the default theme.");
+        }
     }
 
     /// <summary>
@@ -406,7 +869,7 @@ public class PortfolioController(
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     [Produces("application/json")]
-    public IActionResult EditNames(
+    async public Task<IActionResult> EditNames(
         [Required]
         [FromQuery(Name = "portfolioID")]
         string portfolioId,
@@ -414,12 +877,59 @@ public class PortfolioController(
         [FromQuery(Name = "names")]
         string[] names)
     {
-        var foundPortfolio = new MODELS.Portfolio()
+        try
         {
-            PersonNames = names,
-        };
+            #region Get User
 
-        return Ok(foundPortfolio);
+            string decodedToken = string.Empty;
+
+            try
+            {
+                decodedToken = Request.Cookies
+                    .TryGetDecodedToken();
+            }
+            catch (ArgumentNullException ex)
+            {
+                logger.LogError(ex.Message);
+
+                return StatusCode(StatusCodes.Status500InternalServerError, ex.Message);
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex, "Unexpected error while decoding cookies.");
+
+                return StatusCode(StatusCodes.Status500InternalServerError, "An unexpected error occurred. Please contact support.");
+            }
+
+            var user = await supabase.Auth
+                .GetUser(decodedToken);
+
+            #endregion
+
+            logger.LogInformation("Attempting to edit the person names for portfolio with ID: {PortfolioId}.", portfolioId);
+
+            MODELS.Portfolio modifiedPortfolio = await portfolioService
+                .EditNamesByPortfolioId(
+                    portfolioId,
+                    names);
+
+            return Ok(modifiedPortfolio);
+        }
+        catch (ArgumentNullException ex)
+        {
+            logger.LogError(ex, "Portfolio with ID {PortfolioId} not found.", portfolioId);
+            return NotFound($"Portfolio with ID {portfolioId} not found.");
+        }
+        catch (EXCEPTIONS.ItemNotUpdatedException ex)
+        {
+            logger.LogError(ex, "Portfolio with ID {PortfolioId} couldn't be updated.", portfolioId);
+            return StatusCode(StatusCodes.Status500InternalServerError, "Portfolio couldn't be updated.");
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "Unexpected error while editting person names for portfolio with ID: {PortfolioId}.", portfolioId);
+            return StatusCode(StatusCodes.Status500InternalServerError, "An error occurred while editting the person names.");
+        }
     }
 
     #endregion
@@ -427,10 +937,9 @@ public class PortfolioController(
     #region DELETE Requests:
 
     /// <summary>
-    /// Removes a social links from a portfolio by a specified portfolio ID.
+    /// Removes a social links from a portfolio by a specified social media link ID.
     /// </summary>
-    /// <param name="portfolioId">the portfolio ID</param>
-    /// <param name="socialMediaLink">the social media link to delete</param>
+    /// <param name="socialMediaLinkId">the social media link id to delete</param>
     /// <returns>The portfolio that had social media link removed.</returns>
     /// <response code="200">Returns the portfolio that had social media link removed.</response>
     /// <response code="401">If the user is unauthorized (invalid or missing JWT).</response>
@@ -440,20 +949,62 @@ public class PortfolioController(
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     [Produces("application/json")]
-    public IActionResult RemoveSocialMediaLink(
+    async public Task<IActionResult> RemoveSocialMediaLink(
         [Required]
-        [FromQuery(Name = "portfolioID")]
-        string portfolioId,
-        [Required]
-        [FromQuery(Name = "socialMediaLink")]
-        string socialMediaLink)
+        [FromQuery(Name = "socialMediaLinkID")]
+        string socialMediaLinkId)
     {
-        var foundPortfolio = new MODELS.Portfolio()
+        try
         {
-            PersonId = "ff",
-        };
+            #region Get User
 
-        return Ok(foundPortfolio);
+            string decodedToken = string.Empty;
+
+            try
+            {
+                decodedToken = Request.Cookies
+                    .TryGetDecodedToken();
+            }
+            catch (ArgumentNullException ex)
+            {
+                logger.LogError(ex.Message);
+
+                return StatusCode(StatusCodes.Status500InternalServerError, ex.Message);
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex, "Unexpected error while decoding cookies.");
+
+                return StatusCode(StatusCodes.Status500InternalServerError, "An unexpected error occurred. Please contact support.");
+            }
+
+            var user = await supabase.Auth
+                .GetUser(decodedToken);
+
+            #endregion
+
+            logger.LogInformation("Attempting to remove social media link with ID: {SocialMediaLinkId}.", socialMediaLinkId);
+
+            MODELS.Portfolio modifiedPortfolio = await portfolioService
+                .RemoveSocialMediaLinkById(socialMediaLinkId);
+
+            return Ok(modifiedPortfolio);
+        }
+        catch (ArgumentNullException ex)
+        {
+            logger.LogError(ex, "Social media link with ID {SocialMediaLinkId} not found.", socialMediaLinkId);
+            return NotFound($"Social media link with ID {socialMediaLinkId} not found.");
+        }
+        catch (EXCEPTIONS.ItemNotDeletedException ex)
+        {
+            logger.LogError(ex, "Social media link with ID {SocialMediaLink} couldn't be deleted.", socialMediaLinkId);
+            return StatusCode(StatusCodes.Status500InternalServerError, "Social media link couldn't be deleted.");
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "Unexpected error while removing social media link with ID: {SocialMediaLinkId}.", socialMediaLinkId);
+            return StatusCode(StatusCodes.Status500InternalServerError, "An error occurred while removing the social media link.");
+        }
     }
 
     /// <summary>
@@ -469,17 +1020,62 @@ public class PortfolioController(
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     [Produces("application/json")]
-    public IActionResult RemoveAvatar(
+    async public Task<IActionResult> RemoveAvatar(
         [Required]
         [FromQuery(Name = "portfolioID")]
         string portfolioId)
     {
-        var foundPortfolio = new MODELS.Portfolio()
+        try
         {
-            Avatar = DefaultAvatarValue,
-        };
+            #region Get User
 
-        return Ok(foundPortfolio);
+            string decodedToken = string.Empty;
+
+            try
+            {
+                decodedToken = Request.Cookies
+                    .TryGetDecodedToken();
+            }
+            catch (ArgumentNullException ex)
+            {
+                logger.LogError(ex.Message);
+
+                return StatusCode(StatusCodes.Status500InternalServerError, ex.Message);
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex, "Unexpected error while decoding cookies.");
+
+                return StatusCode(StatusCodes.Status500InternalServerError, "An unexpected error occurred. Please contact support.");
+            }
+
+            var user = await supabase.Auth
+                .GetUser(decodedToken);
+
+            #endregion
+
+            logger.LogInformation("Attempting to remove avatar from portfolio with ID: {PortfolioID}.", portfolioId);
+
+            MODELS.Portfolio modifiedPortfolio = await portfolioService
+                .RemoveAvatarByPortfolioId(portfolioId);
+
+            return Ok(modifiedPortfolio);
+        }
+        catch (ArgumentNullException ex)
+        {
+            logger.LogError(ex, "Portfolio with ID {PortfolioID} not found.", portfolioId);
+            return NotFound($"Portfolio with ID {portfolioId} not found.");
+        }
+        catch (EXCEPTIONS.ItemNotUpdatedException ex)
+        {
+            logger.LogError(ex, "Portfolio with ID {PortfolioId} couldn't be updated.", portfolioId);
+            return StatusCode(StatusCodes.Status500InternalServerError, "Portfolio couldn't be updated.");
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "Unexpected error while removing avatar from portfolio with ID: {PortfolioID}.", portfolioId);
+            return StatusCode(StatusCodes.Status500InternalServerError, "An error occurred while removing the avatar.");
+        }
     }
 
     /// <summary>
@@ -495,17 +1091,62 @@ public class PortfolioController(
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     [Produces("application/json")]
-    public IActionResult RemoveCV(
+    async public Task<IActionResult> RemoveCV(
         [Required]
         [FromQuery(Name = "portfolioID")]
         string portfolioId)
     {
-        var foundPortfolio = new MODELS.Portfolio()
+        try
         {
-            CV = null,
-        };
+            #region Get User
 
-        return Ok(foundPortfolio);
+            string decodedToken = string.Empty;
+
+            try
+            {
+                decodedToken = Request.Cookies
+                    .TryGetDecodedToken();
+            }
+            catch (ArgumentNullException ex)
+            {
+                logger.LogError(ex.Message);
+
+                return StatusCode(StatusCodes.Status500InternalServerError, ex.Message);
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex, "Unexpected error while decoding cookies.");
+
+                return StatusCode(StatusCodes.Status500InternalServerError, "An unexpected error occurred. Please contact support.");
+            }
+
+            var user = await supabase.Auth
+                .GetUser(decodedToken);
+
+            #endregion
+
+            logger.LogInformation("Attempting to remove CV from portfolio with ID: {PortfolioID}.", portfolioId);
+
+            MODELS.Portfolio modifiedPortfolio = await portfolioService
+                .RemoveCVByPortfolioId(portfolioId);
+
+            return Ok(modifiedPortfolio);
+        }
+        catch (ArgumentNullException ex)
+        {
+            logger.LogError(ex, "Portfolio with ID {PortfolioID} not found.", portfolioId);
+            return NotFound($"Portfolio with ID {portfolioId} not found.");
+        }
+        catch (EXCEPTIONS.ItemNotUpdatedException ex)
+        {
+            logger.LogError(ex, "Portfolio with ID {PortfolioId} couldn't be updated.", portfolioId);
+            return StatusCode(StatusCodes.Status500InternalServerError, "Portfolio couldn't be updated.");
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "Unexpected error while removing CV from portfolio with ID: {PortfolioID}.", portfolioId);
+            return StatusCode(StatusCodes.Status500InternalServerError, "An error occurred while removing the CV.");
+        }
     }
 
     #endregion
