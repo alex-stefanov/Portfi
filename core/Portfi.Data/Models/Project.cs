@@ -62,12 +62,12 @@ public class Project
     /// </summary>
     [JsonPropertyName("images")]
     [Description("An optional collection of images related to the project.")]
-    public HashSet<string> Images { get; set; } = [];
+    public List<string> Images { get; set; } = [];
 
     /// <summary>
     /// Collection of categories associated with the project (up to 5).
     /// </summary>
     [JsonPropertyName("categories")]
     [Description("A list of categories associated with the project (up to 5).")]
-    public HashSet<ENUMS.ProjectCategory> Categories { get; set; } = [];
+    public List<ENUMS.ProjectCategory> Categories { get; set; } = [];
 }

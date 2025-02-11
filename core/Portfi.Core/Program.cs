@@ -17,7 +17,7 @@ builder.Configuration
 var supabaseUrl = Environment.GetEnvironmentVariable("Supabase_Url");
 var supabaseKey = Environment.GetEnvironmentVariable("Supabase_ApiKey");
 
-if (string.IsNullOrEmpty(supabaseUrl) 
+if (string.IsNullOrEmpty(supabaseUrl)
     || string.IsNullOrEmpty(supabaseKey))
 {
     throw new ArgumentNullException("Supabase credentials are missing!");
@@ -25,9 +25,9 @@ if (string.IsNullOrEmpty(supabaseUrl)
 
 builder.Services.AddSingleton(async provider =>
 {
-    var options = new SupabaseOptions 
+    var options = new SupabaseOptions
     {
-        AutoConnectRealtime = true 
+        AutoConnectRealtime = true
     };
 
     var client = new Client(
@@ -47,7 +47,7 @@ builder.Services
     });
 
 builder.Services
-    .RegisterRepositories(typeof(DATA.PortfiDbContext).Assembly)  
+    .RegisterRepositories(typeof(DATA.PortfiDbContext).Assembly)
     .RegisterUserDefinedServices(typeof(Portfi.Infrastructure.Services.Interfaces.IPortfolioService).Assembly);
 
 builder.Services
