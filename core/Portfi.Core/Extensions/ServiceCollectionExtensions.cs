@@ -27,10 +27,7 @@ public static class ServiceCollectionExtensions
                     .GetProperties()
                     .FirstOrDefault(p => p.Name.Equals("Id", StringComparison.OrdinalIgnoreCase));
 
-                Type[] constructArgs = [];
-                constructArgs[0] = type;
-                constructArgs[1] = idPropInfo?.PropertyType ?? typeof(object);
-
+                Type[] constructArgs = [type, idPropInfo?.PropertyType ?? typeof(object)];
                 repositoryInterface = repositoryInterface.MakeGenericType(constructArgs);
                 repositoryInstanceType = repositoryInstanceType.MakeGenericType(constructArgs);
 
@@ -59,7 +56,7 @@ public static class ServiceCollectionExtensions
         foreach (Type serviceInterfaceType in serviceInterfaceTypes)
         {
             Type? serviceType = serviceTypes
-                .FirstOrDefault(t => $"I{t.Name}".Equals(serviceInterfaceType.Name, StringComparison.OrdinalIgnoreCase))
+                .FirstOrDefault(t => $"I{t.Name}".Equals(serviceInterfaceType.Name, StringComparison.OrdinalIgnoreCase)) 
                 ?? throw new NullReferenceException($"Service type could not be found for {serviceInterfaceType.Name}");
 
             services.AddScoped(serviceInterfaceType, serviceType);

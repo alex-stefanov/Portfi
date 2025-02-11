@@ -1,9 +1,10 @@
 ﻿using System.Text.Json;
 using ENUMS = Portfi.Common.Enums;
 using MODELS = Portfi.Data.Models;
+using EXCEPTIONS = Portfi.Common.Exceptions;
 using REPOSITORIES = Portfi.Data.Repositories;
-using INTERFACES = Portfi.Infrastructure.Services.Interfaces;
 using RESPONSES = Portfi.Infrastructure.Models.Responses;
+using INTERFACES = Portfi.Infrastructure.Services.Interfaces;
 
 namespace Portfi.Infrastructure.Services.Implementations;
 
@@ -19,9 +20,14 @@ public class ProjectService(
         string activeLink)
     {
         var foundProject = await projectRepository.GetByIdAsync(Guid.Parse(projectId)) 
-            ?? throw new ArgumentNullException("Project not found");
+            ?? throw new ArgumentNullException("Project not found.");
 
         foundProject.HostedLink = activeLink;
+
+        if (!await projectRepository.UpdateAsync(foundProject))
+        {
+            throw new EXCEPTIONS.ItemNotUpdatedException($"{nameof(foundProject)} cannot be updated.");
+        }
 
         return foundProject;
     }
@@ -32,9 +38,14 @@ public class ProjectService(
         IEnumerable<ENUMS.ProjectCategory> categories)
     {
         var foundProject = await projectRepository.GetByIdAsync(Guid.Parse(projectId))
-           ?? throw new ArgumentNullException("Project not found");
+           ?? throw new ArgumentNullException("Project not found.");
 
         foundProject.Categories = categories.ToHashSet();
+
+        if (!await projectRepository.UpdateAsync(foundProject))
+        {
+            throw new EXCEPTIONS.ItemNotUpdatedException($"{nameof(foundProject)} cannot be updated.");
+        }
 
         return foundProject;
     }
@@ -45,9 +56,14 @@ public class ProjectService(
         string description)
     {
         var foundProject = await projectRepository.GetByIdAsync(Guid.Parse(projectId))
-           ?? throw new ArgumentNullException("Project not found");
+           ?? throw new ArgumentNullException("Project not found.");
 
         foundProject.Description = description;
+
+        if (!await projectRepository.UpdateAsync(foundProject))
+        {
+            throw new EXCEPTIONS.ItemNotUpdatedException($"{nameof(foundProject)} cannot be updated.");
+        }
 
         return foundProject;
     }
@@ -57,17 +73,17 @@ public class ProjectService(
         string projectId)
     {
         var foundProject = await projectRepository.GetByIdAsync(Guid.Parse(projectId))
-           ?? throw new ArgumentNullException("Project not found");
+           ?? throw new ArgumentNullException("Project not found.");
 
         Guid portfolioId = foundProject.PortfolioId;
 
         if(!await projectRepository.DeleteAsync(foundProject))
         {
-            throw new ArgumentNullException($"{nameof(projectRepository)} cannot be deleted");
+            throw new EXCEPTIONS.ItemNotDeletedException($"{nameof(projectRepository)} cannot be deleted.");
         }
 
         var foundPortfolio = await portfolioRepository.GetByIdAsync(portfolioId)
-            ?? throw new ArgumentNullException("Portfolio not found");
+            ?? throw new ArgumentNullException("Portfolio not found.");
 
         return foundPortfolio;
     }
@@ -78,11 +94,16 @@ public class ProjectService(
         string newActiveLink)
     {
         var foundProject = await projectRepository.GetByIdAsync(Guid.Parse(projectId))
-            ?? throw new ArgumentNullException("Project not found");
+            ?? throw new ArgumentNullException("Project not found.");
 
         if (foundProject.HostedLink != newActiveLink)
         {
             foundProject.HostedLink = newActiveLink;
+        }
+
+        if (!await projectRepository.UpdateAsync(foundProject))
+        {
+            throw new EXCEPTIONS.ItemNotUpdatedException($"{nameof(foundProject)} cannot be updated.");
         }
 
         return foundProject;
@@ -95,7 +116,7 @@ public class ProjectService(
         IEnumerable<ENUMS.ProjectCategory> categories)
     {
         var foundProject = await projectRepository.GetByIdAsync(Guid.Parse(projectId))
-            ?? throw new ArgumentNullException("Project not found");
+            ?? throw new ArgumentNullException("Project not found.");
 
         foundProject.Categories ??= [];
 
@@ -108,6 +129,11 @@ public class ProjectService(
             foundProject.Categories.UnionWith(newCategoriesSet);
         }
 
+        if (!await projectRepository.UpdateAsync(foundProject))
+        {
+            throw new EXCEPTIONS.ItemNotUpdatedException($"{nameof(foundProject)} cannot be updated.");
+        }
+
         return foundProject;
     }
 
@@ -117,11 +143,16 @@ public class ProjectService(
         string newDescription)
     {
         var foundProject = await projectRepository.GetByIdAsync(Guid.Parse(projectId))
-             ?? throw new ArgumentNullException("Project not found");
+             ?? throw new ArgumentNullException("Project not found.");
 
         if (foundProject.Description != newDescription)
         {
             foundProject.Description = newDescription;
+        }
+
+        if (!await projectRepository.UpdateAsync(foundProject))
+        {
+            throw new EXCEPTIONS.ItemNotUpdatedException($"{nameof(foundProject)} cannot be updated.");
         }
 
         return foundProject;
@@ -149,7 +180,7 @@ public class ProjectService(
         }
         catch (Exception ex)
         {
-            throw new ArgumentException($"Error fetching GitHub repos: {ex.Message}");
+            throw new ArgumentException($"Error fetching GitHub repos. {ex.Message}");
         }
     }
 
@@ -158,12 +189,17 @@ public class ProjectService(
         string projectId)
     {
         var foundProject = await projectRepository.GetByIdAsync(Guid.Parse(projectId))
-             ?? throw new ArgumentNullException("Project not found");
+             ?? throw new ArgumentNullException("Project not found.");
 
         if (!(string.IsNullOrEmpty(foundProject.HostedLink)
             || string.IsNullOrWhiteSpace(foundProject.HostedLink)))
         {
             foundProject.HostedLink = string.Empty;
+        }
+
+        if (!await projectRepository.UpdateAsync(foundProject))
+        {
+            throw new EXCEPTIONS.ItemNotUpdatedException($"{nameof(foundProject)} cannot be updated.");
         }
 
         return foundProject;
@@ -174,11 +210,16 @@ public class ProjectService(
         string projectId)
     {
         var foundProject = await projectRepository.GetByIdAsync(Guid.Parse(projectId))
-             ?? throw new ArgumentNullException("Project not found");
+             ?? throw new ArgumentNullException("Project not found.");
 
         if (foundProject.Categories.Any())
         {
             foundProject.Categories = [];
+        }
+
+        if (!await projectRepository.UpdateAsync(foundProject))
+        {
+            throw new EXCEPTIONS.ItemNotUpdatedException($"{nameof(foundProject)} cannot be updated.");
         }
 
         return foundProject;
@@ -189,12 +230,17 @@ public class ProjectService(
         string projectId)
     {
         var foundProject = await projectRepository.GetByIdAsync(Guid.Parse(projectId))
-             ?? throw new ArgumentNullException("Project not found");
+             ?? throw new ArgumentNullException("Project not found.");
 
         if (!(string.IsNullOrEmpty(foundProject.Description)
             || string.IsNullOrWhiteSpace(foundProject.Description)))
         {
             foundProject.Description = string.Empty;
+        }
+
+        if (!await projectRepository.UpdateAsync(foundProject))
+        {
+            throw new EXCEPTIONS.ItemNotUpdatedException($"{nameof(foundProject)} cannot be updated.");
         }
 
         return foundProject;

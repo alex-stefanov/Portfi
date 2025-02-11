@@ -1,7 +1,11 @@
+using DotNetEnv;
+using Supabase;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Portfi.Core.Extensions;
 using DATA = Portfi.Data;
+
+Env.Load();
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -9,6 +13,32 @@ var environment = builder.Environment;
 
 builder.Configuration
     .AddEnvironmentSpecificJsonFiles(environment, out string connectionString);
+
+var supabaseUrl = Environment.GetEnvironmentVariable("Supabase_Url");
+var supabaseKey = Environment.GetEnvironmentVariable("Supabase_ApiKey");
+
+if (string.IsNullOrEmpty(supabaseUrl) 
+    || string.IsNullOrEmpty(supabaseKey))
+{
+    throw new ArgumentNullException("Supabase credentials are missing!");
+}
+
+builder.Services.AddSingleton(async provider =>
+{
+    var options = new SupabaseOptions 
+    {
+        AutoConnectRealtime = true 
+    };
+
+    var client = new Client(
+        supabaseUrl,
+        supabaseKey,
+        options);
+
+    await client.InitializeAsync();
+
+    return client;
+});
 
 builder.Services
     .AddDbContext<DATA.PortfiDbContext>(options =>

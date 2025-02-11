@@ -1,8 +1,11 @@
 ﻿using System.Net.Http.Headers;
 using System.ComponentModel.DataAnnotations;
+using Supabase;
 using Microsoft.AspNetCore.Mvc;
+using Portfi.Common.Helpers;
 using MODELS = Portfi.Data.Models;
 using ENUMS = Portfi.Common.Enums;
+using EXCEPTIONS = Portfi.Common.Exceptions;
 using RESPONSES = Portfi.Infrastructure.Models.Responses;
 using SERVICES = Portfi.Infrastructure.Services.Interfaces;
 
@@ -23,6 +26,7 @@ namespace Portfi.Core.Controllers;
 [ProducesResponseType(StatusCodes.Status500InternalServerError, Type = typeof(RESPONSES.ErrorResponse))]
 public class ProjectController(
     SERVICES.IProjectService projectService,
+    Client supabase,
     ILogger<ProjectController> logger)
     : ControllerBase
 {
@@ -53,7 +57,37 @@ public class ProjectController(
     {
         try
         {
-            logger.LogInformation("Fetching GitHub projects for username: {Username}", username);
+            #region Get User
+            
+            string decodedToken = string.Empty;
+
+            try
+            {
+                decodedToken = Request.Cookies
+                    .TryGetDecodedToken();
+            }
+            catch (ArgumentNullException ex)
+            {
+                logger.LogError(ex.Message);
+
+                return StatusCode(StatusCodes.Status500InternalServerError, ex.Message);
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex, "Unexpected error while decoding cookies.");
+
+                return StatusCode(StatusCodes.Status500InternalServerError, "An unexpected error occurred. Please contact support.");
+            }
+
+            var user = await supabase.Auth
+                .GetUser(decodedToken);
+
+            #endregion
+
+            //Only for testing purposes
+
+            logger.LogInformation("Email: {Email}", user?.Email);
+            logger.LogInformation("Fetching GitHub projects for username: {Username}.", username);
 
             httpClient.DefaultRequestHeaders.UserAgent
                 .Add(new ProductInfoHeaderValue("Portfi", "1.0"));
@@ -65,17 +99,20 @@ public class ProjectController(
         }
         catch (ArgumentException ex)
         {
-            logger.LogError(ex, "Invalid GitHub username: {Username}", username);
+            logger.LogError(ex, "Invalid GitHub username: {Username}.", username);
+
             return BadRequest("Invalid GitHub username provided.");
         }
         catch (HttpRequestException ex)
         {
-            logger.LogError(ex, "Failed to retrieve GitHub projects for username: {Username}", username);
+            logger.LogError(ex, "Failed to retrieve GitHub projects for username: {Username}.", username);
+
             return StatusCode(StatusCodes.Status500InternalServerError, "Could not fetch GitHub repositories. Please try again later.");
         }
         catch (Exception ex)
         {
-            logger.LogError(ex, "Unexpected error while fetching GitHub projects for username: {Username}", username);
+            logger.LogError(ex, "Unexpected error while fetching GitHub projects for username: {Username}.", username);
+
             return StatusCode(StatusCodes.Status500InternalServerError, "An unexpected error occurred. Please contact support.");
         }
     }
@@ -98,7 +135,7 @@ public class ProjectController(
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     [Produces("application/json")]
-   async public Task<IActionResult> AddProjectDescription(
+    async public Task<IActionResult> AddProjectDescription(
         [Required]
         [FromQuery(Name = "projectID")]
         string projectId,
@@ -108,7 +145,34 @@ public class ProjectController(
     {
         try
         {
-            logger.LogInformation("Attempting to add description to project with ID: {ProjectId}", projectId);
+            #region Get User
+
+            string decodedToken = string.Empty;
+
+            try
+            {
+                decodedToken = Request.Cookies
+                    .TryGetDecodedToken();
+            }
+            catch (ArgumentNullException ex)
+            {
+                logger.LogError(ex.Message);
+
+                return StatusCode(StatusCodes.Status500InternalServerError, ex.Message);
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex, "Unexpected error while decoding cookies.");
+
+                return StatusCode(StatusCodes.Status500InternalServerError, "An unexpected error occurred. Please contact support.");
+            }
+
+            var user = await supabase.Auth
+                .GetUser(decodedToken);
+
+            #endregion
+
+            logger.LogInformation("Attempting to add description to project with ID: {ProjectId}.", projectId);
 
             MODELS.Project modifiedProject = await projectService
                 .AddDescriptionByProjectId(projectId, description);
@@ -117,12 +181,17 @@ public class ProjectController(
         }
         catch (ArgumentNullException ex)
         {
-            logger.LogError(ex, "Project with ID {ProjectId} not found", projectId);
+            logger.LogError(ex, "Project with ID {ProjectId} not found.", projectId);
             return NotFound($"Project with ID {projectId} not found.");
+        }
+        catch (EXCEPTIONS.ItemNotUpdatedException ex)
+        {
+            logger.LogError(ex, "Project with ID {ProjectId} couldn't be updated.", projectId);
+            return StatusCode(StatusCodes.Status500InternalServerError, "Project couldn't be updated.");
         }
         catch (Exception ex)
         {
-            logger.LogError(ex, "Unexpected error while adding description to project ID: {ProjectId}", projectId);
+            logger.LogError(ex, "Unexpected error while adding description to project ID: {ProjectId}.", projectId);
             return StatusCode(StatusCodes.Status500InternalServerError, "An error occurred while adding the project description.");
         }
     }
@@ -151,7 +220,34 @@ public class ProjectController(
     {
         try
         {
-            logger.LogInformation("Attempting to add active link to project with ID: {ProjectId}", projectId);
+            #region Get User
+
+            string decodedToken = string.Empty;
+
+            try
+            {
+                decodedToken = Request.Cookies
+                    .TryGetDecodedToken();
+            }
+            catch (ArgumentNullException ex)
+            {
+                logger.LogError(ex.Message);
+
+                return StatusCode(StatusCodes.Status500InternalServerError, ex.Message);
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex, "Unexpected error while decoding cookies.");
+
+                return StatusCode(StatusCodes.Status500InternalServerError, "An unexpected error occurred. Please contact support.");
+            }
+
+            var user = await supabase.Auth
+                .GetUser(decodedToken);
+
+            #endregion
+
+            logger.LogInformation("Attempting to add active link to project with ID: {ProjectId}.", projectId);
 
             MODELS.Project modifiedProject = await projectService
                 .AddActiveLinkByProjectId(projectId, activeLink);
@@ -160,12 +256,17 @@ public class ProjectController(
         }
         catch (ArgumentNullException ex)
         {
-            logger.LogError(ex, "An error occurred while adding active link to project with ID: {ProjectId}", projectId);
+            logger.LogError(ex, "An error occurred while adding active link to project with ID: {ProjectId}.", projectId);
             return StatusCode(StatusCodes.Status500InternalServerError, "An error occurred while processing your request.");
+        }
+        catch (EXCEPTIONS.ItemNotUpdatedException ex)
+        {
+            logger.LogError(ex, "Project with ID {ProjectId} couldn't be updated.", projectId);
+            return StatusCode(StatusCodes.Status500InternalServerError, "Project couldn't be updated.");
         }
         catch (Exception ex)
         {
-            logger.LogError(ex, "An unexpected error occurred while adding active link to project with ID: {ProjectId}", projectId);
+            logger.LogError(ex, "An unexpected error occurred while adding active link to project with ID: {ProjectId}.", projectId);
             return StatusCode(StatusCodes.Status500InternalServerError, "An unexpected error occurred while processing your request.");
         }
     }
@@ -194,7 +295,34 @@ public class ProjectController(
     {
         try
         {
-            logger.LogInformation("Attempting to add categories to project with ID: {ProjectId}", projectId);
+            #region Get User
+
+            string decodedToken = string.Empty;
+
+            try
+            {
+                decodedToken = Request.Cookies
+                    .TryGetDecodedToken();
+            }
+            catch (ArgumentNullException ex)
+            {
+                logger.LogError(ex.Message);
+
+                return StatusCode(StatusCodes.Status500InternalServerError, ex.Message);
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex, "Unexpected error while decoding cookies.");
+
+                return StatusCode(StatusCodes.Status500InternalServerError, "An unexpected error occurred. Please contact support.");
+            }
+
+            var user = await supabase.Auth
+                .GetUser(decodedToken);
+
+            #endregion
+
+            logger.LogInformation("Attempting to add categories to project with ID: {ProjectId}.", projectId);
 
             IEnumerable<ENUMS.ProjectCategory> enumValues = categories
                 .Select(value => Enum.TryParse(value, out ENUMS.ProjectCategory result) 
@@ -210,12 +338,17 @@ public class ProjectController(
         }
         catch (ArgumentNullException ex)
         {
-            logger.LogError(ex, "An error occurred while adding categories to project with ID: {ProjectId}", projectId);
+            logger.LogError(ex, "An error occurred while adding categories to project with ID: {ProjectId}.", projectId);
             return StatusCode(StatusCodes.Status500InternalServerError, "An error occurred while processing your request.");
+        }
+        catch (EXCEPTIONS.ItemNotUpdatedException ex)
+        {
+            logger.LogError(ex, "Project with ID {ProjectId} couldn't be updated.", projectId);
+            return StatusCode(StatusCodes.Status500InternalServerError, "Project couldn't be updated.");
         }
         catch (Exception ex)
         {
-            logger.LogError(ex, "An unexpected error occurred while adding categories to project with ID: {ProjectId}", projectId);
+            logger.LogError(ex, "An unexpected error occurred while adding categories to project with ID: {ProjectId}.", projectId);
             return StatusCode(StatusCodes.Status500InternalServerError, "An unexpected error occurred while processing your request.");
         }
     }
@@ -248,7 +381,34 @@ public class ProjectController(
     {
         try
         {
-            logger.LogInformation("Attempting to edit description to project with ID: {ProjectId}", projectId);
+            #region Get User
+
+            string decodedToken = string.Empty;
+
+            try
+            {
+                decodedToken = Request.Cookies
+                    .TryGetDecodedToken();
+            }
+            catch (ArgumentNullException ex)
+            {
+                logger.LogError(ex.Message);
+
+                return StatusCode(StatusCodes.Status500InternalServerError, ex.Message);
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex, "Unexpected error while decoding cookies.");
+
+                return StatusCode(StatusCodes.Status500InternalServerError, "An unexpected error occurred. Please contact support.");
+            }
+
+            var user = await supabase.Auth
+                .GetUser(decodedToken);
+
+            #endregion
+
+            logger.LogInformation("Attempting to edit description to project with ID: {ProjectId}.", projectId);
 
             MODELS.Project modifiedProject = await projectService
                 .EditDescriptionByProjectId(projectId, description);
@@ -257,12 +417,17 @@ public class ProjectController(
         }
         catch (ArgumentNullException ex)
         {
-            logger.LogError(ex, "An error occurred while editting description to project with ID: {ProjectId}", projectId);
+            logger.LogError(ex, "An error occurred while editting description to project with ID: {ProjectId}.", projectId);
             return StatusCode(StatusCodes.Status500InternalServerError, "An error occurred while processing your request.");
+        }
+        catch (EXCEPTIONS.ItemNotUpdatedException ex)
+        {
+            logger.LogError(ex, "Project with ID {ProjectId} couldn't be updated.", projectId);
+            return StatusCode(StatusCodes.Status500InternalServerError, "Project couldn't be updated.");
         }
         catch (Exception ex)
         {
-            logger.LogError(ex, "An unexpected error occurred while editting description to project with ID: {ProjectId}", projectId);
+            logger.LogError(ex, "An unexpected error occurred while editting description to project with ID: {ProjectId}.", projectId);
             return StatusCode(StatusCodes.Status500InternalServerError, "An unexpected error occurred while processing your request.");
         }
     }
@@ -291,7 +456,34 @@ public class ProjectController(
     {
         try
         {
-            logger.LogInformation("Attempting to edit active link to project with ID: {ProjectId}", projectId);
+            #region Get User
+
+            string decodedToken = string.Empty;
+
+            try
+            {
+                decodedToken = Request.Cookies
+                    .TryGetDecodedToken();
+            }
+            catch (ArgumentNullException ex)
+            {
+                logger.LogError(ex.Message);
+
+                return StatusCode(StatusCodes.Status500InternalServerError, ex.Message);
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex, "Unexpected error while decoding cookies.");
+
+                return StatusCode(StatusCodes.Status500InternalServerError, "An unexpected error occurred. Please contact support.");
+            }
+
+            var user = await supabase.Auth
+                .GetUser(decodedToken);
+
+            #endregion
+
+            logger.LogInformation("Attempting to edit active link to project with ID: {ProjectId}.", projectId);
 
             MODELS.Project modifiedProject = await projectService
                 .EditActiveLinkByProjectId(projectId, activeLink);
@@ -300,12 +492,17 @@ public class ProjectController(
         }
         catch (ArgumentNullException ex)
         {
-            logger.LogError(ex, "An error occurred while editting active link to project with ID: {ProjectId}", projectId);
+            logger.LogError(ex, "An error occurred while editting active link to project with ID: {ProjectId}.", projectId);
             return StatusCode(StatusCodes.Status500InternalServerError, "An error occurred while processing your request.");
+        }
+        catch (EXCEPTIONS.ItemNotUpdatedException ex)
+        {
+            logger.LogError(ex, "Project with ID {ProjectId} couldn't be updated.", projectId);
+            return StatusCode(StatusCodes.Status500InternalServerError, "Project couldn't be updated.");
         }
         catch (Exception ex)
         {
-            logger.LogError(ex, "An unexpected error occurred while editting active link to project with ID: {ProjectId}", projectId);
+            logger.LogError(ex, "An unexpected error occurred while editting active link to project with ID: {ProjectId}.", projectId);
             return StatusCode(StatusCodes.Status500InternalServerError, "An unexpected error occurred while processing your request.");
         }
     }
@@ -334,7 +531,34 @@ public class ProjectController(
     {
         try
         {
-            logger.LogInformation("Attempting to edit categories to project with ID: {ProjectId}", projectId);
+            #region Get User
+
+            string decodedToken = string.Empty;
+
+            try
+            {
+                decodedToken = Request.Cookies
+                    .TryGetDecodedToken();
+            }
+            catch (ArgumentNullException ex)
+            {
+                logger.LogError(ex.Message);
+
+                return StatusCode(StatusCodes.Status500InternalServerError, ex.Message);
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex, "Unexpected error while decoding cookies.");
+
+                return StatusCode(StatusCodes.Status500InternalServerError, "An unexpected error occurred. Please contact support.");
+            }
+
+            var user = await supabase.Auth
+                .GetUser(decodedToken);
+
+            #endregion
+
+            logger.LogInformation("Attempting to edit categories to project with ID: {ProjectId}.", projectId);
 
             IEnumerable<ENUMS.ProjectCategory> enumValues = categories
                 .Select(value => Enum.TryParse(value, out ENUMS.ProjectCategory result) 
@@ -350,12 +574,17 @@ public class ProjectController(
         }
         catch (ArgumentNullException ex)
         {
-            logger.LogError(ex, "An error occurred while editting categories to project with ID: {ProjectId}", projectId);
+            logger.LogError(ex, "An error occurred while editting categories to project with ID: {ProjectId}.", projectId);
             return StatusCode(StatusCodes.Status500InternalServerError, "An error occurred while processing your request.");
+        }
+        catch (EXCEPTIONS.ItemNotUpdatedException ex)
+        {
+            logger.LogError(ex, "Project with ID {ProjectId} couldn't be updated.", projectId);
+            return StatusCode(StatusCodes.Status500InternalServerError, "Project couldn't be updated.");
         }
         catch (Exception ex)
         {
-            logger.LogError(ex, "An unexpected error occurred while editting categories to project with ID: {ProjectId}", projectId);
+            logger.LogError(ex, "An unexpected error occurred while editting categories to project with ID: {ProjectId}.", projectId);
             return StatusCode(StatusCodes.Status500InternalServerError, "An unexpected error occurred while processing your request.");
         }
     }
@@ -384,7 +613,34 @@ public class ProjectController(
     {
         try
         {
-            logger.LogInformation("Attempting to remove description from project with ID: {ProjectId}", projectId);
+            #region Get User
+
+            string decodedToken = string.Empty;
+
+            try
+            {
+                decodedToken = Request.Cookies
+                    .TryGetDecodedToken();
+            }
+            catch (ArgumentNullException ex)
+            {
+                logger.LogError(ex.Message);
+
+                return StatusCode(StatusCodes.Status500InternalServerError, ex.Message);
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex, "Unexpected error while decoding cookies.");
+
+                return StatusCode(StatusCodes.Status500InternalServerError, "An unexpected error occurred. Please contact support.");
+            }
+
+            var user = await supabase.Auth
+                .GetUser(decodedToken);
+
+            #endregion
+
+            logger.LogInformation("Attempting to remove description from project with ID: {ProjectId}.", projectId);
 
             MODELS.Project modifiedProject = await projectService
                 .RemoveDescriptionByProjectId(projectId);
@@ -393,12 +649,17 @@ public class ProjectController(
         }
         catch (ArgumentNullException ex)
         {
-            logger.LogError(ex, "An error occurred while removing description from project with ID: {ProjectId}", projectId);
+            logger.LogError(ex, "An error occurred while removing description from project with ID: {ProjectId}.", projectId);
             return StatusCode(StatusCodes.Status500InternalServerError, "An error occurred while processing your request.");
+        }
+        catch (EXCEPTIONS.ItemNotUpdatedException ex)
+        {
+            logger.LogError(ex, "Project with ID {ProjectId} couldn't be updated.", projectId);
+            return StatusCode(StatusCodes.Status500InternalServerError, "Project couldn't be updated.");
         }
         catch (Exception ex)
         {
-            logger.LogError(ex, "An unexpected error occurred while removing description from project with ID: {ProjectId}", projectId);
+            logger.LogError(ex, "An unexpected error occurred while removing description from project with ID: {ProjectId}.", projectId);
             return StatusCode(StatusCodes.Status500InternalServerError, "An unexpected error occurred while processing your request.");
         }
     }
@@ -423,7 +684,34 @@ public class ProjectController(
     {
         try
         {
-            logger.LogInformation("Attempting to remove active link from project with ID: {ProjectId}", projectId);
+            #region Get User
+
+            string decodedToken = string.Empty;
+
+            try
+            {
+                decodedToken = Request.Cookies
+                    .TryGetDecodedToken();
+            }
+            catch (ArgumentNullException ex)
+            {
+                logger.LogError(ex.Message);
+
+                return StatusCode(StatusCodes.Status500InternalServerError, ex.Message);
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex, "Unexpected error while decoding cookies.");
+
+                return StatusCode(StatusCodes.Status500InternalServerError, "An unexpected error occurred. Please contact support.");
+            }
+
+            var user = await supabase.Auth
+                .GetUser(decodedToken);
+
+            #endregion
+
+            logger.LogInformation("Attempting to remove active link from project with ID: {ProjectId}.", projectId);
 
             MODELS.Project modifiedProject = await projectService
                 .RemoveActiveLinkByProjectId(projectId);
@@ -432,12 +720,17 @@ public class ProjectController(
         }
         catch (ArgumentNullException ex)
         {
-            logger.LogError(ex, "Project with ID {ProjectId} not found", projectId);
+            logger.LogError(ex, "Project with ID {ProjectId} not found.", projectId);
             return NotFound($"Project with ID {projectId} not found.");
+        }
+        catch (EXCEPTIONS.ItemNotUpdatedException ex)
+        {
+            logger.LogError(ex, "Project with ID {ProjectId} couldn't be updated.", projectId);
+            return StatusCode(StatusCodes.Status500InternalServerError, "Project couldn't be updated.");
         }
         catch (Exception ex)
         {
-            logger.LogError(ex, "Unexpected error while removing active link from project ID: {ProjectId}", projectId);
+            logger.LogError(ex, "Unexpected error while removing active link from project ID: {ProjectId}.", projectId);
             return StatusCode(StatusCodes.Status500InternalServerError, "An error occurred while removing the active link.");
         }
     }
@@ -462,7 +755,34 @@ public class ProjectController(
     {
         try
         {
-            logger.LogInformation("Attempting to clear categories from project with ID: {ProjectId}", projectId);
+            #region Get User
+
+            string decodedToken = string.Empty;
+
+            try
+            {
+                decodedToken = Request.Cookies
+                    .TryGetDecodedToken();
+            }
+            catch (ArgumentNullException ex)
+            {
+                logger.LogError(ex.Message);
+
+                return StatusCode(StatusCodes.Status500InternalServerError, ex.Message);
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex, "Unexpected error while decoding cookies.");
+
+                return StatusCode(StatusCodes.Status500InternalServerError, "An unexpected error occurred. Please contact support.");
+            }
+
+            var user = await supabase.Auth
+                .GetUser(decodedToken);
+
+            #endregion
+
+            logger.LogInformation("Attempting to clear categories from project with ID: {ProjectId}.", projectId);
 
             MODELS.Project modifiedProject = await projectService
                 .RemoveAllCategoriesByProjectId(projectId);
@@ -471,12 +791,17 @@ public class ProjectController(
         }
         catch (ArgumentNullException ex)
         {
-            logger.LogError(ex, "An error occurred while clearing categories from project with ID: {ProjectId}", projectId);
+            logger.LogError(ex, "An error occurred while clearing categories from project with ID: {ProjectId}.", projectId);
             return StatusCode(StatusCodes.Status500InternalServerError, "An error occurred while processing your request.");
+        }
+        catch (EXCEPTIONS.ItemNotUpdatedException ex)
+        {
+            logger.LogError(ex, "Project with ID {ProjectId} couldn't be updated.", projectId);
+            return StatusCode(StatusCodes.Status500InternalServerError, "Project couldn't be updated.");
         }
         catch (Exception ex)
         {
-            logger.LogError(ex, "An unexpected error occurred while clearing categories from project with ID: {ProjectId}", projectId);
+            logger.LogError(ex, "An unexpected error occurred while clearing categories from project with ID: {ProjectId}.", projectId);
             return StatusCode(StatusCodes.Status500InternalServerError, "An unexpected error occurred while processing your request.");
         }
     }
@@ -501,26 +826,53 @@ public class ProjectController(
     {
         try
         {
-            logger.LogInformation("Deleting project with ID: {ProjectId}", projectId);
+            #region Get User
+
+            string decodedToken = string.Empty;
+
+            try
+            {
+                decodedToken = Request.Cookies
+                    .TryGetDecodedToken();
+            }
+            catch (ArgumentNullException ex)
+            {
+                logger.LogError(ex.Message);
+
+                return StatusCode(StatusCodes.Status500InternalServerError, ex.Message);
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex, "Unexpected error while decoding cookies.");
+
+                return StatusCode(StatusCodes.Status500InternalServerError, "An unexpected error occurred. Please contact support.");
+            }
+
+            var user = await supabase.Auth
+                .GetUser(decodedToken);
+
+            #endregion
+
+            logger.LogInformation("Deleting project with ID: {ProjectId}.", projectId);
 
             MODELS.Portfolio correspondingPortfolio = await projectService
                 .DeleteProjectByProjectId(projectId);
-
+                
             return Ok(correspondingPortfolio);
         }
         catch (ArgumentNullException ex)
         {
-            logger.LogError(ex, "Project with ID {ProjectId} not found", projectId);
+            logger.LogError(ex, "Project with ID {ProjectId} not found.", projectId);
             return NotFound($"Project with ID {projectId} not found.");
         }
-        catch (InvalidOperationException ex)
+        catch (EXCEPTIONS.ItemNotDeletedException ex)
         {
-            logger.LogError(ex, "Failed to delete project with ID: {ProjectId}", projectId);
-            return Conflict("Project could not be deleted due to an internal constraint.");
+            logger.LogError(ex, "Failed to delete project with ID: {ProjectId}.", projectId);
+            return StatusCode(StatusCodes.Status500InternalServerError, "Project could not be deleted due to an internal constraint.");
         }
         catch (Exception ex)
         {
-            logger.LogError(ex, "Unexpected error while deleting project ID: {ProjectId}", projectId);
+            logger.LogError(ex, "Unexpected error while deleting project ID: {ProjectId}.", projectId);
             return StatusCode(StatusCodes.Status500InternalServerError, "An unexpected error occurred while deleting the project.");
         }
     }
