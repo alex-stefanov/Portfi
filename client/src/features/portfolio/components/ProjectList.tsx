@@ -22,7 +22,7 @@ import type { Project } from '../types/Portfolio';
 
 export const ProjectList = ({ projects }: { projects: Project[] }) => {
   return (
-    <div className="mb-8">
+    <section className="mb-8">
       <h2 className="mb-4 text-2xl font-bold">Projects</h2>
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
         {projects.map((project) => (
@@ -32,7 +32,7 @@ export const ProjectList = ({ projects }: { projects: Project[] }) => {
       <Button className="mt-4">
         <Plus className="mr-2 h-4 w-4" /> Add New Project
       </Button>
-    </div>
+    </section>
   );
 };
 

@@ -16,6 +16,10 @@ namespace Portfi.Data
 
         public DbSet<MODELS.PortfolioDownload> PortfolioDownloads { get; set; }
 
+        public DbSet<MODELS.SocialMediaLink> SocialMediaLinks { get; set; }
+
+        public DbSet<MODELS.PortfolioLink> PortfolioLinks { get; set; }
+
         #endregion
 
         public PortfiDbContext() { }
