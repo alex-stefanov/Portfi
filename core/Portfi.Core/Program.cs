@@ -23,22 +23,13 @@ if (string.IsNullOrEmpty(supabaseUrl)
     throw new ArgumentNullException("Supabase credentials are missing!");
 }
 
-builder.Services.AddSingleton(async provider =>
+var options = new SupabaseOptions
 {
-    var options = new SupabaseOptions
-    {
-        AutoConnectRealtime = true
-    };
+    AutoConnectRealtime = true
+};
 
-    var client = new Client(
-        supabaseUrl,
-        supabaseKey,
-        options);
-
-    await client.InitializeAsync();
-
-    return client;
-});
+builder.Services
+    .AddSingleton(provider => new Client(supabaseUrl, supabaseKey, options));
 
 builder.Services
     .AddDbContext<DATA.PortfiDbContext>(options =>
