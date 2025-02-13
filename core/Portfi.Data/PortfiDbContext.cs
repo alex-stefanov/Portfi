@@ -3,8 +3,8 @@ using MODELS = Portfi.Data.Models;
 
 namespace Portfi.Data
 {
-    public class PortfiDbContext(DbContextOptions<PortfiDbContext> options)
-        : DbContext(options)
+    public class PortfiDbContext
+        : DbContext
     {
         #region DbSets
 
@@ -22,34 +22,25 @@ namespace Portfi.Data
 
         #endregion
 
-        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        public PortfiDbContext() { }
+
+        public PortfiDbContext(DbContextOptions<PortfiDbContext> options)
+            : base(options) { }
+
+        protected override void OnModelCreating(
+            ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
-
-            modelBuilder.Entity<MODELS.Portfolio>()
-                .HasMany(p => p.Projects)
-                .WithOne()
-                .OnDelete(DeleteBehavior.Cascade);
-
-            modelBuilder.Entity<MODELS.Portfolio>()
-                .HasMany(p => p.PortfolioViews)
-                .WithOne()
-                .OnDelete(DeleteBehavior.Cascade);
-
-            modelBuilder.Entity<MODELS.Portfolio>()
-                .HasMany(p => p.PortfolioDownloads)
-                .WithOne()
-                .OnDelete(DeleteBehavior.Cascade);
-
-            modelBuilder.Entity<MODELS.Portfolio>()
-                .HasMany(p => p.SocialMediaLinks)
-                .WithOne()
-                .OnDelete(DeleteBehavior.Cascade);
-
-            modelBuilder.Entity<MODELS.Portfolio>()
-                .HasMany(p => p.PortfolioLinks)
-                .WithOne()
-                .OnDelete(DeleteBehavior.Cascade);
         }
+
+        protected override void OnConfiguring(
+            DbContextOptionsBuilder optionsBuilder)
+        {
+            if (!optionsBuilder.IsConfigured)
+            {
+                optionsBuilder.UseSqlServer("connectionString");
+            }
+        }
+
     }
 }

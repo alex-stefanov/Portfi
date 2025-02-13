@@ -111,33 +111,33 @@ public class Portfolio
     /// </summary>
     [JsonPropertyName("social_media_links")]
     [Description("A collection of social media links.")]
-    public HashSet<SocialMediaLink> SocialMediaLinks { get; set; } = [];
+    public List<SocialMediaLink> SocialMediaLinks { get; set; } = [];
 
     /// <summary>
     /// Collection of projects in the portfolio.
     /// </summary>
     [JsonPropertyName("projects")]
     [Description("A collection of projects in the portfolio.")]
-    public HashSet<Project> Projects { get; set; } = [];
+    public List<Project> Projects { get; set; } = [];
 
     /// <summary>
     /// Collection of views for the portfolio.
     /// </summary>
     [JsonPropertyName("views")]
     [Description("A collection of views for the portfolio.")]
-    public HashSet<PortfolioView> PortfolioViews { get; set; } = [];
+    public List<PortfolioView> PortfolioViews { get; set; } = [];
 
     /// <summary>
     /// Collection of downloads of the portfolio.
     /// </summary>
     [JsonPropertyName("downloads")]
     [Description("A collection of downloads of the portfolio.")]
-    public HashSet<PortfolioDownload> PortfolioDownloads { get; set; } = [];
+    public List<PortfolioDownload> PortfolioDownloads { get; set; } = [];
 
     /// <summary>
     /// Collection of portfolio links.
     /// </summary>
     [JsonPropertyName("portfolio_links")]
     [Description("A collection of portfolio links.")]
-    public HashSet<Portfolio> PortfolioLinks { get; set; } = [];
+    public List<Portfolio> PortfolioLinks { get; set; } = [];
 }

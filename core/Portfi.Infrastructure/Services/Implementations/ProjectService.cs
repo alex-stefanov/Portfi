@@ -19,7 +19,7 @@ public class ProjectService(
         string projectId,
         string activeLink)
     {
-        var foundProject = await projectRepository.GetByIdAsync(Guid.Parse(projectId)) 
+        var foundProject = await projectRepository.GetByIdAsync(Guid.Parse(projectId))
             ?? throw new ArgumentNullException("Project not found.");
 
         foundProject.HostedLink = activeLink;
@@ -40,7 +40,7 @@ public class ProjectService(
         var foundProject = await projectRepository.GetByIdAsync(Guid.Parse(projectId))
            ?? throw new ArgumentNullException("Project not found.");
 
-        foundProject.Categories = categories.ToHashSet();
+        foundProject.Categories = categories.ToList();
 
         if (!await projectRepository.UpdateAsync(foundProject))
         {
@@ -77,7 +77,7 @@ public class ProjectService(
 
         Guid portfolioId = foundProject.PortfolioId;
 
-        if(!await projectRepository.DeleteAsync(foundProject))
+        if (!await projectRepository.DeleteAsync(foundProject))
         {
             throw new EXCEPTIONS.ItemNotDeletedException($"{nameof(projectRepository)} cannot be deleted.");
         }
@@ -120,13 +120,10 @@ public class ProjectService(
 
         foundProject.Categories ??= [];
 
-        var newCategoriesSet = categories.ToHashSet();
-
-        if (!foundProject.Categories.SetEquals(newCategoriesSet))
+        if (!foundProject.Categories.SequenceEqual(categories))
         {
-            foundProject.Categories.RemoveWhere(c => !newCategoriesSet.Contains(c));
-
-            foundProject.Categories.UnionWith(newCategoriesSet);
+            foundProject.Categories.Clear();
+            foundProject.Categories.AddRange(categories);
         }
 
         if (!await projectRepository.UpdateAsync(foundProject))
@@ -176,7 +173,7 @@ public class ProjectService(
                 PropertyNameCaseInsensitive = true
             });
 
-            return [..repositories];
+            return [.. repositories];
         }
         catch (Exception ex)
         {
@@ -194,7 +191,7 @@ public class ProjectService(
         if (!(string.IsNullOrEmpty(foundProject.HostedLink)
             || string.IsNullOrWhiteSpace(foundProject.HostedLink)))
         {
-            foundProject.HostedLink = string.Empty;
+            foundProject.HostedLink = null;
         }
 
         if (!await projectRepository.UpdateAsync(foundProject))
@@ -235,7 +232,7 @@ public class ProjectService(
         if (!(string.IsNullOrEmpty(foundProject.Description)
             || string.IsNullOrWhiteSpace(foundProject.Description)))
         {
-            foundProject.Description = string.Empty;
+            foundProject.Description = null;
         }
 
         if (!await projectRepository.UpdateAsync(foundProject))
