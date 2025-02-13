@@ -193,7 +193,7 @@ public class PortfolioController(
         string[] names)
     {
         try
-        {
+        {   
             #region Get User
 
             string decodedToken = string.Empty;
@@ -860,6 +860,7 @@ public class PortfolioController(
     /// Edits the names from a portfolio by specified project ID.
     /// </summary>
     /// <param name="portfolioId">the portfolio ID</param>
+    /// <param name="names">the names to be edited</param>
     /// <returns>The portfolio that had the names edited.</returns>
     /// <response code="200">Returns the portfolio that had the names edited.</response>
     /// <response code="401">If the user is unauthorized (invalid or missing JWT).</response>
@@ -929,6 +930,83 @@ public class PortfolioController(
         {
             logger.LogError(ex, "Unexpected error while editting person names for portfolio with ID: {PortfolioId}.", portfolioId);
             return StatusCode(StatusCodes.Status500InternalServerError, "An error occurred while editting the person names.");
+        }
+    }
+
+    /// <summary>
+    /// Edits the visability of a portfolio by a specified portfolio ID.
+    /// </summary>
+    /// <param name="portfolioId">the portfolio ID</param>
+    /// <param name="isPublic">the visability to be edited</param>
+    /// <returns>The portfolio that had the visability edited.</returns>
+    /// <response code="200">Returns the portfolio that had the visability edited.</response>
+    /// <response code="401">If the user is unauthorized (invalid or missing JWT).</response>
+    /// <response code="500">If there is a server error.</response>
+    [HttpPatch("editVisability")]
+    [ProducesResponseType(typeof(MODELS.Portfolio), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    [Produces("application/json")]
+    async public Task<IActionResult> EditVisability(
+        [Required]
+        [FromQuery(Name = "portfolioID")]
+        string portfolioId,
+        [Required]
+        [FromQuery(Name = "isPublic")]
+        bool isPublic)
+    {
+        try
+        {  
+            #region Get User
+
+            string decodedToken = string.Empty;
+
+            try
+            {
+                decodedToken = Request.Cookies
+                    .TryGetDecodedToken();
+            }
+            catch (ArgumentNullException ex)
+            {
+                logger.LogError(ex.Message);
+
+                return StatusCode(StatusCodes.Status500InternalServerError, ex.Message);
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex, "Unexpected error while decoding cookies.");
+
+                return StatusCode(StatusCodes.Status500InternalServerError, "An unexpected error occurred. Please contact support.");
+            }
+
+            var user = await supabase.Auth
+                .GetUser(decodedToken);
+
+            #endregion
+
+            logger.LogInformation("Attempting to edit the visability for portfolio with ID: {PortfolioId}.", portfolioId);
+
+            MODELS.Portfolio modifiedPortfolio = await portfolioService
+                .EditVisabilityByPortfolioId(
+                    portfolioId,
+                    isPublic);
+
+            return Ok(modifiedPortfolio);
+        }
+        catch (ArgumentNullException ex)
+        {
+            logger.LogError(ex, "Portfolio with ID {PortfolioId} not found.", portfolioId);
+            return NotFound($"Portfolio with ID {portfolioId} not found.");
+        }
+        catch (EXCEPTIONS.ItemNotUpdatedException ex)
+        {
+            logger.LogError(ex, "Portfolio with ID {PortfolioId} couldn't be updated.", portfolioId);
+            return StatusCode(StatusCodes.Status500InternalServerError, "Portfolio couldn't be updated.");
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "Unexpected error while editting visability for portfolio with ID: {PortfolioId}.", portfolioId);
+            return StatusCode(StatusCodes.Status500InternalServerError, "An error occurred while editting the visability.");
         }
     }
 
