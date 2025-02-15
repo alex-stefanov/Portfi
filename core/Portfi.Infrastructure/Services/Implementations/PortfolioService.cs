@@ -206,7 +206,7 @@ public class PortfolioService(
         var foundPortfolio = await portfolioRepository.GetByIdAsync(Guid.Parse(portfolioId))
             ?? throw new ArgumentNullException("Portfolio not found.");
 
-        if (!string.IsNullOrEmpty(newBackgroundTheme) 
+        if (!string.IsNullOrEmpty(newBackgroundTheme)
             && foundPortfolio.BackgroundTheme != newBackgroundTheme)
         {
             foundPortfolio.BackgroundTheme = newBackgroundTheme;
@@ -216,6 +216,27 @@ public class PortfolioService(
             && foundPortfolio.MainColor != newMainColor)
         {
             foundPortfolio.MainColor = newMainColor;
+        }
+
+        if (!await portfolioRepository.UpdateAsync(foundPortfolio))
+        {
+            throw new EXCEPTIONS.ItemNotUpdatedException($"{nameof(foundPortfolio)} cannot be updated.");
+        }
+
+        return foundPortfolio;
+    }
+
+    /// <inheritdoc/>
+    async public Task<MODELS.Portfolio> EditVisabilityByPortfolioId(
+        string portfolioId,
+        bool isPublic)
+    {
+        var foundPortfolio = await portfolioRepository.GetByIdAsync(Guid.Parse(portfolioId))
+            ?? throw new ArgumentNullException("Portfolio not found.");
+
+        if (foundPortfolio.IsPublic != isPublic)
+        {
+            foundPortfolio.IsPublic = isPublic;
         }
 
         if (!await portfolioRepository.UpdateAsync(foundPortfolio))

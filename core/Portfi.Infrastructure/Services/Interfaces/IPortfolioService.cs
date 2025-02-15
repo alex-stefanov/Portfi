@@ -97,6 +97,18 @@ public interface IPortfolioService
         string? newMainColor);
 
     /// <summary>
+    /// Edits the visability of a portfolio by its ID.
+    /// </summary>
+    /// <param name="portfolioId">The unique identifier of the portfolio.</param>
+    /// <param name="isPublic">The visability.</param>
+    /// <returns>The updated portfolio.</returns>
+    /// <exception cref="ArgumentNullException">Thrown when portfolio is null.</exception>
+    /// <exception cref="EXCEPTIONS.ItemNotUpdatedException">Thrown when item couldn't be updated.</exception>
+    Task<MODELS.Portfolio> EditVisabilityByPortfolioId(
+        string portfolioId,
+        bool isPublic);
+
+    /// <summary>
     /// Retrieves a collection of example portfolios.
     /// </summary>
     /// <returns>A list of example portfolios.</returns>
