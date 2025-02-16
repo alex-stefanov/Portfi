@@ -14,82 +14,103 @@ public interface IProjectService
     /// Adds an active link to a project by its ID.
     /// </summary>
     /// <param name="projectId">The ID of the project to which the active link will be added.</param>
+    /// <param name="personId">The unique identifier of the person for authorization.</param>
     /// <param name="activeLink">The active link to be added to the project.</param>
     /// <returns>The modified project.</returns>
     /// <exception cref="ArgumentNullException">Thrown when project is null.</exception>
     /// <exception cref="EXCEPTIONS.ItemNotUpdatedException">Thrown when item couldn't be updated.</exception>
+    /// <exception cref="EXCEPTIONS.NotAuthorizedException">Thrown when user doesn't have the required permission.</exception>
     Task<MODELS.Project> AddActiveLinkByProjectId(
         string projectId,
+        string personId,
         string activeLink);
 
     /// <summary>
     /// Adds categories to a project by its ID.
     /// </summary>
     /// <param name="projectId">The ID of the project to which the categories will be added.</param>
+    /// <param name="personId">The unique identifier of the person for authorization.</param>
     /// <param name="categories">A collection of categories to be added to the project.</param>
     /// <returns>The modified project.</returns>
     /// <exception cref="ArgumentNullException">Thrown when project is null.</exception>
     /// <exception cref="EXCEPTIONS.ItemNotUpdatedException">Thrown when item couldn't be updated.</exception>
+    /// <exception cref="EXCEPTIONS.NotAuthorizedException">Thrown when user doesn't have the required permission.</exception>
     Task<MODELS.Project> AddCategoriesByProjectId(
         string projectId,
+        string personId,
         IEnumerable<ENUMS.ProjectCategory> categories);
 
     /// <summary>
     /// Adds a description to a project by its ID.
     /// </summary>
     /// <param name="projectId">The ID of the project to which the description will be added.</param>
+    /// <param name="personId">The unique identifier of the person for authorization.</param>
     /// <param name="description">The description to be added to the project.</param>
     /// <returns>The modified project.</returns>
     /// <exception cref="ArgumentNullException">Thrown when project is null.</exception>
     /// <exception cref="EXCEPTIONS.ItemNotUpdatedException">Thrown when item couldn't be updated.</exception>
+    /// <exception cref="EXCEPTIONS.NotAuthorizedException">Thrown when user doesn't have the required permission.</exception>
     Task<MODELS.Project> AddDescriptionByProjectId(
         string projectId,
+        string personId,
         string description);
 
     /// <summary>
     /// Deletes a project by its ID.
     /// </summary>
     /// <param name="projectId">The ID of the project to be deleted.</param>
+    /// <param name="personId">The unique identifier of the person for authorization.</param>
     /// <returns>The portfolio from where the project was deleted.</returns>
     /// <exception cref="ArgumentNullException">Thrown when project is null.</exception>
     /// <exception cref="EXCEPTIONS.ItemNotDeletedException">Thrown when item couldn't be deleted.</exception>
+    /// <exception cref="EXCEPTIONS.NotAuthorizedException">Thrown when user doesn't have the required permission.</exception>
     Task<MODELS.Portfolio> DeleteProjectByProjectId(
-        string projectId);
+        string projectId,
+        string personId);
 
     /// <summary>
     /// Edits an active link of a project by its ID.
     /// </summary>
     /// <param name="projectId">The ID of the project whose active link will be edited.</param>
+    /// <param name="personId">The unique identifier of the person for authorization.</param>
     /// <param name="newActiveLink">The new active link to replace the existing one.</param>
     /// <returns>The modified project.</returns>
     /// <exception cref="ArgumentNullException">Thrown when project is null.</exception>
     /// <exception cref="EXCEPTIONS.ItemNotUpdatedException">Thrown when item couldn't be updated.</exception>
+    /// <exception cref="EXCEPTIONS.NotAuthorizedException">Thrown when user doesn't have the required permission.</exception>
     Task<MODELS.Project> EditActiveLinkByProjectId(
         string projectId,
+        string personId,
         string newActiveLink);
 
     /// <summary>
     /// Edits categories of a project by its ID.
     /// </summary>
     /// <param name="projectId">The ID of the project whose categories will be edited.</param>
+    /// <param name="personId">The unique identifier of the person for authorization.</param>
     /// <param name="categories">A collection of categories to replace the existing ones.</param>
     /// <returns>The modified project.</returns>
     /// <exception cref="ArgumentNullException">Thrown when project is null.</exception>
     /// <exception cref="EXCEPTIONS.ItemNotUpdatedException">Thrown when item couldn't be updated.</exception>
+    /// <exception cref="EXCEPTIONS.NotAuthorizedException">Thrown when user doesn't have the required permission.</exception>
     Task<MODELS.Project> EditCategoriesByProjectId(
         string projectId,
+        string personId,
         IEnumerable<ENUMS.ProjectCategory> categories);
 
     /// <summary>
     /// Edits the description of a project by its ID.
     /// </summary>
     /// <param name="projectId">The ID of the project whose description will be edited.</param>
+    /// <param name="personId">The unique identifier of the person for authorization.</param>
     /// <param name="newDescription">The new description to replace the existing one.</param>
     /// <returns>The modified project.</returns>
     /// <exception cref="ArgumentNullException">Thrown when project is null.</exception>
     /// <exception cref="EXCEPTIONS.ItemNotUpdatedException">Thrown when item couldn't be updated.</exception>
+    /// <exception cref="EXCEPTIONS.NotAuthorizedException">Thrown when user doesn't have the required permission.</exception>
     Task<MODELS.Project> EditDescriptionByProjectId(
         string projectId,
+        string personId,
         string newDescription);
 
     /// <summary>
@@ -107,29 +128,38 @@ public interface IProjectService
     /// Removes an active link from a project by its ID.
     /// </summary>
     /// <param name="projectId">The ID of the project from which the active link will be removed.</param>
+    /// <param name="personId">The unique identifier of the person for authorization.</param>
     /// <returns>The modified project.</returns>
     /// <exception cref="ArgumentNullException">Thrown when project is null.</exception>
     /// <exception cref="EXCEPTIONS.ItemNotUpdatedException">Thrown when item couldn't be updated.</exception>
+    /// <exception cref="EXCEPTIONS.NotAuthorizedException">Thrown when user doesn't have the required permission.</exception>
     Task<MODELS.Project> RemoveActiveLinkByProjectId(
-        string projectId);
+        string projectId,
+        string personId);
 
     /// <summary>
     /// Removes the description from a project by its ID.
     /// </summary>
     /// <param name="projectId">The ID of the project from which the description will be removed.</param>
+    /// <param name="personId">The unique identifier of the person for authorization.</param>
     /// <returns>The modified project.</returns>
     /// <exception cref="ArgumentNullException">Thrown when project is null.</exception>
     /// <exception cref="EXCEPTIONS.ItemNotUpdatedException">Thrown when item couldn't be updated.</exception>
+    /// <exception cref="EXCEPTIONS.NotAuthorizedException">Thrown when user doesn't have the required permission.</exception>
     Task<MODELS.Project> RemoveDescriptionByProjectId(
-        string projectId);
+        string projectId,
+        string personId);
 
     /// <summary>
     /// Removes all categories from a project by its ID.
     /// </summary>
     /// <param name="projectId">The ID of the project from which the categories will be removed.</param>
+    /// <param name="personId">The unique identifier of the person for authorization.</param>
     /// <returns>The modified project.</returns>
     /// <exception cref="ArgumentNullException">Thrown when project is null.</exception>
     /// <exception cref="EXCEPTIONS.ItemNotUpdatedException">Thrown when item couldn't be updated.</exception>
+    /// <exception cref="EXCEPTIONS.NotAuthorizedException">Thrown when user doesn't have the required permission.</exception>
     Task<MODELS.Project> RemoveAllCategoriesByProjectId(
-        string projectId);
+        string projectId,
+        string personId);
 }

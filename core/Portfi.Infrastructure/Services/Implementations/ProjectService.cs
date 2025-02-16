@@ -17,10 +17,13 @@ public class ProjectService(
     /// <inheritdoc/>
     async public Task<MODELS.Project> AddActiveLinkByProjectId(
         string projectId,
+        string personId,
         string activeLink)
     {
         var foundProject = await projectRepository.GetByIdAsync(Guid.Parse(projectId))
             ?? throw new ArgumentNullException("Project not found.");
+
+        await AuthorizeByPortfolioId(foundProject.PortfolioId, personId);
 
         foundProject.HostedLink = activeLink;
 
@@ -35,10 +38,13 @@ public class ProjectService(
     /// <inheritdoc/>
     async public Task<MODELS.Project> AddCategoriesByProjectId(
         string projectId,
+         string personId,
         IEnumerable<ENUMS.ProjectCategory> categories)
     {
         var foundProject = await projectRepository.GetByIdAsync(Guid.Parse(projectId))
            ?? throw new ArgumentNullException("Project not found.");
+
+        await AuthorizeByPortfolioId(foundProject.PortfolioId, personId);
 
         foundProject.Categories = categories.ToList();
 
@@ -53,10 +59,13 @@ public class ProjectService(
     /// <inheritdoc/>
     async public Task<MODELS.Project> AddDescriptionByProjectId(
         string projectId,
+        string personId,
         string description)
     {
         var foundProject = await projectRepository.GetByIdAsync(Guid.Parse(projectId))
            ?? throw new ArgumentNullException("Project not found.");
+
+        await AuthorizeByPortfolioId(foundProject.PortfolioId, personId);
 
         foundProject.Description = description;
 
@@ -70,20 +79,23 @@ public class ProjectService(
 
     /// <inheritdoc/>
     async public Task<MODELS.Portfolio> DeleteProjectByProjectId(
-        string projectId)
+        string projectId,
+        string personId)
     {
         var foundProject = await projectRepository.GetByIdAsync(Guid.Parse(projectId))
            ?? throw new ArgumentNullException("Project not found.");
 
         Guid portfolioId = foundProject.PortfolioId;
 
+        var foundPortfolio = await portfolioRepository.GetByIdAsync(portfolioId)
+            ?? throw new ArgumentNullException("Portfolio not found.");
+
+        await AuthorizeByPortfolioId(foundProject.PortfolioId, personId);
+
         if (!await projectRepository.DeleteAsync(foundProject))
         {
             throw new EXCEPTIONS.ItemNotDeletedException($"{nameof(projectRepository)} cannot be deleted.");
         }
-
-        var foundPortfolio = await portfolioRepository.GetByIdAsync(portfolioId)
-            ?? throw new ArgumentNullException("Portfolio not found.");
 
         return foundPortfolio;
     }
@@ -91,10 +103,13 @@ public class ProjectService(
     /// <inheritdoc/>
     async public Task<MODELS.Project> EditActiveLinkByProjectId(
         string projectId,
+        string personId,
         string newActiveLink)
     {
         var foundProject = await projectRepository.GetByIdAsync(Guid.Parse(projectId))
             ?? throw new ArgumentNullException("Project not found.");
+
+        await AuthorizeByPortfolioId(foundProject.PortfolioId, personId);
 
         if (foundProject.HostedLink != newActiveLink)
         {
@@ -113,10 +128,13 @@ public class ProjectService(
     /// <inheritdoc/>
     async public Task<MODELS.Project> EditCategoriesByProjectId(
         string projectId,
+        string personId,
         IEnumerable<ENUMS.ProjectCategory> categories)
     {
         var foundProject = await projectRepository.GetByIdAsync(Guid.Parse(projectId))
             ?? throw new ArgumentNullException("Project not found.");
+
+        await AuthorizeByPortfolioId(foundProject.PortfolioId, personId);
 
         foundProject.Categories ??= [];
 
@@ -137,10 +155,13 @@ public class ProjectService(
     /// <inheritdoc/>
     async public Task<MODELS.Project> EditDescriptionByProjectId(
         string projectId,
+        string personId,
         string newDescription)
     {
         var foundProject = await projectRepository.GetByIdAsync(Guid.Parse(projectId))
              ?? throw new ArgumentNullException("Project not found.");
+
+        await AuthorizeByPortfolioId(foundProject.PortfolioId, personId);
 
         if (foundProject.Description != newDescription)
         {
@@ -183,10 +204,13 @@ public class ProjectService(
 
     /// <inheritdoc/>
     async public Task<MODELS.Project> RemoveActiveLinkByProjectId(
-        string projectId)
+        string projectId,
+        string personId)
     {
         var foundProject = await projectRepository.GetByIdAsync(Guid.Parse(projectId))
              ?? throw new ArgumentNullException("Project not found.");
+
+        await AuthorizeByPortfolioId(foundProject.PortfolioId, personId);
 
         if (!(string.IsNullOrEmpty(foundProject.HostedLink)
             || string.IsNullOrWhiteSpace(foundProject.HostedLink)))
@@ -204,10 +228,13 @@ public class ProjectService(
 
     /// <inheritdoc/>
     async public Task<MODELS.Project> RemoveAllCategoriesByProjectId(
-        string projectId)
+        string projectId,
+        string personId)
     {
         var foundProject = await projectRepository.GetByIdAsync(Guid.Parse(projectId))
              ?? throw new ArgumentNullException("Project not found.");
+
+        await AuthorizeByPortfolioId(foundProject.PortfolioId, personId);
 
         if (foundProject.Categories.Any())
         {
@@ -224,10 +251,13 @@ public class ProjectService(
 
     /// <inheritdoc/>
     async public Task<MODELS.Project> RemoveDescriptionByProjectId(
-        string projectId)
+        string projectId,
+        string personId)
     {
         var foundProject = await projectRepository.GetByIdAsync(Guid.Parse(projectId))
              ?? throw new ArgumentNullException("Project not found.");
+
+        await AuthorizeByPortfolioId(foundProject.PortfolioId, personId);
 
         if (!(string.IsNullOrEmpty(foundProject.Description)
             || string.IsNullOrWhiteSpace(foundProject.Description)))
@@ -241,5 +271,18 @@ public class ProjectService(
         }
 
         return foundProject;
+    }
+
+    async public Task AuthorizeByPortfolioId(
+        Guid portfolioId,
+        string personId)
+    {
+        var foundPortfolio = await portfolioRepository.GetByIdAsync(portfolioId)
+            ?? throw new ArgumentNullException("Portfolio not found.");
+
+        if (foundPortfolio.PersonId != personId)
+        {
+            throw new EXCEPTIONS.NotAuthorizedException($"No permission for user with ID `{personId}`.");
+        }
     }
 }

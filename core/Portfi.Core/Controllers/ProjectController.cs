@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 using Portfi.Common.Helpers;
 using MODELS = Portfi.Data.Models;
 using ENUMS = Portfi.Common.Enums;
+using DTO = Portfi.Common.Dto;
 using EXCEPTIONS = Portfi.Common.Exceptions;
 using RESPONSES = Portfi.Infrastructure.Models.Responses;
 using SERVICES = Portfi.Infrastructure.Services.Interfaces;
@@ -58,8 +59,8 @@ public class ProjectController(
         try
         {
             #region Get User
-            
-            string decodedToken = string.Empty;
+
+            DTO.TokenResponse decodedToken;
 
             try
             {
@@ -80,14 +81,15 @@ public class ProjectController(
             }
 
             var user = await supabase.Auth
-                .GetUser(decodedToken);
+               .GetUser(decodedToken.AccessToken)
+               ?? throw new EXCEPTIONS.NotAuthorizedException("User not found.");
+
+            if (string.IsNullOrEmpty(user.Id))
+            {
+                throw new EXCEPTIONS.NotAuthorizedException("User doesn't have ID.");
+            }
 
             #endregion
-
-            //Only for testing purposes
-
-            logger.LogInformation("Email: {Email}", user?.Email);
-            logger.LogInformation("Fetching GitHub projects for username: {Username}.", username);
 
             httpClient.DefaultRequestHeaders.UserAgent
                 .Add(new ProductInfoHeaderValue("Portfi", "1.0"));
@@ -96,6 +98,12 @@ public class ProjectController(
                 .GetGithubProjectsByUsername(username, httpClient);
 
             return Ok(gitHubRepositories);
+        }
+        catch (EXCEPTIONS.NotAuthorizedException ex)
+        {
+            logger.LogError(ex, "Problem with authorization occured.");
+
+            return StatusCode(StatusCodes.Status401Unauthorized, "Could not authorize for the certian action").
         }
         catch (ArgumentException ex)
         {
@@ -147,7 +155,7 @@ public class ProjectController(
         {
             #region Get User
 
-            string decodedToken = string.Empty;
+            DTO.TokenResponse decodedToken;
 
             try
             {
@@ -168,16 +176,28 @@ public class ProjectController(
             }
 
             var user = await supabase.Auth
-                .GetUser(decodedToken);
+               .GetUser(decodedToken.AccessToken)
+               ?? throw new EXCEPTIONS.NotAuthorizedException("User not found.");
+
+            if (string.IsNullOrEmpty(user.Id))
+            {
+                throw new EXCEPTIONS.NotAuthorizedException("User doesn't have ID.");
+            }
 
             #endregion
 
             logger.LogInformation("Attempting to add description to project with ID: {ProjectId}.", projectId);
 
             MODELS.Project modifiedProject = await projectService
-                .AddDescriptionByProjectId(projectId, description);
+                .AddDescriptionByProjectId(projectId, user.Id, description);
 
             return Ok(modifiedProject);
+        }
+        catch (EXCEPTIONS.NotAuthorizedException ex)
+        {
+            logger.LogError(ex, "Problem with authorization occured.");
+
+            return StatusCode(StatusCodes.Status401Unauthorized, "Could not authorize for the certian action").
         }
         catch (ArgumentNullException ex)
         {
@@ -222,7 +242,7 @@ public class ProjectController(
         {
             #region Get User
 
-            string decodedToken = string.Empty;
+            DTO.TokenResponse decodedToken;
 
             try
             {
@@ -243,16 +263,28 @@ public class ProjectController(
             }
 
             var user = await supabase.Auth
-                .GetUser(decodedToken);
+               .GetUser(decodedToken.AccessToken)
+               ?? throw new EXCEPTIONS.NotAuthorizedException("User not found.");
+
+            if (string.IsNullOrEmpty(user.Id))
+            {
+                throw new EXCEPTIONS.NotAuthorizedException("User doesn't have ID.");
+            }
 
             #endregion
 
             logger.LogInformation("Attempting to add active link to project with ID: {ProjectId}.", projectId);
 
             MODELS.Project modifiedProject = await projectService
-                .AddActiveLinkByProjectId(projectId, activeLink);
+                .AddActiveLinkByProjectId(projectId, user.Id, activeLink);
 
             return Ok(modifiedProject);
+        }
+        catch (EXCEPTIONS.NotAuthorizedException ex)
+        {
+            logger.LogError(ex, "Problem with authorization occured.");
+
+            return StatusCode(StatusCodes.Status401Unauthorized, "Could not authorize for the certian action").
         }
         catch (ArgumentNullException ex)
         {
@@ -297,7 +329,7 @@ public class ProjectController(
         {
             #region Get User
 
-            string decodedToken = string.Empty;
+            DTO.TokenResponse decodedToken;
 
             try
             {
@@ -318,23 +350,35 @@ public class ProjectController(
             }
 
             var user = await supabase.Auth
-                .GetUser(decodedToken);
+                .GetUser(decodedToken.AccessToken)
+                ?? throw new EXCEPTIONS.NotAuthorizedException("User not found.");
+
+            if (string.IsNullOrEmpty(user.Id))
+            {
+                throw new EXCEPTIONS.NotAuthorizedException("User doesn't have ID.");
+            }
 
             #endregion
 
             logger.LogInformation("Attempting to add categories to project with ID: {ProjectId}.", projectId);
 
             IEnumerable<ENUMS.ProjectCategory> enumValues = categories
-                .Select(value => Enum.TryParse(value, out ENUMS.ProjectCategory result) 
-                    ? result 
+                .Select(value => Enum.TryParse(value, out ENUMS.ProjectCategory result)
+                    ? result
                     : (ENUMS.ProjectCategory?)null)
                 .Where(e => e.HasValue)
                 .Select(e => e!.Value);
 
             MODELS.Project modifiedProject = await projectService
-                .AddCategoriesByProjectId(projectId, enumValues);
+                .AddCategoriesByProjectId(projectId, user.Id, enumValues);
 
             return Ok(modifiedProject);
+        }
+        catch (EXCEPTIONS.NotAuthorizedException ex)
+        {
+            logger.LogError(ex, "Problem with authorization occured.");
+
+            return StatusCode(StatusCodes.Status401Unauthorized, "Could not authorize for the certian action").
         }
         catch (ArgumentNullException ex)
         {
@@ -383,7 +427,7 @@ public class ProjectController(
         {
             #region Get User
 
-            string decodedToken = string.Empty;
+            DTO.TokenResponse decodedToken;
 
             try
             {
@@ -404,16 +448,28 @@ public class ProjectController(
             }
 
             var user = await supabase.Auth
-                .GetUser(decodedToken);
+               .GetUser(decodedToken.AccessToken)
+               ?? throw new EXCEPTIONS.NotAuthorizedException("User not found.");
+
+            if (string.IsNullOrEmpty(user.Id))
+            {
+                throw new EXCEPTIONS.NotAuthorizedException("User doesn't have ID.");
+            }
 
             #endregion
 
             logger.LogInformation("Attempting to edit description to project with ID: {ProjectId}.", projectId);
 
             MODELS.Project modifiedProject = await projectService
-                .EditDescriptionByProjectId(projectId, description);
+                .EditDescriptionByProjectId(projectId, user.Id, description);
 
             return Ok(modifiedProject);
+        }
+        catch (EXCEPTIONS.NotAuthorizedException ex)
+        {
+            logger.LogError(ex, "Problem with authorization occured.");
+
+            return StatusCode(StatusCodes.Status401Unauthorized, "Could not authorize for the certian action").
         }
         catch (ArgumentNullException ex)
         {
@@ -458,7 +514,7 @@ public class ProjectController(
         {
             #region Get User
 
-            string decodedToken = string.Empty;
+            DTO.TokenResponse decodedToken;
 
             try
             {
@@ -479,16 +535,28 @@ public class ProjectController(
             }
 
             var user = await supabase.Auth
-                .GetUser(decodedToken);
+               .GetUser(decodedToken.AccessToken)
+               ?? throw new EXCEPTIONS.NotAuthorizedException("User not found.");
+
+            if (string.IsNullOrEmpty(user.Id))
+            {
+                throw new EXCEPTIONS.NotAuthorizedException("User doesn't have ID.");
+            }
 
             #endregion
 
             logger.LogInformation("Attempting to edit active link to project with ID: {ProjectId}.", projectId);
 
             MODELS.Project modifiedProject = await projectService
-                .EditActiveLinkByProjectId(projectId, activeLink);
+                .EditActiveLinkByProjectId(projectId, user.Id, activeLink);
 
             return Ok(modifiedProject);
+        }
+        catch (EXCEPTIONS.NotAuthorizedException ex)
+        {
+            logger.LogError(ex, "Problem with authorization occured.");
+
+            return StatusCode(StatusCodes.Status401Unauthorized, "Could not authorize for the certian action").
         }
         catch (ArgumentNullException ex)
         {
@@ -533,7 +601,7 @@ public class ProjectController(
         {
             #region Get User
 
-            string decodedToken = string.Empty;
+            DTO.TokenResponse decodedToken;
 
             try
             {
@@ -554,23 +622,35 @@ public class ProjectController(
             }
 
             var user = await supabase.Auth
-                .GetUser(decodedToken);
+                .GetUser(decodedToken.AccessToken)
+                ?? throw new EXCEPTIONS.NotAuthorizedException("User not found.");
+
+            if (string.IsNullOrEmpty(user.Id))
+            {
+                throw new EXCEPTIONS.NotAuthorizedException("User doesn't have ID.");
+            }
 
             #endregion
 
             logger.LogInformation("Attempting to edit categories to project with ID: {ProjectId}.", projectId);
 
             IEnumerable<ENUMS.ProjectCategory> enumValues = categories
-                .Select(value => Enum.TryParse(value, out ENUMS.ProjectCategory result) 
-                    ? result 
+                .Select(value => Enum.TryParse(value, out ENUMS.ProjectCategory result)
+                    ? result
                     : (ENUMS.ProjectCategory?)null)
                 .Where(e => e.HasValue)
                 .Select(e => e!.Value);
 
             MODELS.Project modifiedProject = await projectService
-                .EditCategoriesByProjectId(projectId, enumValues);
+                .EditCategoriesByProjectId(projectId, user.Id, enumValues);
 
             return Ok(modifiedProject);
+        }
+        catch (EXCEPTIONS.NotAuthorizedException ex)
+        {
+            logger.LogError(ex, "Problem with authorization occured.");
+
+            return StatusCode(StatusCodes.Status401Unauthorized, "Could not authorize for the certian action").
         }
         catch (ArgumentNullException ex)
         {
@@ -615,7 +695,7 @@ public class ProjectController(
         {
             #region Get User
 
-            string decodedToken = string.Empty;
+            DTO.TokenResponse decodedToken;
 
             try
             {
@@ -636,16 +716,28 @@ public class ProjectController(
             }
 
             var user = await supabase.Auth
-                .GetUser(decodedToken);
+               .GetUser(decodedToken.AccessToken)
+               ?? throw new EXCEPTIONS.NotAuthorizedException("User not found.");
+
+            if (string.IsNullOrEmpty(user.Id))
+            {
+                throw new EXCEPTIONS.NotAuthorizedException("User doesn't have ID.");
+            }
 
             #endregion
 
             logger.LogInformation("Attempting to remove description from project with ID: {ProjectId}.", projectId);
 
             MODELS.Project modifiedProject = await projectService
-                .RemoveDescriptionByProjectId(projectId);
+                .RemoveDescriptionByProjectId(projectId, user.Id);
 
             return Ok(modifiedProject);
+        }
+        catch (EXCEPTIONS.NotAuthorizedException ex)
+        {
+            logger.LogError(ex, "Problem with authorization occured.");
+
+            return StatusCode(StatusCodes.Status401Unauthorized, "Could not authorize for the certian action").
         }
         catch (ArgumentNullException ex)
         {
@@ -686,7 +778,7 @@ public class ProjectController(
         {
             #region Get User
 
-            string decodedToken = string.Empty;
+            DTO.TokenResponse decodedToken;
 
             try
             {
@@ -707,16 +799,28 @@ public class ProjectController(
             }
 
             var user = await supabase.Auth
-                .GetUser(decodedToken);
+               .GetUser(decodedToken.AccessToken)
+               ?? throw new EXCEPTIONS.NotAuthorizedException("User not found.");
+
+            if (string.IsNullOrEmpty(user.Id))
+            {
+                throw new EXCEPTIONS.NotAuthorizedException("User doesn't have ID.");
+            }
 
             #endregion
 
             logger.LogInformation("Attempting to remove active link from project with ID: {ProjectId}.", projectId);
 
             MODELS.Project modifiedProject = await projectService
-                .RemoveActiveLinkByProjectId(projectId);
+                .RemoveActiveLinkByProjectId(projectId, user.Id);
 
             return Ok(modifiedProject);
+        }
+        catch (EXCEPTIONS.NotAuthorizedException ex)
+        {
+            logger.LogError(ex, "Problem with authorization occured.");
+
+            return StatusCode(StatusCodes.Status401Unauthorized, "Could not authorize for the certian action").
         }
         catch (ArgumentNullException ex)
         {
@@ -757,7 +861,7 @@ public class ProjectController(
         {
             #region Get User
 
-            string decodedToken = string.Empty;
+            DTO.TokenResponse decodedToken;
 
             try
             {
@@ -778,16 +882,28 @@ public class ProjectController(
             }
 
             var user = await supabase.Auth
-                .GetUser(decodedToken);
+               .GetUser(decodedToken.AccessToken)
+               ?? throw new EXCEPTIONS.NotAuthorizedException("User not found.");
+
+            if (string.IsNullOrEmpty(user.Id))
+            {
+                throw new EXCEPTIONS.NotAuthorizedException("User doesn't have ID.");
+            }
 
             #endregion
 
             logger.LogInformation("Attempting to clear categories from project with ID: {ProjectId}.", projectId);
 
             MODELS.Project modifiedProject = await projectService
-                .RemoveAllCategoriesByProjectId(projectId);
+                .RemoveAllCategoriesByProjectId(projectId, user.Id);
 
             return Ok(modifiedProject);
+        }
+        catch (EXCEPTIONS.NotAuthorizedException ex)
+        {
+            logger.LogError(ex, "Problem with authorization occured.");
+
+            return StatusCode(StatusCodes.Status401Unauthorized, "Could not authorize for the certian action").
         }
         catch (ArgumentNullException ex)
         {
@@ -828,7 +944,7 @@ public class ProjectController(
         {
             #region Get User
 
-            string decodedToken = string.Empty;
+            DTO.TokenResponse decodedToken;
 
             try
             {
@@ -849,16 +965,28 @@ public class ProjectController(
             }
 
             var user = await supabase.Auth
-                .GetUser(decodedToken);
+               .GetUser(decodedToken.AccessToken)
+               ?? throw new EXCEPTIONS.NotAuthorizedException("User not found.");
+
+            if (string.IsNullOrEmpty(user.Id))
+            {
+                throw new EXCEPTIONS.NotAuthorizedException("User doesn't have ID.");
+            }
 
             #endregion
 
             logger.LogInformation("Deleting project with ID: {ProjectId}.", projectId);
 
             MODELS.Portfolio correspondingPortfolio = await projectService
-                .DeleteProjectByProjectId(projectId);
-                
+                .DeleteProjectByProjectId(projectId, user.Id);
+
             return Ok(correspondingPortfolio);
+        }
+        catch (EXCEPTIONS.NotAuthorizedException ex)
+        {
+            logger.LogError(ex, "Problem with authorization occured.");
+
+            return StatusCode(StatusCodes.Status401Unauthorized, "Could not authorize for the certian action").
         }
         catch (ArgumentNullException ex)
         {
