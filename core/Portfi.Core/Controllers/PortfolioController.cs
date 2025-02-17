@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
 using Portfi.Common.Helpers;
 using MODELS = Portfi.Data.Models;
+using DTO = Portfi.Common.Dto;
 using EXCEPTIONS = Portfi.Common.Exceptions;
 using RESPONSES = Portfi.Infrastructure.Models.Responses;
 using SERVICES = Portfi.Infrastructure.Services.Interfaces;
@@ -49,33 +50,6 @@ public class PortfolioController(
     {
         try
         {
-            #region Get User
-
-            string decodedToken = string.Empty;
-
-            try
-            {
-                decodedToken = Request.Cookies
-                    .TryGetDecodedToken();
-            }
-            catch (ArgumentNullException ex)
-            {
-                logger.LogError(ex.Message);
-
-                return StatusCode(StatusCodes.Status500InternalServerError, ex.Message);
-            }
-            catch (Exception ex)
-            {
-                logger.LogError(ex, "Unexpected error while decoding cookies.");
-
-                return StatusCode(StatusCodes.Status500InternalServerError, "An unexpected error occurred. Please contact support.");
-            }
-
-            var user = await supabase.Auth
-                .GetUser(decodedToken);
-
-            #endregion
-
             logger.LogInformation("Attempting to get example portfolios.");
 
             IEnumerable<MODELS.Portfolio> examplePortfolios = await portfolioService
@@ -117,7 +91,7 @@ public class PortfolioController(
         {
             #region Get User
 
-            string decodedToken = string.Empty;
+            DTO.TokenResponse decodedToken;
 
             try
             {
@@ -138,7 +112,13 @@ public class PortfolioController(
             }
 
             var user = await supabase.Auth
-                .GetUser(decodedToken);
+                .GetUser(decodedToken.AccessToken)
+                 ?? throw new EXCEPTIONS.NotAuthorizedException("User not found.");
+
+            if (string.IsNullOrEmpty(user.Id))
+            {
+                throw new EXCEPTIONS.NotAuthorizedException("User doesn't have ID.");
+            }
 
             #endregion
 
@@ -149,6 +129,12 @@ public class PortfolioController(
                     portfolioId);
 
             return Ok(foundPortfolio);
+        }
+        catch (EXCEPTIONS.NotAuthorizedException ex)
+        {
+            logger.LogError(ex, "Problem with authorization occured.");
+
+            return StatusCode(StatusCodes.Status401Unauthorized, "Could not authorize for the certian action");
         }
         catch (ArgumentNullException ex)
         {
@@ -169,8 +155,7 @@ public class PortfolioController(
     /// <summary>
     /// Makes a portfolio for a user.
     /// </summary>
-    /// <param name="userId">the user ID</param>
-    /// <param name="biograpgy">the biography</param>
+    /// <param name="biography">the biography</param>
     /// <param name="names">the array of names</param>
     /// <returns>The portfolio that was created.</returns>
     /// <response code="200">Returns the portfolio that was created.</response>
@@ -183,9 +168,6 @@ public class PortfolioController(
     [Produces("application/json")]
     async public Task<IActionResult> CreatePortfolio(
         [Required]
-        [FromQuery(Name = "userID")]
-        string userId,
-        [Required]
         [FromQuery(Name = "biography")]
         string biography,
         [Required]
@@ -193,10 +175,10 @@ public class PortfolioController(
         string[] names)
     {
         try
-        {   
+        {
             #region Get User
 
-            string decodedToken = string.Empty;
+            DTO.TokenResponse decodedToken;
 
             try
             {
@@ -217,29 +199,41 @@ public class PortfolioController(
             }
 
             var user = await supabase.Auth
-                .GetUser(decodedToken);
+                 .GetUser(decodedToken.AccessToken)
+                  ?? throw new EXCEPTIONS.NotAuthorizedException("User not found.");
+
+            if (string.IsNullOrEmpty(user.Id))
+            {
+                throw new EXCEPTIONS.NotAuthorizedException("User doesn't have ID.");
+            }
 
             #endregion
 
-            logger.LogInformation("Attempting to create portfolio with user ID: {UserId}.", userId);
+            logger.LogInformation("Attempting to create portfolio with user ID: {UserId}.", user.Id);
 
             MODELS.Portfolio modifiedPortfolio = await portfolioService
                 .CreatePortfolioByInfo(
-                    userId,
+                    user.Id,
                     biography,
                     names);
 
             return Ok(modifiedPortfolio);
         }
+        catch (EXCEPTIONS.NotAuthorizedException ex)
+        {
+            logger.LogError(ex, "Problem with authorization occured.");
+
+            return StatusCode(StatusCodes.Status401Unauthorized, "Could not authorize for the certian action");
+        }
         catch (ArgumentNullException ex)
         {
-            logger.LogError(ex, "Portfolio for user with ID {UserId} already exists.", userId);
-            return NotFound($"Portfolio for user with ID {userId} already exists.");
+            logger.LogError(ex, "Portfolio for user already exists.");
+            return NotFound($"Portfolio for user already exists.");
         }
         catch (Exception ex)
         {
-            logger.LogError(ex, "Unexpected error while creating portfolio for user with ID: {UserId}.", userId);
-            return StatusCode(StatusCodes.Status500InternalServerError, "An error occurred while creatting the portfolio.");
+            logger.LogError(ex, "Unexpected error while creating portfolio for user.");
+            return StatusCode(StatusCodes.Status500InternalServerError, "An error occurred while creating the portfolio.");
         }
     }
 
@@ -269,7 +263,7 @@ public class PortfolioController(
         {
             #region Get User
 
-            string decodedToken = string.Empty;
+            DTO.TokenResponse decodedToken;
 
             try
             {
@@ -290,7 +284,13 @@ public class PortfolioController(
             }
 
             var user = await supabase.Auth
-                .GetUser(decodedToken);
+                 .GetUser(decodedToken.AccessToken)
+                  ?? throw new EXCEPTIONS.NotAuthorizedException("User not found.");
+
+            if (string.IsNullOrEmpty(user.Id))
+            {
+                throw new EXCEPTIONS.NotAuthorizedException("User doesn't have ID.");
+            }
 
             #endregion
 
@@ -299,9 +299,16 @@ public class PortfolioController(
             MODELS.Portfolio modifiedPortfolio = await portfolioService
                 .AddSocialMediaLinks(
                     portfolioId,
+                    user.Id,
                     socialMediaLinks);
 
             return Ok(modifiedPortfolio);
+        }
+        catch (EXCEPTIONS.NotAuthorizedException ex)
+        {
+            logger.LogError(ex, "Problem with authorization occured.");
+
+            return StatusCode(StatusCodes.Status401Unauthorized, "Could not authorize for the certian action");
         }
         catch (ArgumentNullException ex)
         {
@@ -346,7 +353,7 @@ public class PortfolioController(
         {
             #region Get User
 
-            string decodedToken = string.Empty;
+            DTO.TokenResponse decodedToken;
 
             try
             {
@@ -367,7 +374,13 @@ public class PortfolioController(
             }
 
             var user = await supabase.Auth
-                .GetUser(decodedToken);
+                 .GetUser(decodedToken.AccessToken)
+                  ?? throw new EXCEPTIONS.NotAuthorizedException("User not found.");
+
+            if (string.IsNullOrEmpty(user.Id))
+            {
+                throw new EXCEPTIONS.NotAuthorizedException("User doesn't have ID.");
+            }
 
             #endregion
 
@@ -376,9 +389,16 @@ public class PortfolioController(
             MODELS.Portfolio modifiedPortfolio = await portfolioService
                 .UplaodAvatarByPortfolioId(
                     portfolioId,
+                    user.Id,
                     avatarURL);
 
             return Ok(modifiedPortfolio);
+        }
+        catch (EXCEPTIONS.NotAuthorizedException ex)
+        {
+            logger.LogError(ex, "Problem with authorization occured.");
+
+            return StatusCode(StatusCodes.Status401Unauthorized, "Could not authorize for the certian action");
         }
         catch (ArgumentNullException ex)
         {
@@ -423,7 +443,7 @@ public class PortfolioController(
         {
             #region Get User
 
-            string decodedToken = string.Empty;
+            DTO.TokenResponse decodedToken;
 
             try
             {
@@ -444,7 +464,13 @@ public class PortfolioController(
             }
 
             var user = await supabase.Auth
-                .GetUser(decodedToken);
+                  .GetUser(decodedToken.AccessToken)
+                   ?? throw new EXCEPTIONS.NotAuthorizedException("User not found.");
+
+            if (string.IsNullOrEmpty(user.Id))
+            {
+                throw new EXCEPTIONS.NotAuthorizedException("User doesn't have ID.");
+            }
 
             #endregion
 
@@ -453,9 +479,16 @@ public class PortfolioController(
             MODELS.Portfolio modifiedPortfolio = await portfolioService
                 .UplaodCVByPortfolioId(
                     portfolioId,
+                    user.Id,
                     cvURL);
 
             return Ok(modifiedPortfolio);
+        }
+        catch (EXCEPTIONS.NotAuthorizedException ex)
+        {
+            logger.LogError(ex, "Problem with authorization occured.");
+
+            return StatusCode(StatusCodes.Status401Unauthorized, "Could not authorize for the certian action");
         }
         catch (ArgumentNullException ex)
         {
@@ -500,7 +533,7 @@ public class PortfolioController(
         {
             #region Get User
 
-            string decodedToken = string.Empty;
+            DTO.TokenResponse decodedToken;
 
             try
             {
@@ -521,7 +554,13 @@ public class PortfolioController(
             }
 
             var user = await supabase.Auth
-                .GetUser(decodedToken);
+                 .GetUser(decodedToken.AccessToken)
+                  ?? throw new EXCEPTIONS.NotAuthorizedException("User not found.");
+
+            if (string.IsNullOrEmpty(user.Id))
+            {
+                throw new EXCEPTIONS.NotAuthorizedException("User doesn't have ID.");
+            }
 
             #endregion
 
@@ -530,9 +569,16 @@ public class PortfolioController(
             MODELS.Portfolio modifiedPortfolio = await portfolioService
                 .AddProjectsByPortfolioId(
                     portfolioId,
+                    user.Id,
                     projects);
 
             return Ok(modifiedPortfolio);
+        }
+        catch (EXCEPTIONS.NotAuthorizedException ex)
+        {
+            logger.LogError(ex, "Problem with authorization occured.");
+
+            return StatusCode(StatusCodes.Status401Unauthorized, "Could not authorize for the certian action");
         }
         catch (ArgumentNullException ex)
         {
@@ -576,7 +622,7 @@ public class PortfolioController(
         {
             #region Get User
 
-            string decodedToken = string.Empty;
+            DTO.TokenResponse decodedToken;
 
             try
             {
@@ -597,7 +643,13 @@ public class PortfolioController(
             }
 
             var user = await supabase.Auth
-                .GetUser(decodedToken);
+                 .GetUser(decodedToken.AccessToken)
+                  ?? throw new EXCEPTIONS.NotAuthorizedException("User not found.");
+
+            if (string.IsNullOrEmpty(user.Id))
+            {
+                throw new EXCEPTIONS.NotAuthorizedException("User doesn't have ID.");
+            }
 
             #endregion
 
@@ -606,9 +658,16 @@ public class PortfolioController(
             MODELS.Portfolio modifiedPortfolio = await portfolioService
                 .EditSocialMediaLinkById(
                     socialMediaLinkId,
+                    user.Id,
                     newSocialMediaLink);
 
             return Ok(modifiedPortfolio);
+        }
+        catch (EXCEPTIONS.NotAuthorizedException ex)
+        {
+            logger.LogError(ex, "Problem with authorization occured.");
+
+            return StatusCode(StatusCodes.Status401Unauthorized, "Could not authorize for the certian action");
         }
         catch (ArgumentNullException ex)
         {
@@ -653,7 +712,7 @@ public class PortfolioController(
         {
             #region Get User
 
-            string decodedToken = string.Empty;
+            DTO.TokenResponse decodedToken;
 
             try
             {
@@ -674,7 +733,13 @@ public class PortfolioController(
             }
 
             var user = await supabase.Auth
-                .GetUser(decodedToken);
+                 .GetUser(decodedToken.AccessToken)
+                  ?? throw new EXCEPTIONS.NotAuthorizedException("User not found.");
+
+            if (string.IsNullOrEmpty(user.Id))
+            {
+                throw new EXCEPTIONS.NotAuthorizedException("User doesn't have ID.");
+            }
 
             #endregion
 
@@ -683,9 +748,16 @@ public class PortfolioController(
             MODELS.Portfolio modifiedPortfolio = await portfolioService
                 .EditBiographyByPortfolioId(
                     portfolioId,
+                    user.Id,
                     biography);
 
             return Ok(modifiedPortfolio);
+        }
+        catch (EXCEPTIONS.NotAuthorizedException ex)
+        {
+            logger.LogError(ex, "Problem with authorization occured.");
+
+            return StatusCode(StatusCodes.Status401Unauthorized, "Could not authorize for the certian action");
         }
         catch (ArgumentNullException ex)
         {
@@ -732,7 +804,7 @@ public class PortfolioController(
         {
             #region Get User
 
-            string decodedToken = string.Empty;
+            DTO.TokenResponse decodedToken;
 
             try
             {
@@ -753,7 +825,13 @@ public class PortfolioController(
             }
 
             var user = await supabase.Auth
-                .GetUser(decodedToken);
+                  .GetUser(decodedToken.AccessToken)
+                   ?? throw new EXCEPTIONS.NotAuthorizedException("User not found.");
+
+            if (string.IsNullOrEmpty(user.Id))
+            {
+                throw new EXCEPTIONS.NotAuthorizedException("User doesn't have ID.");
+            }
 
             #endregion
 
@@ -762,10 +840,17 @@ public class PortfolioController(
             MODELS.Portfolio modifiedPortfolio = await portfolioService
                 .EditThemeByPortfolioId(
                     portfolioId,
+                    user.Id,
                     backgroundTheme,
                     mainColor);
 
             return Ok(modifiedPortfolio);
+        }
+        catch (EXCEPTIONS.NotAuthorizedException ex)
+        {
+            logger.LogError(ex, "Problem with authorization occured.");
+
+            return StatusCode(StatusCodes.Status401Unauthorized, "Could not authorize for the certian action");
         }
         catch (ArgumentNullException ex)
         {
@@ -806,7 +891,7 @@ public class PortfolioController(
         {
             #region Get User
 
-            string decodedToken = string.Empty;
+            DTO.TokenResponse decodedToken;
 
             try
             {
@@ -827,7 +912,13 @@ public class PortfolioController(
             }
 
             var user = await supabase.Auth
-                .GetUser(decodedToken);
+                 .GetUser(decodedToken.AccessToken)
+                  ?? throw new EXCEPTIONS.NotAuthorizedException("User not found.");
+
+            if (string.IsNullOrEmpty(user.Id))
+            {
+                throw new EXCEPTIONS.NotAuthorizedException("User doesn't have ID.");
+            }
 
             #endregion
 
@@ -835,9 +926,16 @@ public class PortfolioController(
 
             MODELS.Portfolio modifiedPortfolio = await portfolioService
                 .SetDefaultThemeByportfolioId(
-                    portfolioId);
+                    portfolioId,
+                    user.Id);
 
             return Ok(modifiedPortfolio);
+        }
+        catch (EXCEPTIONS.NotAuthorizedException ex)
+        {
+            logger.LogError(ex, "Problem with authorization occured.");
+
+            return StatusCode(StatusCodes.Status401Unauthorized, "Could not authorize for the certian action");
         }
         catch (ArgumentNullException ex)
         {
@@ -882,7 +980,7 @@ public class PortfolioController(
         {
             #region Get User
 
-            string decodedToken = string.Empty;
+            DTO.TokenResponse decodedToken;
 
             try
             {
@@ -903,7 +1001,13 @@ public class PortfolioController(
             }
 
             var user = await supabase.Auth
-                .GetUser(decodedToken);
+                  .GetUser(decodedToken.AccessToken)
+                   ?? throw new EXCEPTIONS.NotAuthorizedException("User not found.");
+
+            if (string.IsNullOrEmpty(user.Id))
+            {
+                throw new EXCEPTIONS.NotAuthorizedException("User doesn't have ID.");
+            }
 
             #endregion
 
@@ -912,9 +1016,16 @@ public class PortfolioController(
             MODELS.Portfolio modifiedPortfolio = await portfolioService
                 .EditNamesByPortfolioId(
                     portfolioId,
+                    user.Id,
                     names);
 
             return Ok(modifiedPortfolio);
+        }
+        catch (EXCEPTIONS.NotAuthorizedException ex)
+        {
+            logger.LogError(ex, "Problem with authorization occured.");
+
+            return StatusCode(StatusCodes.Status401Unauthorized, "Could not authorize for the certian action");
         }
         catch (ArgumentNullException ex)
         {
@@ -956,10 +1067,10 @@ public class PortfolioController(
         bool isPublic)
     {
         try
-        {  
+        {
             #region Get User
 
-            string decodedToken = string.Empty;
+            DTO.TokenResponse decodedToken;
 
             try
             {
@@ -980,7 +1091,13 @@ public class PortfolioController(
             }
 
             var user = await supabase.Auth
-                .GetUser(decodedToken);
+                  .GetUser(decodedToken.AccessToken)
+                   ?? throw new EXCEPTIONS.NotAuthorizedException("User not found.");
+
+            if (string.IsNullOrEmpty(user.Id))
+            {
+                throw new EXCEPTIONS.NotAuthorizedException("User doesn't have ID.");
+            }
 
             #endregion
 
@@ -989,9 +1106,16 @@ public class PortfolioController(
             MODELS.Portfolio modifiedPortfolio = await portfolioService
                 .EditVisabilityByPortfolioId(
                     portfolioId,
+                    user.Id,
                     isPublic);
 
             return Ok(modifiedPortfolio);
+        }
+        catch (EXCEPTIONS.NotAuthorizedException ex)
+        {
+            logger.LogError(ex, "Problem with authorization occured.");
+
+            return StatusCode(StatusCodes.Status401Unauthorized, "Could not authorize for the certian action");
         }
         catch (ArgumentNullException ex)
         {
@@ -1036,7 +1160,7 @@ public class PortfolioController(
         {
             #region Get User
 
-            string decodedToken = string.Empty;
+            DTO.TokenResponse decodedToken;
 
             try
             {
@@ -1057,16 +1181,28 @@ public class PortfolioController(
             }
 
             var user = await supabase.Auth
-                .GetUser(decodedToken);
+                 .GetUser(decodedToken.AccessToken)
+                  ?? throw new EXCEPTIONS.NotAuthorizedException("User not found.");
+
+            if (string.IsNullOrEmpty(user.Id))
+            {
+                throw new EXCEPTIONS.NotAuthorizedException("User doesn't have ID.");
+            }
 
             #endregion
 
             logger.LogInformation("Attempting to remove social media link with ID: {SocialMediaLinkId}.", socialMediaLinkId);
 
             MODELS.Portfolio modifiedPortfolio = await portfolioService
-                .RemoveSocialMediaLinkById(socialMediaLinkId);
+                .RemoveSocialMediaLinkById(socialMediaLinkId, user.Id);
 
             return Ok(modifiedPortfolio);
+        }
+        catch (EXCEPTIONS.NotAuthorizedException ex)
+        {
+            logger.LogError(ex, "Problem with authorization occured.");
+
+            return StatusCode(StatusCodes.Status401Unauthorized, "Could not authorize for the certian action");
         }
         catch (ArgumentNullException ex)
         {
@@ -1107,7 +1243,7 @@ public class PortfolioController(
         {
             #region Get User
 
-            string decodedToken = string.Empty;
+            DTO.TokenResponse decodedToken;
 
             try
             {
@@ -1128,16 +1264,28 @@ public class PortfolioController(
             }
 
             var user = await supabase.Auth
-                .GetUser(decodedToken);
+                  .GetUser(decodedToken.AccessToken)
+                   ?? throw new EXCEPTIONS.NotAuthorizedException("User not found.");
+
+            if (string.IsNullOrEmpty(user.Id))
+            {
+                throw new EXCEPTIONS.NotAuthorizedException("User doesn't have ID.");
+            }
 
             #endregion
 
             logger.LogInformation("Attempting to remove avatar from portfolio with ID: {PortfolioID}.", portfolioId);
 
             MODELS.Portfolio modifiedPortfolio = await portfolioService
-                .RemoveAvatarByPortfolioId(portfolioId);
+                .RemoveAvatarByPortfolioId(portfolioId, user.Id);
 
             return Ok(modifiedPortfolio);
+        }
+        catch (EXCEPTIONS.NotAuthorizedException ex)
+        {
+            logger.LogError(ex, "Problem with authorization occured.");
+
+            return StatusCode(StatusCodes.Status401Unauthorized, "Could not authorize for the certian action");
         }
         catch (ArgumentNullException ex)
         {
@@ -1178,7 +1326,7 @@ public class PortfolioController(
         {
             #region Get User
 
-            string decodedToken = string.Empty;
+            DTO.TokenResponse decodedToken;
 
             try
             {
@@ -1199,16 +1347,28 @@ public class PortfolioController(
             }
 
             var user = await supabase.Auth
-                .GetUser(decodedToken);
+                 .GetUser(decodedToken.AccessToken)
+                  ?? throw new EXCEPTIONS.NotAuthorizedException("User not found.");
+
+            if (string.IsNullOrEmpty(user.Id))
+            {
+                throw new EXCEPTIONS.NotAuthorizedException("User doesn't have ID.");
+            }
 
             #endregion
 
             logger.LogInformation("Attempting to remove CV from portfolio with ID: {PortfolioID}.", portfolioId);
 
             MODELS.Portfolio modifiedPortfolio = await portfolioService
-                .RemoveCVByPortfolioId(portfolioId);
+                .RemoveCVByPortfolioId(portfolioId, user.Id);
 
             return Ok(modifiedPortfolio);
+        }
+        catch (EXCEPTIONS.NotAuthorizedException ex)
+        {
+            logger.LogError(ex, "Problem with authorization occured.");
+
+            return StatusCode(StatusCodes.Status401Unauthorized, "Could not authorize for the certian action");
         }
         catch (ArgumentNullException ex)
         {
