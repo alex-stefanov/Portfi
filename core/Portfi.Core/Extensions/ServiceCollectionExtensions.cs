@@ -3,8 +3,17 @@ using REPOSITORIES = Portfi.Data.Repositories;
 
 namespace Portfi.Core.Extensions;
 
+/// <summary>
+/// Provides extension methods for registering repositories and user-defined services in the dependency injection container.
+/// </summary>
 public static class ServiceCollectionExtensions
 {
+    /// <summary>
+    /// Registers repositories dynamically based on the provided assembly.
+    /// </summary>
+    /// <param name="services">The <see cref="IServiceCollection"/> instance.</param>
+    /// <param name="modelsAssembly">The assembly containing model types.</param>
+    /// <returns>The updated <see cref="IServiceCollection"/> instance.</returns>
     public static IServiceCollection RegisterRepositories(
         this IServiceCollection services,
         Assembly modelsAssembly)
@@ -38,6 +47,12 @@ public static class ServiceCollectionExtensions
         return services;
     }
 
+    /// <summary>
+    /// Registers user-defined services dynamically based on the provided assembly.
+    /// </summary>
+    /// <param name="services">The <see cref="IServiceCollection"/> instance.</param>
+    /// <param name="serviceAssembly">The assembly containing service interface and implementation types.</param>
+    /// <returns>The updated <see cref="IServiceCollection"/> instance.</returns>
     public static IServiceCollection RegisterUserDefinedServices(
         this IServiceCollection services,
         Assembly serviceAssembly)
@@ -56,7 +71,7 @@ public static class ServiceCollectionExtensions
         foreach (Type serviceInterfaceType in serviceInterfaceTypes)
         {
             Type? serviceType = serviceTypes
-                .FirstOrDefault(t => $"I{t.Name}".Equals(serviceInterfaceType.Name, StringComparison.OrdinalIgnoreCase)) 
+                .FirstOrDefault(t => $"I{t.Name}".Equals(serviceInterfaceType.Name, StringComparison.OrdinalIgnoreCase))
                 ?? throw new NullReferenceException($"Service type could not be found for {serviceInterfaceType.Name}");
 
             services.AddScoped(serviceInterfaceType, serviceType);

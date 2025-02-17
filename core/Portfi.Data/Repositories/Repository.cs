@@ -3,6 +3,11 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Portfi.Data.Repositories;
 
+/// <summary>
+/// A generic repository implementation for data access operations.
+/// </summary>
+/// <typeparam name="TType">The type of the entity.</typeparam>
+/// <typeparam name="TId">The type of the entity's identifier.</typeparam>
 public class Repository<TType, TId>(
     PortfiDbContext dbContext)
     : IRepository<TType, TId>
@@ -11,31 +16,41 @@ public class Repository<TType, TId>(
     private readonly DbSet<TType> dbSet
         = dbContext.Set<TType>();
 
-    public void Add(TType item)
+    /// <inheritdoc />
+    public void Add(
+        TType item)
     {
         dbSet.Add(item);
         dbContext.SaveChanges();
     }
 
-    public async Task AddAsync(TType item)
+    /// <inheritdoc />
+    public async Task AddAsync(
+        TType item)
     {
         await dbSet.AddAsync(item);
         await dbContext.SaveChangesAsync();
     }
 
-    public void AddRange(TType[] items)
+    /// <inheritdoc />
+    public void AddRange(
+        TType[] items)
     {
         dbSet.AddRange(items);
         dbContext.SaveChanges();
     }
 
-    public async Task AddRangeAsync(TType[] items)
+    /// <inheritdoc />
+    public async Task AddRangeAsync(
+        TType[] items)
     {
         await dbSet.AddRangeAsync(items);
         await dbContext.SaveChangesAsync();
     }
 
-    public bool Delete(TType entity)
+    /// <inheritdoc />
+    public bool Delete(
+        TType entity)
     {
         dbSet.Remove(entity);
         int changes = dbContext.SaveChanges();
@@ -43,7 +58,9 @@ public class Repository<TType, TId>(
         return changes > 0;
     }
 
-    public async Task<bool> DeleteAsync(TType entity)
+    /// <inheritdoc />
+    public async Task<bool> DeleteAsync(
+        TType entity)
     {
         dbSet.Remove(entity);
         int changes = await dbContext.SaveChangesAsync();
@@ -51,7 +68,9 @@ public class Repository<TType, TId>(
         return changes > 0;
     }
 
-    public TType? FirstOrDefault(Func<TType, bool> predicate)
+    /// <inheritdoc />
+    public TType? FirstOrDefault(
+        Func<TType, bool> predicate)
     {
         TType? entity = dbSet
             .FirstOrDefault(predicate);
@@ -59,7 +78,9 @@ public class Repository<TType, TId>(
         return entity;
     }
 
-    public async Task<TType?> FirstOrDefaultAsync(Expression<Func<TType, bool>> predicate)
+    /// <inheritdoc />
+    public async Task<TType?> FirstOrDefaultAsync(
+        Expression<Func<TType, bool>> predicate)
     {
         TType? entity = await dbSet
              .FirstOrDefaultAsync(predicate);
@@ -67,22 +88,21 @@ public class Repository<TType, TId>(
         return entity;
     }
 
+    /// <inheritdoc />
     public IEnumerable<TType> GetAll()
-    {
-        return dbSet.ToArray();
-    }
+        => [.. dbSet];
 
+    /// <inheritdoc />
     public async Task<IEnumerable<TType>> GetAllAsync()
-    {
-        return await dbSet.ToArrayAsync();
-    }
+        => await dbSet.ToArrayAsync();
 
+    /// <inheritdoc />
     public IQueryable<TType> GetAllAttached()
-    {
-        return dbSet.AsQueryable();
-    }
+        => dbSet.AsQueryable();
 
-    public TType? GetById(TId id)
+    /// <inheritdoc />
+    public TType? GetById(
+        TId id)
     {
         TType? entity = dbSet
             .Find(id);
@@ -90,7 +110,9 @@ public class Repository<TType, TId>(
         return entity;
     }
 
-    public async Task<TType?> GetByIdAsync(TId id)
+    /// <inheritdoc />
+    public async Task<TType?> GetByIdAsync(
+        TId id)
     {
         TType? entity = await dbSet
             .FindAsync(id);
@@ -98,7 +120,9 @@ public class Repository<TType, TId>(
         return entity;
     }
 
-    public bool Update(TType item)
+    /// <inheritdoc />
+    public bool Update(
+        TType item)
     {
         try
         {
@@ -114,7 +138,9 @@ public class Repository<TType, TId>(
         }
     }
 
-    public async Task<bool> UpdateAsync(TType item)
+    /// <inheritdoc />
+    public async Task<bool> UpdateAsync(
+        TType item)
     {
         try
         {

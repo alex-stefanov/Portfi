@@ -103,7 +103,7 @@ public class ProjectController(
         {
             logger.LogError(ex, "Problem with authorization occured.");
 
-            return StatusCode(StatusCodes.Status401Unauthorized, "Could not authorize for the certian action").
+            return StatusCode(StatusCodes.Status401Unauthorized, "Could not authorize for the certian action");
         }
         catch (ArgumentException ex)
         {
@@ -197,7 +197,7 @@ public class ProjectController(
         {
             logger.LogError(ex, "Problem with authorization occured.");
 
-            return StatusCode(StatusCodes.Status401Unauthorized, "Could not authorize for the certian action").
+            return StatusCode(StatusCodes.Status401Unauthorized, "Could not authorize for the certian action");
         }
         catch (ArgumentNullException ex)
         {
@@ -284,7 +284,7 @@ public class ProjectController(
         {
             logger.LogError(ex, "Problem with authorization occured.");
 
-            return StatusCode(StatusCodes.Status401Unauthorized, "Could not authorize for the certian action").
+            return StatusCode(StatusCodes.Status401Unauthorized, "Could not authorize for the certian action");
         }
         catch (ArgumentNullException ex)
         {
@@ -378,7 +378,7 @@ public class ProjectController(
         {
             logger.LogError(ex, "Problem with authorization occured.");
 
-            return StatusCode(StatusCodes.Status401Unauthorized, "Could not authorize for the certian action").
+            return StatusCode(StatusCodes.Status401Unauthorized, "Could not authorize for the certian action");
         }
         catch (ArgumentNullException ex)
         {
@@ -469,7 +469,7 @@ public class ProjectController(
         {
             logger.LogError(ex, "Problem with authorization occured.");
 
-            return StatusCode(StatusCodes.Status401Unauthorized, "Could not authorize for the certian action").
+            return StatusCode(StatusCodes.Status401Unauthorized, "Could not authorize for the certian action");
         }
         catch (ArgumentNullException ex)
         {
@@ -556,7 +556,7 @@ public class ProjectController(
         {
             logger.LogError(ex, "Problem with authorization occured.");
 
-            return StatusCode(StatusCodes.Status401Unauthorized, "Could not authorize for the certian action").
+            return StatusCode(StatusCodes.Status401Unauthorized, "Could not authorize for the certian action");
         }
         catch (ArgumentNullException ex)
         {
@@ -650,7 +650,7 @@ public class ProjectController(
         {
             logger.LogError(ex, "Problem with authorization occured.");
 
-            return StatusCode(StatusCodes.Status401Unauthorized, "Could not authorize for the certian action").
+            return StatusCode(StatusCodes.Status401Unauthorized, "Could not authorize for the certian action");
         }
         catch (ArgumentNullException ex)
         {
@@ -737,7 +737,7 @@ public class ProjectController(
         {
             logger.LogError(ex, "Problem with authorization occured.");
 
-            return StatusCode(StatusCodes.Status401Unauthorized, "Could not authorize for the certian action").
+            return StatusCode(StatusCodes.Status401Unauthorized, "Could not authorize for the certian action");
         }
         catch (ArgumentNullException ex)
         {
@@ -820,7 +820,7 @@ public class ProjectController(
         {
             logger.LogError(ex, "Problem with authorization occured.");
 
-            return StatusCode(StatusCodes.Status401Unauthorized, "Could not authorize for the certian action").
+            return StatusCode(StatusCodes.Status401Unauthorized, "Could not authorize for the certian action");
         }
         catch (ArgumentNullException ex)
         {
@@ -903,7 +903,7 @@ public class ProjectController(
         {
             logger.LogError(ex, "Problem with authorization occured.");
 
-            return StatusCode(StatusCodes.Status401Unauthorized, "Could not authorize for the certian action").
+            return StatusCode(StatusCodes.Status401Unauthorized, "Could not authorize for the certian action");
         }
         catch (ArgumentNullException ex)
         {
@@ -986,7 +986,7 @@ public class ProjectController(
         {
             logger.LogError(ex, "Problem with authorization occured.");
 
-            return StatusCode(StatusCodes.Status401Unauthorized, "Could not authorize for the certian action").
+            return StatusCode(StatusCodes.Status401Unauthorized, "Could not authorize for the certian action");
         }
         catch (ArgumentNullException ex)
         {

@@ -5,10 +5,13 @@ using ENUMS = Portfi.Common.Enums;
 
 namespace Portfi.Infrastructure.Models.Requests;
 
+/// <summary>
+/// Represents a request to add a social media link.
+/// </summary>
 public class AddSocialMediaLinkRequest
 {
     /// <summary>
-    /// Gets or sets the platform type for the social media link (Enum: Facebook, X(Twitter), etc.).
+    /// Gets or sets the platform type for the social media link (e.g., Facebook, X (Twitter)).
     /// </summary>
     [Required]
     [JsonPropertyName("type")]

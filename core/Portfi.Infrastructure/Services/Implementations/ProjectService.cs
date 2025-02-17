@@ -273,7 +273,7 @@ public class ProjectService(
         return foundProject;
     }
 
-    async public Task AuthorizeByPortfolioId(
+    async private Task AuthorizeByPortfolioId(
         Guid portfolioId,
         string personId)
     {
