@@ -1,12 +1,11 @@
 import { notFound } from 'next/navigation';
 
 import { Portfolio } from '@/features/portfolio/components/Portfolio';
+import { getPortfolioById } from '@/features/portfolio/server/getPortfolioById';
 
-// import { extractAuthCookie } from '@/utils/supabase/extractAuthCookie';
+import { extractAuthCookie } from '@/utils/supabase/extractAuthCookie';
 
 import type { Portfolio as PortfolioType } from '@/features/portfolio/types/Portfolio';
-
-// This would typically come from a database
 
 export default async function PortfolioPage({
   params,
@@ -20,17 +19,10 @@ export default async function PortfolioPage({
     notFound();
   }
 
-  // Uncomment
+  const cookie = await extractAuthCookie();
 
-  // const cookie = (await extractAuthCookie()) || 'MISSING COOKIE!!!';
-  // const url = 'add api url here';
-
-  // await fetch(url, {
-  //   credentials: 'include',
-  //   headers: {
-  //     cookie: cookie,
-  //   },
-  // });
+  // server-fetch
+  // const portfolioFromDb = await getPortfolioById({ id, cookie });
 
   return (
     <div className="container">
