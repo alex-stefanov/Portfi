@@ -8,7 +8,7 @@ import { Separator } from '@/components/ui/separator';
 import { PortfolioTitle } from './PortfolioTitle';
 import { SocialLinks } from './SocialLinks';
 
-import type { Portfolio } from '../../types/Portfolio';
+import type { Portfolio } from '../../schemas/portfolioSchemas';
 
 export const PortfolioHeader = ({ portfolio }: { portfolio: Portfolio }) => {
   return (

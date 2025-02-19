@@ -18,7 +18,7 @@ import {
   CarouselPrevious,
 } from '@/components/ui/carousel';
 
-import type { Project } from '../types/Portfolio';
+import type { Project } from '../schemas/portfolioSchemas';
 
 export const ProjectList = ({ projects }: { projects: Project[] }) => {
   return (

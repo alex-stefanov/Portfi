@@ -1,4 +1,7 @@
+'use client';
+
 import { Linkedin } from 'lucide-react';
+import { useState } from 'react';
 
 import {
   SiFacebook,
@@ -20,10 +23,10 @@ import {
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 
-import { SocialLinksArr } from '../../types/Portfolio';
+import { SocialLinksArr } from '../../schemas/portfolioSchemas';
 import { EditButton } from '../EditButton';
 
-import type { SocialLinks as TSocialLinks } from '../../types/Portfolio';
+import type { SocialLinks as TSocialLinks } from '../../schemas/portfolioSchemas';
 
 const socialIcons: Record<keyof TSocialLinks, React.ElementType> = {
   github: SiGithub,
@@ -36,12 +39,18 @@ const socialIcons: Record<keyof TSocialLinks, React.ElementType> = {
 export const SocialLinks = ({ socialLinks }: { socialLinks: TSocialLinks }) => {
   const socialLinksArr = Object.values(socialLinks);
 
+  const [isOpen, setIsOpen] = useState(false);
+
   const getUserLink = (platform: string) => {
     return (
       socialLinksArr.find((link: string) =>
         link.toLowerCase().includes(platform.toLowerCase()),
       ) || ''
     );
+  };
+
+  const updateSocialLinksHandler = () => {
+    setIsOpen(false);
   };
 
   return (
@@ -59,7 +68,7 @@ export const SocialLinks = ({ socialLinks }: { socialLinks: TSocialLinks }) => {
           );
         })}
       </div>
-      <Dialog>
+      <Dialog open={isOpen} onOpenChange={setIsOpen}>
         <DialogTrigger asChild>
           <EditButton />
         </DialogTrigger>
@@ -86,7 +95,9 @@ export const SocialLinks = ({ socialLinks }: { socialLinks: TSocialLinks }) => {
             ))}
           </div>
           <DialogFooter>
-            <Button type="submit">Save changes</Button>
+            <Button type="submit" onClick={updateSocialLinksHandler}>
+              Save changes
+            </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

@@ -1,12 +1,14 @@
-import { API_URL } from '@/config/apiConfig';
+import { API_CONFIG } from '@/config/apiConfig';
 
 export const apiRoutes = {
+  v1: API_CONFIG.BASE_PATH,
   portfolio: {
-    getById: (id: string) =>
-      `${API_URL}/portfolio/getPortfolioById?portfolioID=${id}`,
+    getById: (id: string) => `/portfolio/getPortfolioById?portfolioID=${id}`,
+    updateSocialLinks: `/portfolio/updateSocialLinks`,
   },
   projects: {
-    getProjectsByUsername: (username: string) =>
-      `${API_URL}/project/getGitHubProjectsByUsername?username=${username}`,
+    getProjectsByUsername: (username: string) => {
+      return `/project/getGitHubProjectsByUsername?username=${username}`;
+    },
   },
 };

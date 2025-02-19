@@ -1,10 +1,14 @@
-export type SocialLinks = {
-  github?: string;
-  linkedin?: string;
-  twitter?: string;
-  instagram?: string;
-  facebook?: string;
-};
+import { z } from 'zod';
+
+export const socialLinksSchema = z.object({
+  github: z.string().trim().max(255),
+  linkedin: z.string().trim().max(255),
+  twitter: z.string().trim().max(255),
+  instagram: z.string().trim().max(255),
+  facebook: z.string().trim().max(255),
+});
+
+export type SocialLinks = z.infer<typeof socialLinksSchema>;
 
 export type Project = {
   id: string;

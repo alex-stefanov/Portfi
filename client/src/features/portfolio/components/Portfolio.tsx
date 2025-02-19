@@ -3,7 +3,7 @@ import { PortfolioHeader } from './PortfolioHeader/PortfolioHeader';
 import { ProjectList } from './ProjectList';
 import { RateAndLike } from './RatingAndLikes';
 
-import type { Portfolio as TPortfolio } from '../types/Portfolio';
+import type { Portfolio as TPortfolio } from '../schemas/portfolioSchemas';
 
 export const Portfolio = ({ portfolio }: { portfolio: TPortfolio }) => {
   return (

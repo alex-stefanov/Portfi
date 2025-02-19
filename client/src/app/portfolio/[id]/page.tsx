@@ -1,11 +1,11 @@
 import { notFound } from 'next/navigation';
 
 import { Portfolio } from '@/features/portfolio/components/Portfolio';
-import { getPortfolioById } from '@/features/portfolio/server/getPortfolioById';
+import { getPortfolioById } from '@/features/portfolio/data-access/getPortfolioById';
 
 import { extractAuthCookie } from '@/utils/supabase/extractAuthCookie';
 
-import type { Portfolio as PortfolioType } from '@/features/portfolio/types/Portfolio';
+import type { Portfolio as PortfolioType } from '@/features/portfolio/schemas/portfolioSchemas';
 
 export default async function PortfolioPage({
   params,
@@ -23,6 +23,7 @@ export default async function PortfolioPage({
 
   // server-fetch
   // const portfolioFromDb = await getPortfolioById({ id, cookie });
+  // console.log(portfolioFromDb);
 
   return (
     <div className="container">
