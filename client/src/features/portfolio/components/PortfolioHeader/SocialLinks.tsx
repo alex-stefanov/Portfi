@@ -1,7 +1,7 @@
 'use client';
 
 import { Linkedin } from 'lucide-react';
-import { useState } from 'react';
+import { useState, useTransition } from 'react';
 
 import {
   SiFacebook,
@@ -10,7 +10,6 @@ import {
   SiX,
 } from '@icons-pack/react-simple-icons';
 
-import { Button } from '@/components/ui/button';
 import {
   Dialog,
   DialogContent,
@@ -22,8 +21,10 @@ import {
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { LoadingButton } from '@/components/ui/loading-button';
 
 import { SocialLinksArr } from '../../schemas/portfolioSchemas';
+import { updateSocialLinksAction } from '../../server-actions/updateSocialLinksAction';
 import { EditButton } from '../EditButton';
 
 import type { SocialLinks as TSocialLinks } from '../../schemas/portfolioSchemas';
@@ -37,9 +38,21 @@ const socialIcons: Record<keyof TSocialLinks, React.ElementType> = {
 };
 
 export const SocialLinks = ({ socialLinks }: { socialLinks: TSocialLinks }) => {
+  const [isOpen, setIsOpen] = useState(false);
+  const [isPending, startTransition] = useTransition();
+
   const socialLinksArr = Object.values(socialLinks);
 
-  const [isOpen, setIsOpen] = useState(false);
+  const updateSocialLinks = () => {
+    startTransition(async () => {
+      const isSuccess = await updateSocialLinksAction(socialLinks);
+
+      // add toast notification
+      if (isSuccess) {
+        setIsOpen(false);
+      }
+    });
+  };
 
   const getUserLink = (platform: string) => {
     return (
@@ -47,10 +60,6 @@ export const SocialLinks = ({ socialLinks }: { socialLinks: TSocialLinks }) => {
         link.toLowerCase().includes(platform.toLowerCase()),
       ) || ''
     );
-  };
-
-  const updateSocialLinksHandler = () => {
-    setIsOpen(false);
   };
 
   return (
@@ -95,9 +104,9 @@ export const SocialLinks = ({ socialLinks }: { socialLinks: TSocialLinks }) => {
             ))}
           </div>
           <DialogFooter>
-            <Button type="submit" onClick={updateSocialLinksHandler}>
+            <LoadingButton loading={isPending} onClick={updateSocialLinks}>
               Save changes
-            </Button>
+            </LoadingButton>
           </DialogFooter>
         </DialogContent>
       </Dialog>
