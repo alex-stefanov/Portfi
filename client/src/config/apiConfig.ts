@@ -13,4 +13,4 @@ if (!API_CONFIG.SERVER_URL || !API_CONFIG.BASE_PATH) {
   );
 }
 
-export const API_URL = `${API_CONFIG.SERVER_URL}/${API_CONFIG.BASE_PATH}`;
+export { API_CONFIG };

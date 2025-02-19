@@ -33,17 +33,25 @@ const request = async (
 
   try {
     const res = await fetchWithTimeout(url, options);
-    if (!res.ok) handleError(res);
+
+    if (!res.ok) {
+      const errorText = await res.text();
+      throw new ApiError(res.status, res.statusText, errorText);
+    }
 
     return res.json();
-  } catch (error) {
+  } catch (err) {
+    const apiError = err instanceof ApiError ? err : ApiError.fromUnknownError(err);
+
     console.error('API Request Failed:', {
       method,
       url,
-      error: error instanceof Error ? error.message : 'Unknown error',
+      status: apiError.status,
+      statusText: apiError.statusText,
+      responseBody: apiError.responseBody,
     });
 
-    throw error;
+    throw apiError;
   }
 };
 
@@ -59,15 +67,6 @@ const getHeaders = async (method: RequestMethod): Promise<HeadersInit> => {
     ...(cookie && { cookie }),
     ...(method !== 'GET' && { 'Content-Type': 'application/json' }),
   };
-};
-
-/**
- * Handles API request errors and throws a detailed error message.
- */
-
-const handleError = async (res: Response) => {
-  const errorText = (await res.text()) || 'No response body';
-  throw new Error(`Error ${res.status}: ${res.statusText} - ${errorText}`);
 };
 
 /**
@@ -90,20 +89,47 @@ const fetchWithTimeout = async (
 };
 
 /**
+ * Custom error class for API errors.
+ */
+
+export class ApiError extends Error {
+  status: number;
+  statusText: string;
+  responseBody: string;
+
+  constructor(status: number, statusText: string, responseBody: string) {
+    super(`API Error ${status}: ${statusText} - ${responseBody}`);
+    this.status = status;
+    this.statusText = statusText;
+    this.responseBody = responseBody;
+  }
+
+  static fromUnknownError(error: unknown): ApiError {
+    return new ApiError(
+      500,
+      'Internal Server Error',
+      error instanceof Error ? error.message : 'An unknown error occurred',
+    );
+  }
+}
+
+/**
  * API request helper functions.
  */
 
-export const get = (path: string, options?: RequestInit) =>
+const get = (path: string, options?: RequestInit) =>
   request('GET', path, undefined, options);
 
-export const post = (path: string, data: DataProps, options?: RequestInit) => {
+const post = (path: string, data: DataProps, options?: RequestInit) => {
   return request('POST', path, data, options);
 };
 
-export const put = (path: string, data: DataProps, options?: RequestInit) => {
+const put = (path: string, data: DataProps, options?: RequestInit) => {
   return request('PUT', path, data, options);
 };
 
-export const del = (path: string, options?: RequestInit) => {
+const del = (path: string, options?: RequestInit) => {
   return request('DELETE', path, undefined, options);
 };
+
+export { get, post, put, del };

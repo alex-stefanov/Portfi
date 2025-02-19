@@ -2,33 +2,22 @@ import 'server-only';
 
 import { apiRoutes } from '@/constants/apiRoutes';
 
-type GetPortfolioByIdProps = {
-  id: string;
-  cookie: string | null;
-};
+import * as api from '@/utils/api';
 
-export const getPortfolioById = async ({ id, cookie }: GetPortfolioByIdProps) => {
+import { Portfolio } from '../schemas/portfolioSchemas';
+
+export const getPortfolioById = async (id: string) => {
   const url = apiRoutes.portfolio.getById(id);
 
-  const headers: HeadersInit = {
-    'Content-Type': 'application/json',
-  };
-
-  if (cookie) {
-    headers['cookie'] = cookie;
-  }
-
   try {
-    const result = await fetch(url, {
-      headers,
-    });
+    const data: Portfolio = await api.get(url);
 
-    if (!result.ok) {
-      throw new Error(result.statusText);
-    }
-
-    return await result.json();
-  } catch (_err) {
-    return null;
+    return {
+      data,
+    };
+  } catch (error) {
+    return {
+      error: error as api.ApiError,
+    };
   }
 };

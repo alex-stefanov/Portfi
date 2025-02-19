@@ -1,9 +1,8 @@
 import { notFound } from 'next/navigation';
 
 import { Portfolio } from '@/features/portfolio/components/Portfolio';
-import { getPortfolioById } from '@/features/portfolio/data-access/getPortfolioById';
 
-import { extractAuthCookie } from '@/utils/supabase/extractAuthCookie';
+// import { getPortfolioById } from '@/features/portfolio/data-access/getPortfolioById';
 
 import type { Portfolio as PortfolioType } from '@/features/portfolio/schemas/portfolioSchemas';
 
@@ -19,11 +18,14 @@ export default async function PortfolioPage({
     notFound();
   }
 
-  const cookie = await extractAuthCookie();
+  // // server-fetch
 
-  // server-fetch
-  // const portfolioFromDb = await getPortfolioById({ id, cookie });
-  // console.log(portfolioFromDb);
+  // const { error, data } = await getPortfolioById(id);
+
+  // if (error) {
+  //   // improve error handling
+  //   notFound();
+  // }
 
   return (
     <div className="container">
