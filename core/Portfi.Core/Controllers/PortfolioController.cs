@@ -2,7 +2,6 @@
 using Supabase;
 using Newtonsoft.Json;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Authorization;
 using Portfi.Common.Helpers;
 using MODELS = Portfi.Data.Models;
 using DTO = Portfi.Common.Dto;
@@ -20,7 +19,6 @@ namespace Portfi.Core.Controllers;
 /// <response code="500">When an internal server error occurres.</response>
 /// <param name="portfolioService">the portfolio service</param>
 /// <param name="logger">the logger</param>
-[Authorize]
 [ApiController]
 [Route("api/portfolio")]
 [ProducesResponseType(StatusCodes.Status401Unauthorized, Type = typeof(void))]
