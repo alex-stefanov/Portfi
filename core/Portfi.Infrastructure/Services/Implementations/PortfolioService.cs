@@ -1,5 +1,4 @@
-﻿using System.Text.Json;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using MODELS = Portfi.Data.Models;
 using EXCEPTIONS = Portfi.Common.Exceptions;
 using REPOSITORIES = Portfi.Data.Repositories;
@@ -21,7 +20,7 @@ public class PortfolioService(
     async public Task<MODELS.Portfolio> AddProjectsByPortfolioId(
         string portfolioId,
         string personId,
-        string[] sourceCodeLinks)
+        IEnumerable<string> sourceCodeLinks)
     {
         var foundPortfolio = await portfolioRepository
             .GetAllAttached()
@@ -58,32 +57,8 @@ public class PortfolioService(
     async public Task<MODELS.Portfolio> AddSocialMediaLinks(
         string portfolioId,
         string personId,
-        string serializedSocialMediaLinks)
+        List<REQUESTS.SocialMediaLinkRequest> socialMediaLinks)
     {
-        IEnumerable<REQUESTS.AddSocialMediaLinkRequest> socialMediaLinkRequests = [];
-
-        try
-        {
-            var options = new JsonSerializerOptions
-            {
-                PropertyNameCaseInsensitive = true,
-            };
-
-            socialMediaLinkRequests = JsonSerializer
-                .Deserialize<IEnumerable<REQUESTS.AddSocialMediaLinkRequest>>(
-                serializedSocialMediaLinks,
-                options)
-                ?? [];
-        }
-        catch (JsonException ex)
-        {
-            throw new JsonException("Invalid JSON format.", ex);
-        }
-        catch (Exception ex)
-        {
-            throw new Exception("Unexpected error occured.", ex);
-        }
-
         var foundPortfolio = await portfolioRepository
             .GetAllAttached()
             .Include(p => p.SocialMediaLinks)
@@ -95,7 +70,7 @@ public class PortfolioService(
             throw new EXCEPTIONS.NotAuthorizedException($"No permission for user with ID `{personId}`.");
         }
 
-        foreach (REQUESTS.AddSocialMediaLinkRequest socialMediaLink in socialMediaLinkRequests)
+        foreach (REQUESTS.SocialMediaLinkRequest socialMediaLink in socialMediaLinks)
         {
             if (foundPortfolio.SocialMediaLinks
                 .Any(link => link.Type == socialMediaLink.Type

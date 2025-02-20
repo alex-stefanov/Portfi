@@ -1,5 +1,5 @@
-﻿using System.Text.Json;
-using MODELS = Portfi.Data.Models;
+﻿using MODELS = Portfi.Data.Models;
+using REQUESTS = Portfi.Infrastructure.Models.Requests;
 using EXCEPTIONS = Portfi.Common.Exceptions;
 
 namespace Portfi.Infrastructure.Services.Interfaces;
@@ -22,24 +22,23 @@ public interface IPortfolioService
     Task<MODELS.Portfolio> AddProjectsByPortfolioId(
         string portfolioId,
         string personId,
-        string[] sourceCodeLinks);
+        IEnumerable<string> sourceCodeLinks);
 
     /// <summary>
     /// Adds social media links to a portfolio.
     /// </summary>
     /// <param name="portfolioId">The unique identifier of the portfolio.</param>
     /// <param name="personId">The unique identifier of the person for authorization.</param>
-    /// <param name="serializedSocialMediaLinks">A serialized representation of the social media links.</param>
+    /// <param name="socialMediaLinks">The social media links.</param>
     /// <returns>The updated portfolio.</returns>
     /// <exception cref="ArgumentNullException">Thrown when the portfolio is null.</exception>
-    /// <exception cref="JsonException">Thrown when social media links couldn't be deserialized.</exception>
     /// <exception cref="Exception">Thrown when unexpected error occured.</exception>
     /// <exception cref="EXCEPTIONS.NotAuthorizedException">Thrown when user doesn't have the required permission.</exception>
     /// <exception cref="FormatException">Thrown when the portfolio ID is not in the correct format.</exception>
     Task<MODELS.Portfolio> AddSocialMediaLinks(
         string portfolioId,
         string personId,
-        string serializedSocialMediaLinks);
+        List<REQUESTS.SocialMediaLinkRequest> socialMediaLinks);
 
     /// <summary>
     /// Creates a new portfolio with the provided information.

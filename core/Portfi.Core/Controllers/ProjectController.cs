@@ -46,14 +46,14 @@ public class ProjectController(
     /// <response code="200">Returns the GitHub projects gotten by the username.</response>
     /// <response code="401">If the user is unauthorized (invalid or missing JWT).</response>
     /// <response code="500">If there is a server error.</response>
-    [HttpGet("getGitHubProjectsByUsername")]
+    [HttpGet("github/{username}")]
     [ProducesResponseType(typeof(IEnumerable<RESPONSES.GitHubRepository>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     [Produces("application/json")]
     async public Task<IActionResult> GetGitHubProjectsByUsername(
         [Required]
-        [FromQuery(Name = "username")]
+        [FromRoute]
         string username)
     {
         try
@@ -138,17 +138,17 @@ public class ProjectController(
     /// <response code="200">Returns the project that had description added to it.</response>
     /// <response code="401">If the user is unauthorized (invalid or missing JWT).</response>
     /// <response code="500">If there is a server error.</response>
-    [HttpPost("addProjectDescription")]
+    [HttpPost("{projectId}/description")]
     [ProducesResponseType(typeof(MODELS.Project), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     [Produces("application/json")]
     async public Task<IActionResult> AddProjectDescription(
         [Required]
-        [FromQuery(Name = "projectID")]
+        [FromRoute]
         string projectId,
         [Required]
-        [FromQuery(Name = "description")]
+        [FromBody]
         string description)
     {
         try
@@ -222,98 +222,6 @@ public class ProjectController(
     }
 
     /// <summary>
-    /// Adds an active link to a project by specified project ID.
-    /// </summary>
-    /// <param name="projectId">the project ID</param>
-    /// <param name="activeLink">the active link</param>
-    /// <returns>The project that had active link added.</returns>
-    /// <response code="200">Returns the project that had active link added.</response>
-    /// <response code="401">If the user is unauthorized (invalid or missing JWT).</response>
-    /// <response code="500">If there is a server error.</response>
-    [HttpPost("addActiveLinkToProject")]
-    [ProducesResponseType(typeof(MODELS.Project), StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    [Produces("application/json")]
-    async public Task<IActionResult> AddActiveLinkToProject(
-        [Required]
-        [FromQuery(Name = "projectID")]
-        string projectId,
-        [Required]
-        [FromQuery(Name = "activeLink")]
-        string activeLink)
-    {
-        try
-        {
-            #region Get User
-
-            DTO.TokenResponse decodedToken;
-
-            try
-            {
-                decodedToken = Request.Cookies
-                    .TryGetDecodedToken();
-            }
-            catch (ArgumentNullException ex)
-            {
-                logger.LogError(ex.Message);
-
-                return StatusCode(StatusCodes.Status500InternalServerError, ex.Message);
-            }
-            catch (Exception ex)
-            {
-                logger.LogError(ex, "Unexpected error while decoding cookies.");
-
-                return StatusCode(StatusCodes.Status500InternalServerError, "An unexpected error occurred. Please contact support.");
-            }
-
-            var user = await supabase.Auth
-               .GetUser(decodedToken.AccessToken)
-               ?? throw new EXCEPTIONS.NotAuthorizedException("User not found.");
-
-            if (string.IsNullOrEmpty(user.Id))
-            {
-                throw new EXCEPTIONS.NotAuthorizedException("User doesn't have ID.");
-            }
-
-            #endregion
-
-            logger.LogInformation("Attempting to add active link to project with ID: {ProjectId}.", projectId);
-
-            MODELS.Project modifiedProject = await projectService
-                .AddActiveLinkByProjectId(projectId, user.Id, activeLink);
-
-            return Ok(modifiedProject);
-        }
-        catch (EXCEPTIONS.NotAuthorizedException ex)
-        {
-            logger.LogError(ex, "Problem with authorization occured.");
-
-            return StatusCode(StatusCodes.Status401Unauthorized, "Could not authorize for the certian action");
-        }
-        catch (ArgumentNullException ex)
-        {
-            logger.LogError(ex, "An error occurred while adding active link to project with ID: {ProjectId}.", projectId);
-            return StatusCode(StatusCodes.Status500InternalServerError, "An error occurred while processing your request.");
-        }
-        catch (EXCEPTIONS.ItemNotUpdatedException ex)
-        {
-            logger.LogError(ex, "Project with ID {ProjectId} couldn't be updated.", projectId);
-            return StatusCode(StatusCodes.Status500InternalServerError, "Project couldn't be updated.");
-        }
-        catch (FormatException ex)
-        {
-            logger.LogError(ex, "ID was not in the correct GUID format.");
-            return NotFound("ID not in the correct format.");
-        }
-        catch (Exception ex)
-        {
-            logger.LogError(ex, "An unexpected error occurred while adding active link to project with ID: {ProjectId}.", projectId);
-            return StatusCode(StatusCodes.Status500InternalServerError, "An unexpected error occurred while processing your request.");
-        }
-    }
-
-    /// <summary>
     /// Adds categories to a project by specified project ID.
     /// </summary>
     /// <param name="projectId">the project ID</param>
@@ -322,18 +230,18 @@ public class ProjectController(
     /// <response code="200">Returns the project that had categories added.</response>
     /// <response code="401">If the user is unauthorized (invalid or missing JWT).</response>
     /// <response code="500">If there is a server error.</response>
-    [HttpPost("addCategoriesToProject")]
+    [HttpPost("{projectId}/categories")]
     [ProducesResponseType(typeof(MODELS.Project), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     [Produces("application/json")]
     async public Task<IActionResult> AddCategoriesToProject(
         [Required]
-        [FromQuery(Name = "projectID")]
+        [FromRoute]
         string projectId,
         [Required]
-        [FromQuery(Name = "categories")]
-        string[] categories)
+        [FromBody]
+        List<string> categories)
     {
         try
         {
@@ -417,6 +325,98 @@ public class ProjectController(
     #region PATCH Requests:
 
     /// <summary>
+    /// Adds an active link to a project by specified project ID.
+    /// </summary>
+    /// <param name="projectId">the project ID</param>
+    /// <param name="activeLink">the active link</param>
+    /// <returns>The project that had active link added.</returns>
+    /// <response code="200">Returns the project that had active link added.</response>
+    /// <response code="401">If the user is unauthorized (invalid or missing JWT).</response>
+    /// <response code="500">If there is a server error.</response>
+    [HttpPatch("{projectId}/active-link")]
+    [ProducesResponseType(typeof(MODELS.Project), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    [Produces("application/json")]
+    async public Task<IActionResult> AddActiveLinkToProject(
+        [Required]
+        [FromRoute]
+        string projectId,
+        [Required]
+        [FromBody]
+        string activeLink)
+    {
+        try
+        {
+            #region Get User
+
+            DTO.TokenResponse decodedToken;
+
+            try
+            {
+                decodedToken = Request.Cookies
+                    .TryGetDecodedToken();
+            }
+            catch (ArgumentNullException ex)
+            {
+                logger.LogError(ex.Message);
+
+                return StatusCode(StatusCodes.Status500InternalServerError, ex.Message);
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex, "Unexpected error while decoding cookies.");
+
+                return StatusCode(StatusCodes.Status500InternalServerError, "An unexpected error occurred. Please contact support.");
+            }
+
+            var user = await supabase.Auth
+               .GetUser(decodedToken.AccessToken)
+               ?? throw new EXCEPTIONS.NotAuthorizedException("User not found.");
+
+            if (string.IsNullOrEmpty(user.Id))
+            {
+                throw new EXCEPTIONS.NotAuthorizedException("User doesn't have ID.");
+            }
+
+            #endregion
+
+            logger.LogInformation("Attempting to add active link to project with ID: {ProjectId}.", projectId);
+
+            MODELS.Project modifiedProject = await projectService
+                .AddActiveLinkByProjectId(projectId, user.Id, activeLink);
+
+            return Ok(modifiedProject);
+        }
+        catch (EXCEPTIONS.NotAuthorizedException ex)
+        {
+            logger.LogError(ex, "Problem with authorization occured.");
+
+            return StatusCode(StatusCodes.Status401Unauthorized, "Could not authorize for the certian action");
+        }
+        catch (ArgumentNullException ex)
+        {
+            logger.LogError(ex, "An error occurred while adding active link to project with ID: {ProjectId}.", projectId);
+            return StatusCode(StatusCodes.Status500InternalServerError, "An error occurred while processing your request.");
+        }
+        catch (EXCEPTIONS.ItemNotUpdatedException ex)
+        {
+            logger.LogError(ex, "Project with ID {ProjectId} couldn't be updated.", projectId);
+            return StatusCode(StatusCodes.Status500InternalServerError, "Project couldn't be updated.");
+        }
+        catch (FormatException ex)
+        {
+            logger.LogError(ex, "ID was not in the correct GUID format.");
+            return NotFound("ID not in the correct format.");
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "An unexpected error occurred while adding active link to project with ID: {ProjectId}.", projectId);
+            return StatusCode(StatusCodes.Status500InternalServerError, "An unexpected error occurred while processing your request.");
+        }
+    }
+
+    /// <summary>
     /// Edits a descriptipn of a project by specified project ID.
     /// </summary>
     /// <param name="projectId">the project ID</param>
@@ -425,17 +425,17 @@ public class ProjectController(
     /// <response code="200">Returns the project that had description edited.</response>
     /// <response code="401">If the user is unauthorized (invalid or missing JWT).</response>
     /// <response code="500">If there is a server error.</response>
-    [HttpPatch("editProjectDescription")]
+    [HttpPatch("{projectId}/description")]
     [ProducesResponseType(typeof(MODELS.Project), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     [Produces("application/json")]
     async public Task<IActionResult> EditProjectDescription(
         [Required]
-        [FromQuery(Name = "projectID")]
+        [FromRoute]
         string projectId,
         [Required]
-        [FromQuery(Name = "description")]
+        [FromBody]
         string description)
     {
         try
@@ -517,17 +517,17 @@ public class ProjectController(
     /// <response code="200">Returns the project that had active link edited.</response>
     /// <response code="401">If the user is unauthorized (invalid or missing JWT).</response>
     /// <response code="500">If there is a server error.</response>
-    [HttpPatch("editActiveLinkToProject")]
+    [HttpPatch("{projectId}/activeLink")]
     [ProducesResponseType(typeof(MODELS.Project), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     [Produces("application/json")]
     async public Task<IActionResult> EditActiveLinkToProject(
         [Required]
-        [FromQuery(Name = "projectID")]
+        [FromRoute]
         string projectId,
         [Required]
-        [FromQuery(Name = "activeLink")]
+        [FromBody]
         string activeLink)
     {
         try
@@ -609,17 +609,17 @@ public class ProjectController(
     /// <response code="200">Returns the project that had categories edited.</response>
     /// <response code="401">If the user is unauthorized (invalid or missing JWT).</response>
     /// <response code="500">If there is a server error.</response>
-    [HttpPatch("editProjectCategories")]
+    [HttpPatch("{projectId}/categories")]
     [ProducesResponseType(typeof(MODELS.Project), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     [Produces("application/json")]
     async public Task<IActionResult> EditProjectCategories(
         [Required]
-        [FromQuery(Name = "projectID")]
+        [FromRoute]
         string projectId,
         [Required]
-        [FromQuery(Name = "categories")]
+        [FromBody]
         string[] categories)
     {
         try
@@ -711,14 +711,14 @@ public class ProjectController(
     /// <response code="200">Returns the project that had description removed.</response>
     /// <response code="401">If the user is unauthorized (invalid or missing JWT).</response>
     /// <response code="500">If there is a server error.</response>
-    [HttpDelete("removeProjectDescription")]
+    [HttpDelete("{projectId}/description")]
     [ProducesResponseType(typeof(MODELS.Project), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     [Produces("application/json")]
     async public Task<IActionResult> RemoveProjectDescription(
         [Required]
-        [FromQuery(Name = "projectID")]
+        [FromRoute]
         string projectId)
     {
         try
@@ -799,14 +799,14 @@ public class ProjectController(
     /// <response code="200">Returns the project that had active link removed.</response>
     /// <response code="401">If the user is unauthorized (invalid or missing JWT).</response>
     /// <response code="500">If there is a server error.</response>
-    [HttpDelete("removeActiveLinkFromProject")]
+    [HttpDelete("{projectId}/activeLink")]
     [ProducesResponseType(typeof(MODELS.Project), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     [Produces("application/json")]
     async public Task<IActionResult> RemoveActiveLinkFromProject(
         [Required]
-        [FromQuery(Name = "projectID")]
+        [FromRoute]
         string projectId)
     {
         try
@@ -887,14 +887,14 @@ public class ProjectController(
     /// <response code="200">Returns the project that had all categories removed.</response>
     /// <response code="401">If the user is unauthorized (invalid or missing JWT).</response>
     /// <response code="500">If there is a server error.</response>
-    [HttpDelete("clearProjectCategories")]
+    [HttpDelete("{projectId}/categories")]
     [ProducesResponseType(typeof(MODELS.Project), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     [Produces("application/json")]
     async public Task<IActionResult> ClearProjectCategories(
         [Required]
-        [FromQuery(Name = "projectID")]
+        [FromRoute]
         string projectId)
     {
         try
@@ -975,14 +975,14 @@ public class ProjectController(
     /// <response code="200">Returns the portfolio that had the project which was removed.</response>
     /// <response code="401">If the user is unauthorized (invalid or missing JWT).</response>
     /// <response code="500">If there is a server error.</response>
-    [HttpDelete("removeProjectByProjectId")]
+    [HttpDelete("{projectId}")]
     [ProducesResponseType(typeof(MODELS.Portfolio), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     [Produces("application/json")]
     async public Task<IActionResult> RemoveProjectByProjectId(
         [Required]
-        [FromQuery(Name = "projectID")]
+        [FromRoute]
         string projectId)
     {
         try
