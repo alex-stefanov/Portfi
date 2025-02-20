@@ -38,7 +38,7 @@ public class ProjectService(
     /// <inheritdoc/>
     async public Task<MODELS.Project> AddCategoriesByProjectId(
         string projectId,
-         string personId,
+        string personId,
         IEnumerable<ENUMS.ProjectCategory> categories)
     {
         var foundProject = await projectRepository.GetByIdAsync(Guid.Parse(projectId))

@@ -20,6 +20,7 @@ public interface IProjectService
     /// <exception cref="ArgumentNullException">Thrown when project is null.</exception>
     /// <exception cref="EXCEPTIONS.ItemNotUpdatedException">Thrown when item couldn't be updated.</exception>
     /// <exception cref="EXCEPTIONS.NotAuthorizedException">Thrown when user doesn't have the required permission.</exception>
+    /// <exception cref="FormatException">Thrown when the project ID is not in the correct format.</exception>
     Task<MODELS.Project> AddActiveLinkByProjectId(
         string projectId,
         string personId,
@@ -35,6 +36,7 @@ public interface IProjectService
     /// <exception cref="ArgumentNullException">Thrown when project is null.</exception>
     /// <exception cref="EXCEPTIONS.ItemNotUpdatedException">Thrown when item couldn't be updated.</exception>
     /// <exception cref="EXCEPTIONS.NotAuthorizedException">Thrown when user doesn't have the required permission.</exception>
+    /// <exception cref="FormatException">Thrown when the project ID is not in the correct format.</exception>
     Task<MODELS.Project> AddCategoriesByProjectId(
         string projectId,
         string personId,
@@ -50,6 +52,7 @@ public interface IProjectService
     /// <exception cref="ArgumentNullException">Thrown when project is null.</exception>
     /// <exception cref="EXCEPTIONS.ItemNotUpdatedException">Thrown when item couldn't be updated.</exception>
     /// <exception cref="EXCEPTIONS.NotAuthorizedException">Thrown when user doesn't have the required permission.</exception>
+    /// <exception cref="FormatException">Thrown when the project ID is not in the correct format.</exception></exception>
     Task<MODELS.Project> AddDescriptionByProjectId(
         string projectId,
         string personId,
@@ -64,6 +67,7 @@ public interface IProjectService
     /// <exception cref="ArgumentNullException">Thrown when project is null.</exception>
     /// <exception cref="EXCEPTIONS.ItemNotDeletedException">Thrown when item couldn't be deleted.</exception>
     /// <exception cref="EXCEPTIONS.NotAuthorizedException">Thrown when user doesn't have the required permission.</exception>
+    /// <exception cref="FormatException">Thrown when the project ID is not in the correct format.</exception></exception>
     Task<MODELS.Portfolio> DeleteProjectByProjectId(
         string projectId,
         string personId);
@@ -78,6 +82,7 @@ public interface IProjectService
     /// <exception cref="ArgumentNullException">Thrown when project is null.</exception>
     /// <exception cref="EXCEPTIONS.ItemNotUpdatedException">Thrown when item couldn't be updated.</exception>
     /// <exception cref="EXCEPTIONS.NotAuthorizedException">Thrown when user doesn't have the required permission.</exception>
+    /// <exception cref="FormatException">Thrown when the project ID is not in the correct format.</exception></exception>"
     Task<MODELS.Project> EditActiveLinkByProjectId(
         string projectId,
         string personId,
@@ -93,6 +98,7 @@ public interface IProjectService
     /// <exception cref="ArgumentNullException">Thrown when project is null.</exception>
     /// <exception cref="EXCEPTIONS.ItemNotUpdatedException">Thrown when item couldn't be updated.</exception>
     /// <exception cref="EXCEPTIONS.NotAuthorizedException">Thrown when user doesn't have the required permission.</exception>
+    /// <exception cref="FormatException">Thrown when the project ID is not in the correct format.</exception>
     Task<MODELS.Project> EditCategoriesByProjectId(
         string projectId,
         string personId,
@@ -108,6 +114,7 @@ public interface IProjectService
     /// <exception cref="ArgumentNullException">Thrown when project is null.</exception>
     /// <exception cref="EXCEPTIONS.ItemNotUpdatedException">Thrown when item couldn't be updated.</exception>
     /// <exception cref="EXCEPTIONS.NotAuthorizedException">Thrown when user doesn't have the required permission.</exception>
+    /// <exception cref="FormatException">Thrown when the project ID is not in the correct format.</exception>
     Task<MODELS.Project> EditDescriptionByProjectId(
         string projectId,
         string personId,
@@ -133,6 +140,7 @@ public interface IProjectService
     /// <exception cref="ArgumentNullException">Thrown when project is null.</exception>
     /// <exception cref="EXCEPTIONS.ItemNotUpdatedException">Thrown when item couldn't be updated.</exception>
     /// <exception cref="EXCEPTIONS.NotAuthorizedException">Thrown when user doesn't have the required permission.</exception>
+    /// <exception cref="FormatException">Thrown when the project ID is not in the correct format.</exception>"
     Task<MODELS.Project> RemoveActiveLinkByProjectId(
         string projectId,
         string personId);
@@ -146,6 +154,7 @@ public interface IProjectService
     /// <exception cref="ArgumentNullException">Thrown when project is null.</exception>
     /// <exception cref="EXCEPTIONS.ItemNotUpdatedException">Thrown when item couldn't be updated.</exception>
     /// <exception cref="EXCEPTIONS.NotAuthorizedException">Thrown when user doesn't have the required permission.</exception>
+    /// <exception cref="FormatException">Thrown when the project ID is not in the correct format.</exception>
     Task<MODELS.Project> RemoveDescriptionByProjectId(
         string projectId,
         string personId);
@@ -159,6 +168,7 @@ public interface IProjectService
     /// <exception cref="ArgumentNullException">Thrown when project is null.</exception>
     /// <exception cref="EXCEPTIONS.ItemNotUpdatedException">Thrown when item couldn't be updated.</exception>
     /// <exception cref="EXCEPTIONS.NotAuthorizedException">Thrown when user doesn't have the required permission.</exception>
+    /// <exception cref="FormatException">Thrown when the project ID is not in the correct format.</exception>
     Task<MODELS.Project> RemoveAllCategoriesByProjectId(
         string projectId,
         string personId);

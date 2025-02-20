@@ -139,6 +139,11 @@ public class PortfolioController(
             logger.LogError(ex, "Portfolio with ID {PortfolioId} not found.", portfolioId);
             return NotFound($"Portfolio with ID {portfolioId} not found.");
         }
+        catch(FormatException ex)
+        {
+            logger.LogError(ex, "ID was not in the correct GUID format.");
+            return NotFound("ID not in the correct format.");
+        }
         catch (Exception ex)
         {
             logger.LogError(ex, "Unexpected error while getting portfolio with ID: {PortfolioId}.", portfolioId);
@@ -318,6 +323,11 @@ public class PortfolioController(
             logger.LogError(ex, "Social media links couldn't be deserialized.");
             return NotFound("Social media links couldn't be deserialized.");
         }
+        catch (FormatException ex)
+        {
+            logger.LogError(ex, "ID was not in the correct GUID format.");
+            return NotFound("ID not in the correct format.");
+        }
         catch (Exception ex)
         {
             logger.LogError(ex, "Unexpected error while adding social media links for portfolio with ID: {PortfolioId}.", portfolioId);
@@ -407,6 +417,11 @@ public class PortfolioController(
         {
             logger.LogError(ex, "Portfolio with ID {PortfolioId} couldn't be updated.", portfolioId);
             return StatusCode(StatusCodes.Status500InternalServerError, $"Portfolio couldn't be updated.");
+        }
+        catch (FormatException ex)
+        {
+            logger.LogError(ex, "ID was not in the correct GUID format.");
+            return NotFound("ID not in the correct format.");
         }
         catch (Exception ex)
         {
@@ -498,6 +513,11 @@ public class PortfolioController(
             logger.LogError(ex, "Portfolio with ID {PortfolioId} couldn't be updated.", portfolioId);
             return StatusCode(StatusCodes.Status500InternalServerError, $"Portfolio couldn't be updated.");
         }
+        catch (FormatException ex)
+        {
+            logger.LogError(ex, "ID was not in the correct GUID format.");
+            return NotFound("ID not in the correct format.");
+        }
         catch (Exception ex)
         {
             logger.LogError(ex, "Unexpected error while uploadding CV URL for portfolio with ID: {PortfolioId}.", portfolioId);
@@ -582,6 +602,11 @@ public class PortfolioController(
         {
             logger.LogError(ex, "Portfolio with ID {PortfolioId} not found.", portfolioId);
             return NotFound($"Portfolio with ID {portfolioId} not found.");
+        }
+        catch (FormatException ex)
+        {
+            logger.LogError(ex, "ID was not in the correct GUID format.");
+            return NotFound("ID not in the correct format.");
         }
         catch (Exception ex)
         {
@@ -677,6 +702,11 @@ public class PortfolioController(
             logger.LogError(ex, "Portfolio couldn't be updated");
             return StatusCode(StatusCodes.Status500InternalServerError, "Portfolio couldn't be updated.");
         }
+        catch (FormatException ex)
+        {
+            logger.LogError(ex, "ID was not in the correct GUID format.");
+            return NotFound("ID not in the correct format.");
+        }
         catch (Exception ex)
         {
             logger.LogError(ex, "Unexpected error while editting social media link with ID: {SocialMediaLinkId}.", socialMediaLinkId);
@@ -766,6 +796,11 @@ public class PortfolioController(
         {
             logger.LogError(ex, "Portfolio with ID {PortfolioId} couldn't be updated.", portfolioId);
             return StatusCode(StatusCodes.Status500InternalServerError, "Portfolio couldn't be updated.");
+        }
+        catch (FormatException ex)
+        {
+            logger.LogError(ex, "ID was not in the correct GUID format.");
+            return NotFound("ID not in the correct format.");
         }
         catch (Exception ex)
         {
@@ -860,6 +895,11 @@ public class PortfolioController(
             logger.LogError(ex, "Portfolio with ID {PortfolioId} couldn't be updated.", portfolioId);
             return StatusCode(StatusCodes.Status500InternalServerError, "Portfolio couldn't be updated.");
         }
+        catch (FormatException ex)
+        {
+            logger.LogError(ex, "ID was not in the correct GUID format.");
+            return NotFound("ID not in the correct format.");
+        }
         catch (Exception ex)
         {
             logger.LogError(ex, "Unexpected error while editting theme for portfolio with ID: {PortfolioId}.", portfolioId);
@@ -944,6 +984,11 @@ public class PortfolioController(
         {
             logger.LogError(ex, "Portfolio with ID {PortfolioId} couldn't be updated.", portfolioId);
             return StatusCode(StatusCodes.Status500InternalServerError, "Portfolio couldn't be updated.");
+        }
+        catch (FormatException ex)
+        {
+            logger.LogError(ex, "ID was not in the correct GUID format.");
+            return NotFound("ID not in the correct format.");
         }
         catch (Exception ex)
         {
@@ -1035,6 +1080,11 @@ public class PortfolioController(
             logger.LogError(ex, "Portfolio with ID {PortfolioId} couldn't be updated.", portfolioId);
             return StatusCode(StatusCodes.Status500InternalServerError, "Portfolio couldn't be updated.");
         }
+        catch (FormatException ex)
+        {
+            logger.LogError(ex, "ID was not in the correct GUID format.");
+            return NotFound("ID not in the correct format.");
+        }
         catch (Exception ex)
         {
             logger.LogError(ex, "Unexpected error while editting person names for portfolio with ID: {PortfolioId}.", portfolioId);
@@ -1125,6 +1175,11 @@ public class PortfolioController(
             logger.LogError(ex, "Portfolio with ID {PortfolioId} couldn't be updated.", portfolioId);
             return StatusCode(StatusCodes.Status500InternalServerError, "Portfolio couldn't be updated.");
         }
+        catch (FormatException ex)
+        {
+            logger.LogError(ex, "ID was not in the correct GUID format.");
+            return NotFound("ID not in the correct format.");
+        }
         catch (Exception ex)
         {
             logger.LogError(ex, "Unexpected error while editting visability for portfolio with ID: {PortfolioId}.", portfolioId);
@@ -1212,6 +1267,11 @@ public class PortfolioController(
             logger.LogError(ex, "Social media link with ID {SocialMediaLink} couldn't be deleted.", socialMediaLinkId);
             return StatusCode(StatusCodes.Status500InternalServerError, "Social media link couldn't be deleted.");
         }
+        catch (FormatException ex)
+        {
+            logger.LogError(ex, "ID was not in the correct GUID format.");
+            return NotFound("ID not in the correct format.");
+        }
         catch (Exception ex)
         {
             logger.LogError(ex, "Unexpected error while removing social media link with ID: {SocialMediaLinkId}.", socialMediaLinkId);
@@ -1295,6 +1355,11 @@ public class PortfolioController(
             logger.LogError(ex, "Portfolio with ID {PortfolioId} couldn't be updated.", portfolioId);
             return StatusCode(StatusCodes.Status500InternalServerError, "Portfolio couldn't be updated.");
         }
+        catch (FormatException ex)
+        {
+            logger.LogError(ex, "ID was not in the correct GUID format.");
+            return NotFound("ID not in the correct format.");
+        }
         catch (Exception ex)
         {
             logger.LogError(ex, "Unexpected error while removing avatar from portfolio with ID: {PortfolioID}.", portfolioId);
@@ -1377,6 +1442,11 @@ public class PortfolioController(
         {
             logger.LogError(ex, "Portfolio with ID {PortfolioId} couldn't be updated.", portfolioId);
             return StatusCode(StatusCodes.Status500InternalServerError, "Portfolio couldn't be updated.");
+        }
+        catch (FormatException ex)
+        {
+            logger.LogError(ex, "ID was not in the correct GUID format.");
+            return NotFound("ID not in the correct format.");
         }
         catch (Exception ex)
         {

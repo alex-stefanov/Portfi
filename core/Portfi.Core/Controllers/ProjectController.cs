@@ -209,6 +209,11 @@ public class ProjectController(
             logger.LogError(ex, "Project with ID {ProjectId} couldn't be updated.", projectId);
             return StatusCode(StatusCodes.Status500InternalServerError, "Project couldn't be updated.");
         }
+        catch (FormatException ex)
+        {
+            logger.LogError(ex, "ID was not in the correct GUID format.");
+            return NotFound("ID not in the correct format.");
+        }
         catch (Exception ex)
         {
             logger.LogError(ex, "Unexpected error while adding description to project ID: {ProjectId}.", projectId);
@@ -295,6 +300,11 @@ public class ProjectController(
         {
             logger.LogError(ex, "Project with ID {ProjectId} couldn't be updated.", projectId);
             return StatusCode(StatusCodes.Status500InternalServerError, "Project couldn't be updated.");
+        }
+        catch (FormatException ex)
+        {
+            logger.LogError(ex, "ID was not in the correct GUID format.");
+            return NotFound("ID not in the correct format.");
         }
         catch (Exception ex)
         {
@@ -390,6 +400,11 @@ public class ProjectController(
             logger.LogError(ex, "Project with ID {ProjectId} couldn't be updated.", projectId);
             return StatusCode(StatusCodes.Status500InternalServerError, "Project couldn't be updated.");
         }
+        catch (FormatException ex)
+        {
+            logger.LogError(ex, "ID was not in the correct GUID format.");
+            return NotFound("ID not in the correct format.");
+        }
         catch (Exception ex)
         {
             logger.LogError(ex, "An unexpected error occurred while adding categories to project with ID: {ProjectId}.", projectId);
@@ -481,6 +496,11 @@ public class ProjectController(
             logger.LogError(ex, "Project with ID {ProjectId} couldn't be updated.", projectId);
             return StatusCode(StatusCodes.Status500InternalServerError, "Project couldn't be updated.");
         }
+        catch (FormatException ex)
+        {
+            logger.LogError(ex, "ID was not in the correct GUID format.");
+            return NotFound("ID not in the correct format.");
+        }
         catch (Exception ex)
         {
             logger.LogError(ex, "An unexpected error occurred while editting description to project with ID: {ProjectId}.", projectId);
@@ -567,6 +587,11 @@ public class ProjectController(
         {
             logger.LogError(ex, "Project with ID {ProjectId} couldn't be updated.", projectId);
             return StatusCode(StatusCodes.Status500InternalServerError, "Project couldn't be updated.");
+        }
+        catch (FormatException ex)
+        {
+            logger.LogError(ex, "ID was not in the correct GUID format.");
+            return NotFound("ID not in the correct format.");
         }
         catch (Exception ex)
         {
@@ -662,6 +687,11 @@ public class ProjectController(
             logger.LogError(ex, "Project with ID {ProjectId} couldn't be updated.", projectId);
             return StatusCode(StatusCodes.Status500InternalServerError, "Project couldn't be updated.");
         }
+        catch (FormatException ex)
+        {
+            logger.LogError(ex, "ID was not in the correct GUID format.");
+            return NotFound("ID not in the correct format.");
+        }
         catch (Exception ex)
         {
             logger.LogError(ex, "An unexpected error occurred while editting categories to project with ID: {ProjectId}.", projectId);
@@ -749,6 +779,11 @@ public class ProjectController(
             logger.LogError(ex, "Project with ID {ProjectId} couldn't be updated.", projectId);
             return StatusCode(StatusCodes.Status500InternalServerError, "Project couldn't be updated.");
         }
+        catch (FormatException ex)
+        {
+            logger.LogError(ex, "ID was not in the correct GUID format.");
+            return NotFound("ID not in the correct format.");
+        }
         catch (Exception ex)
         {
             logger.LogError(ex, "An unexpected error occurred while removing description from project with ID: {ProjectId}.", projectId);
@@ -831,6 +866,11 @@ public class ProjectController(
         {
             logger.LogError(ex, "Project with ID {ProjectId} couldn't be updated.", projectId);
             return StatusCode(StatusCodes.Status500InternalServerError, "Project couldn't be updated.");
+        }
+        catch (FormatException ex)
+        {
+            logger.LogError(ex, "ID was not in the correct GUID format.");
+            return NotFound("ID not in the correct format.");
         }
         catch (Exception ex)
         {
@@ -915,6 +955,11 @@ public class ProjectController(
             logger.LogError(ex, "Project with ID {ProjectId} couldn't be updated.", projectId);
             return StatusCode(StatusCodes.Status500InternalServerError, "Project couldn't be updated.");
         }
+        catch (FormatException ex)
+        {
+            logger.LogError(ex, "ID was not in the correct GUID format.");
+            return NotFound("ID not in the correct format.");
+        }
         catch (Exception ex)
         {
             logger.LogError(ex, "An unexpected error occurred while clearing categories from project with ID: {ProjectId}.", projectId);
@@ -997,6 +1042,11 @@ public class ProjectController(
         {
             logger.LogError(ex, "Failed to delete project with ID: {ProjectId}.", projectId);
             return StatusCode(StatusCodes.Status500InternalServerError, "Project could not be deleted due to an internal constraint.");
+        }
+        catch (FormatException ex)
+        {
+            logger.LogError(ex, "ID was not in the correct GUID format.");
+            return NotFound("ID not in the correct format.");
         }
         catch (Exception ex)
         {
