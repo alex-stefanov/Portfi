@@ -18,6 +18,7 @@ public interface IPortfolioService
     /// <returns>The updated portfolio.</returns>
     /// <exception cref="ArgumentNullException">Thrown when the portfolio is null.</exception>
     /// <exception cref="EXCEPTIONS.NotAuthorizedException">Thrown when user doesn't have the required permission.</exception>
+    /// <exception cref="FormatException">Thrown when the portfolio ID is not in the correct format.</exception>
     Task<MODELS.Portfolio> AddProjectsByPortfolioId(
         string portfolioId,
         string personId,
@@ -34,6 +35,7 @@ public interface IPortfolioService
     /// <exception cref="JsonException">Thrown when social media links couldn't be deserialized.</exception>
     /// <exception cref="Exception">Thrown when unexpected error occured.</exception>
     /// <exception cref="EXCEPTIONS.NotAuthorizedException">Thrown when user doesn't have the required permission.</exception>
+    /// <exception cref="FormatException">Thrown when the portfolio ID is not in the correct format.</exception>
     Task<MODELS.Portfolio> AddSocialMediaLinks(
         string portfolioId,
         string personId,
@@ -62,6 +64,7 @@ public interface IPortfolioService
     /// <exception cref="ArgumentNullException">Thrown when portfolio is null.</exception>
     /// <exception cref="EXCEPTIONS.ItemNotUpdatedException">Thrown when item couldn't be updated.</exception>
     /// <exception cref="EXCEPTIONS.NotAuthorizedException">Thrown when user doesn't have the required permission.</exception>
+    /// <exception cref="FormatException">Thrown when the portfolio ID is not in the correct format.</exception>
     Task<MODELS.Portfolio> EditBiographyByPortfolioId(
         string portfolioId,
         string personId,
@@ -77,6 +80,7 @@ public interface IPortfolioService
     /// <exception cref="ArgumentNullException">Thrown when portfolio is null.</exception>
     /// <exception cref="EXCEPTIONS.ItemNotUpdatedException">Thrown when item couldn't be updated.</exception>
     /// <exception cref="EXCEPTIONS.NotAuthorizedException">Thrown when user doesn't have the required permission.</exception>
+    /// <exception cref="FormatException">Thrown when the portfolio ID is not in the correct format.</exception>
     Task<MODELS.Portfolio> EditNamesByPortfolioId(
         string portfolioId,
         string personId,
@@ -92,6 +96,7 @@ public interface IPortfolioService
     /// <exception cref="ArgumentNullException">Thrown when socialMediaLink or portfolio is null.</exception>
     /// <exception cref="EXCEPTIONS.ItemNotUpdatedException">Thrown when item couldn't be updated.</exception>
     /// <exception cref="EXCEPTIONS.NotAuthorizedException">Thrown when user doesn't have the required permission.</exception>
+    /// <exception cref="FormatException">Thrown when the portfolio ID is not in the correct format.</exception>
     Task<MODELS.Portfolio> EditSocialMediaLinkById(
         string socialMediaLinkId,
         string personId,
@@ -108,6 +113,7 @@ public interface IPortfolioService
     /// <exception cref="ArgumentNullException">Thrown when portfolio is null.</exception>
     /// <exception cref="EXCEPTIONS.ItemNotUpdatedException">Thrown when item couldn't be updated.</exception>
     /// <exception cref="EXCEPTIONS.NotAuthorizedException">Thrown when user doesn't have the required permission.</exception>
+    /// <exception cref="FormatException">Thrown when the portfolio ID is not in the correct format.</exception>
     Task<MODELS.Portfolio> EditThemeByPortfolioId(
         string portfolioId,
         string personId,
@@ -124,6 +130,7 @@ public interface IPortfolioService
     /// <exception cref="ArgumentNullException">Thrown when portfolio is null.</exception>
     /// <exception cref="EXCEPTIONS.ItemNotUpdatedException">Thrown when item couldn't be updated.</exception>
     /// <exception cref="EXCEPTIONS.NotAuthorizedException">Thrown when user doesn't have the required permission.</exception>
+    /// <exception cref="FormatException">Thrown when the portfolio ID is not in the correct format.</exception>
     Task<MODELS.Portfolio> EditVisabilityByPortfolioId(
         string portfolioId,
         string personId,
@@ -142,6 +149,7 @@ public interface IPortfolioService
     /// <param name="portfolioId">The unique identifier of the portfolio.</param>
     /// <returns>The requested portfolio.</returns>
     /// <exception cref="ArgumentNullException">Thrown when portfolio is null.</exception>
+    /// <exception cref="FormatException">Thrown when the portfolio ID is not in the correct format.</exception>
     Task<MODELS.Portfolio> GetPortfolioById(
         string portfolioId);
 
@@ -154,6 +162,7 @@ public interface IPortfolioService
     /// <exception cref="ArgumentNullException">Thrown when portfolio is null.</exception>
     /// <exception cref="EXCEPTIONS.ItemNotUpdatedException">Thrown when item couldn't be updated.</exception>
     /// <exception cref="EXCEPTIONS.NotAuthorizedException">Thrown when user doesn't have the required permission.</exception>
+    /// <exception cref="FormatException">Thrown when the portfolio ID is not in the correct format.</exception>
     Task<MODELS.Portfolio> RemoveAvatarByPortfolioId(
         string portfolioId,
         string personId);
@@ -167,6 +176,7 @@ public interface IPortfolioService
     /// <exception cref="ArgumentNullException">Thrown when portfolio is null.</exception>
     /// <exception cref="EXCEPTIONS.ItemNotUpdatedException">Thrown when item couldn't be updated.</exception>
     /// <exception cref="EXCEPTIONS.NotAuthorizedException">Thrown when user doesn't have the required permission.</exception>
+    /// <exception cref="FormatException">Thrown when the portfolio ID is not in the correct format.</exception>
     Task<MODELS.Portfolio> RemoveCVByPortfolioId(
         string portfolioId,
         string personId);
@@ -180,6 +190,7 @@ public interface IPortfolioService
     /// <exception cref="ArgumentNullException">Thrown when socialMediaLink or portfolio is null.</exception>
     /// <exception cref="EXCEPTIONS.ItemNotDeletedException">Thrown when item couldn't be deleted.</exception>
     /// <exception cref="EXCEPTIONS.NotAuthorizedException">Thrown when user doesn't have the required permission.</exception>
+    /// <exception cref="FormatException">Thrown when the portfolio ID is not in the correct format.</exception>
     Task<MODELS.Portfolio> RemoveSocialMediaLinkById(
         string socialMediaLinkId,
         string personId);
@@ -193,6 +204,7 @@ public interface IPortfolioService
     /// <exception cref="ArgumentNullException">Thrown when portfolio is null.</exception>
     /// <exception cref="EXCEPTIONS.ItemNotUpdatedException">Thrown when item couldn't be updated.</exception>
     /// <exception cref="EXCEPTIONS.NotAuthorizedException">Thrown when user doesn't have the required permission.</exception>
+    /// <exception cref="FormatException">Thrown when the portfolio ID is not in the correct format.</exception>
     Task<MODELS.Portfolio> SetDefaultThemeByportfolioId(
         string portfolioId,
         string personId);
@@ -207,6 +219,7 @@ public interface IPortfolioService
     /// <exception cref="ArgumentNullException">Thrown when portfolio is null.</exception>
     /// <exception cref="EXCEPTIONS.ItemNotUpdatedException">Thrown when item couldn't be updated.</exception>
     /// <exception cref="EXCEPTIONS.NotAuthorizedException">Thrown when user doesn't have the required permission.</exception>
+    /// <exception cref="FormatException">Thrown when the portfolio ID is not in the correct format.</exception>
     Task<MODELS.Portfolio> UplaodAvatarByPortfolioId(
         string portfolioId,
         string personId,
@@ -222,6 +235,7 @@ public interface IPortfolioService
     /// <exception cref="ArgumentNullException">Thrown when portfolio is null.</exception>
     /// <exception cref="EXCEPTIONS.ItemNotUpdatedException">Thrown when item couldn't be updated.</exception>
     /// <exception cref="EXCEPTIONS.NotAuthorizedException">Thrown when user doesn't have the required permission.</exception>
+    /// <exception cref="FormatException">Thrown when the portfolio ID is not in the correct format.</exception>
     Task<MODELS.Portfolio> UplaodCVByPortfolioId(
         string portfolioId,
         string personId,
