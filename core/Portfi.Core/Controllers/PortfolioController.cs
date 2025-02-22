@@ -6,6 +6,7 @@ using Portfi.Common.Helpers;
 using MODELS = Portfi.Data.Models;
 using DTO = Portfi.Common.Dto;
 using EXCEPTIONS = Portfi.Common.Exceptions;
+using REQUESTS = Portfi.Infrastructure.Models.Requests;
 using RESPONSES = Portfi.Infrastructure.Models.Responses;
 using SERVICES = Portfi.Infrastructure.Services.Interfaces;
 
@@ -39,7 +40,7 @@ public class PortfolioController(
     /// <response code="200">Returns the list of portfolio IDs.</response>
     /// <response code="401">If the user is unauthorized (invalid or missing JWT).</response>
     /// <response code="500">If there is a server error.</response>
-    [HttpGet("getExamplePortfolioIds")]
+    [HttpGet("ids")]
     [ProducesResponseType(typeof(IEnumerable<string>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
@@ -75,14 +76,14 @@ public class PortfolioController(
     /// <response code="200">Returns the portfolio that was selected.</response>
     /// <response code="401">If the user is unauthorized (invalid or missing JWT).</response>
     /// <response code="500">If there is a server error.</response>
-    [HttpGet("getPortfolioById")]
+    [HttpGet("{portfolioId}")]
     [ProducesResponseType(typeof(MODELS.Portfolio), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     [Produces("application/json")]
     async public Task<IActionResult> GetPortfolioById(
         [Required]
-        [FromQuery(Name = "portfolioID")]
+        [FromRoute]
         string portfolioId)
     {
         try
@@ -139,7 +140,7 @@ public class PortfolioController(
             logger.LogError(ex, "Portfolio with ID {PortfolioId} not found.", portfolioId);
             return NotFound($"Portfolio with ID {portfolioId} not found.");
         }
-        catch(FormatException ex)
+        catch (FormatException ex)
         {
             logger.LogError(ex, "ID was not in the correct GUID format.");
             return NotFound("ID not in the correct format.");
@@ -158,25 +159,27 @@ public class PortfolioController(
     /// <summary>
     /// Makes a portfolio for a user.
     /// </summary>
-    /// <param name="biography">the biography</param>
-    /// <param name="names">the array of names</param>
+    /// <param name="request">the request with bio and names.</param>
     /// <returns>The portfolio that was created.</returns>
     /// <response code="200">Returns the portfolio that was created.</response>
     /// <response code="401">If the user is unauthorized (invalid or missing JWT).</response>
     /// <response code="500">If there is a server error.</response>
-    [HttpPost("createPortfolio")]
+    [HttpPost]
     [ProducesResponseType(typeof(IEnumerable<MODELS.Portfolio>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     [Produces("application/json")]
     async public Task<IActionResult> CreatePortfolio(
         [Required]
-        [FromQuery(Name = "biography")]
-        string biography,
-        [Required]
-        [FromQuery(Name = "names")]
-        string[] names)
+        [FromBody]
+        REQUESTS.CreatePortfolioRequest request)
     {
+        if (request is null)
+        {
+            logger.LogError("Request not specified.");
+            return BadRequest("Invalid request.");
+        }
+
         try
         {
             #region Get User
@@ -217,8 +220,8 @@ public class PortfolioController(
             MODELS.Portfolio modifiedPortfolio = await portfolioService
                 .CreatePortfolioByInfo(
                     user.Id,
-                    biography,
-                    names);
+                    request.Biography,
+                    request.Names);
 
             return Ok(modifiedPortfolio);
         }
@@ -249,19 +252,26 @@ public class PortfolioController(
     /// <response code="200">Returns the portfolio that had social media links added.</response>
     /// <response code="401">If the user is unauthorized (invalid or missing JWT).</response>
     /// <response code="500">If there is a server error.</response>
-    [HttpPost("addSocialMediaLinks")]
+    [HttpPost("{portfolioId}/social-media")]
     [ProducesResponseType(typeof(MODELS.Portfolio), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     [Produces("application/json")]
     async public Task<IActionResult> AddSocialMediaLinks(
         [Required]
-        [FromQuery(Name = "portfolioID")]
+        [FromRoute]
         string portfolioId,
         [Required]
-        [FromQuery(Name = "socialMediaLinks")]
-        string socialMediaLinks)
+        [FromBody]
+        List<REQUESTS.SocialMediaLinkRequest> socialMediaLinks)
     {
+        if (socialMediaLinks is null
+            || socialMediaLinks.Count == 0)
+        {
+            logger.LogError("Social media links cannot be empty.");
+            return BadRequest("Social media links cannot be empty.");
+        }
+
         try
         {
             #region Get User
@@ -318,11 +328,6 @@ public class PortfolioController(
             logger.LogError(ex, "Portfolio with ID {PortfolioId} not found.", portfolioId);
             return NotFound($"Portfolio with ID {portfolioId} not found.");
         }
-        catch (JsonException ex)
-        {
-            logger.LogError(ex, "Social media links couldn't be deserialized.");
-            return NotFound("Social media links couldn't be deserialized.");
-        }
         catch (FormatException ex)
         {
             logger.LogError(ex, "ID was not in the correct GUID format.");
@@ -336,196 +341,6 @@ public class PortfolioController(
     }
 
     /// <summary>
-    /// Uploads a new avatar url to a portfolio by a specified portfolio ID.
-    /// </summary>
-    /// <param name="portfolioId">the portfolio ID</param>
-    /// <param name="avatarURL">the avatar url to be added</param>
-    /// <returns>The portfolio that had an avatar uploaded.</returns>
-    /// <response code="200">Returns the portfolio that had an avatar uploaded.</response>
-    /// <response code="401">If the user is unauthorized (invalid or missing JWT).</response>
-    /// <response code="500">If there is a server error.</response>
-    [HttpPost("uploadAvatar")]
-    [ProducesResponseType(typeof(MODELS.Portfolio), StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    [Produces("application/json")]
-    async public Task<IActionResult> UploadAvatar(
-        [Required]
-        [FromQuery(Name = "portfolioID")]
-        string portfolioId,
-        [Required]
-        [FromQuery(Name = "avatarURL")]
-        string avatarURL)
-    {
-        try
-        {
-            #region Get User
-
-            DTO.TokenResponse decodedToken;
-
-            try
-            {
-                decodedToken = Request.Cookies
-                    .TryGetDecodedToken();
-            }
-            catch (ArgumentNullException ex)
-            {
-                logger.LogError(ex.Message);
-
-                return StatusCode(StatusCodes.Status500InternalServerError, ex.Message);
-            }
-            catch (Exception ex)
-            {
-                logger.LogError(ex, "Unexpected error while decoding cookies.");
-
-                return StatusCode(StatusCodes.Status500InternalServerError, "An unexpected error occurred. Please contact support.");
-            }
-
-            var user = await supabase.Auth
-                 .GetUser(decodedToken.AccessToken)
-                  ?? throw new EXCEPTIONS.NotAuthorizedException("User not found.");
-
-            if (string.IsNullOrEmpty(user.Id))
-            {
-                throw new EXCEPTIONS.NotAuthorizedException("User doesn't have ID.");
-            }
-
-            #endregion
-
-            logger.LogInformation("Attempting to upload avatar URL for portfolio with ID: {PortfolioId}.", portfolioId);
-
-            MODELS.Portfolio modifiedPortfolio = await portfolioService
-                .UplaodAvatarByPortfolioId(
-                    portfolioId,
-                    user.Id,
-                    avatarURL);
-
-            return Ok(modifiedPortfolio);
-        }
-        catch (EXCEPTIONS.NotAuthorizedException ex)
-        {
-            logger.LogError(ex, "Problem with authorization occured.");
-
-            return StatusCode(StatusCodes.Status401Unauthorized, "Could not authorize for the certian action");
-        }
-        catch (ArgumentNullException ex)
-        {
-            logger.LogError(ex, "Portfolio with ID {PortfolioId} not found.", portfolioId);
-            return NotFound($"Portfolio with ID {portfolioId} not found.");
-        }
-        catch (EXCEPTIONS.ItemNotUpdatedException ex)
-        {
-            logger.LogError(ex, "Portfolio with ID {PortfolioId} couldn't be updated.", portfolioId);
-            return StatusCode(StatusCodes.Status500InternalServerError, $"Portfolio couldn't be updated.");
-        }
-        catch (FormatException ex)
-        {
-            logger.LogError(ex, "ID was not in the correct GUID format.");
-            return NotFound("ID not in the correct format.");
-        }
-        catch (Exception ex)
-        {
-            logger.LogError(ex, "Unexpected error while uploadding avatar URL for portfolio with ID: {PortfolioId}.", portfolioId);
-            return StatusCode(StatusCodes.Status500InternalServerError, "An error occurred while uploadding the avatar URL.");
-        }
-    }
-
-    /// <summary>
-    /// Uploads a new cv url to a portfolio by a specified portfolio ID.
-    /// </summary>
-    /// <param name="portfolioId">the portfolio ID</param>
-    /// <param name="cvURL">the cv url to be added</param>
-    /// <returns>The portfolio that had an cv uploaded.</returns>
-    /// <response code="200">Returns the portfolio that had a cv uploaded.</response>
-    /// <response code="401">If the user is unauthorized (invalid or missing JWT).</response>
-    /// <response code="500">If there is a server error.</response>
-    [HttpPost("uploadCV")]
-    [ProducesResponseType(typeof(MODELS.Portfolio), StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    [Produces("application/json")]
-    async public Task<IActionResult> UploadCV(
-        [Required]
-        [FromQuery(Name = "portfolioID")]
-        string portfolioId,
-        [Required]
-        [FromQuery(Name = "cv")]
-        string cvURL)
-    {
-        try
-        {
-            #region Get User
-
-            DTO.TokenResponse decodedToken;
-
-            try
-            {
-                decodedToken = Request.Cookies
-                    .TryGetDecodedToken();
-            }
-            catch (ArgumentNullException ex)
-            {
-                logger.LogError(ex.Message);
-
-                return StatusCode(StatusCodes.Status500InternalServerError, ex.Message);
-            }
-            catch (Exception ex)
-            {
-                logger.LogError(ex, "Unexpected error while decoding cookies.");
-
-                return StatusCode(StatusCodes.Status500InternalServerError, "An unexpected error occurred. Please contact support.");
-            }
-
-            var user = await supabase.Auth
-                  .GetUser(decodedToken.AccessToken)
-                   ?? throw new EXCEPTIONS.NotAuthorizedException("User not found.");
-
-            if (string.IsNullOrEmpty(user.Id))
-            {
-                throw new EXCEPTIONS.NotAuthorizedException("User doesn't have ID.");
-            }
-
-            #endregion
-
-            logger.LogInformation("Attempting to upload CV URL for portfolio with ID: {PortfolioId}.", portfolioId);
-
-            MODELS.Portfolio modifiedPortfolio = await portfolioService
-                .UplaodCVByPortfolioId(
-                    portfolioId,
-                    user.Id,
-                    cvURL);
-
-            return Ok(modifiedPortfolio);
-        }
-        catch (EXCEPTIONS.NotAuthorizedException ex)
-        {
-            logger.LogError(ex, "Problem with authorization occured.");
-
-            return StatusCode(StatusCodes.Status401Unauthorized, "Could not authorize for the certian action");
-        }
-        catch (ArgumentNullException ex)
-        {
-            logger.LogError(ex, "Portfolio with ID {PortfolioId} not found.", portfolioId);
-            return NotFound($"Portfolio with ID {portfolioId} not found.");
-        }
-        catch (EXCEPTIONS.ItemNotUpdatedException ex)
-        {
-            logger.LogError(ex, "Portfolio with ID {PortfolioId} couldn't be updated.", portfolioId);
-            return StatusCode(StatusCodes.Status500InternalServerError, $"Portfolio couldn't be updated.");
-        }
-        catch (FormatException ex)
-        {
-            logger.LogError(ex, "ID was not in the correct GUID format.");
-            return NotFound("ID not in the correct format.");
-        }
-        catch (Exception ex)
-        {
-            logger.LogError(ex, "Unexpected error while uploadding CV URL for portfolio with ID: {PortfolioId}.", portfolioId);
-            return StatusCode(StatusCodes.Status500InternalServerError, "An error occurred while uploadding the CV URL.");
-        }
-    }
-
-    /// <summary>
     /// Adds projects to a portfolio by specified portfolio ID.
     /// </summary>
     /// <param name="portfolioId">the portfolio ID</param>
@@ -534,18 +349,18 @@ public class PortfolioController(
     /// <response code="200">Returns the portfolio that had projects added to it.</response>
     /// <response code="401">If the user is unauthorized (invalid or missing JWT).</response>
     /// <response code="500">If there is a server error.</response>
-    [HttpPost("addProjects")]
+    [HttpPost("{portfolioId}/projects")]
     [ProducesResponseType(typeof(MODELS.Portfolio), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     [Produces("application/json")]
     async public Task<IActionResult> AddProjects(
         [Required]
-        [FromQuery(Name = "portfolioID")]
+        [FromRoute]
         string portfolioId,
         [Required]
-        [FromQuery(Name = "projects")]
-        string[] projects)
+        [FromBody]
+        List<string> projects)
     {
         try
         {
@@ -628,17 +443,17 @@ public class PortfolioController(
     /// <response code="200">Returns the portfolio that had social media link edited.</response>
     /// <response code="401">If the user is unauthorized (invalid or missing JWT).</response>
     /// <response code="500">If there is a server error.</response>
-    [HttpPatch("editSocialMediaLink")]
+    [HttpPatch("social-media-links/{socialMediaLinkId}")]
     [ProducesResponseType(typeof(MODELS.Portfolio), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     [Produces("application/json")]
     async public Task<IActionResult> EditSocialMediaLink(
         [Required]
-        [FromQuery(Name = "socialMediaLinkId")]
+        [FromRoute]
         string socialMediaLinkId,
         [Required]
-        [FromQuery(Name = "newSocialMediaLink")]
+        [FromBody]
         string newSocialMediaLink)
     {
         try
@@ -723,17 +538,17 @@ public class PortfolioController(
     /// <response code="200">Returns the portfolio that had the biography edited.</response>
     /// <response code="401">If the user is unauthorized (invalid or missing JWT).</response>
     /// <response code="500">If there is a server error.</response>
-    [HttpPatch("editBiography")]
+    [HttpPatch("{portfolioId}/biography")]
     [ProducesResponseType(typeof(MODELS.Portfolio), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     [Produces("application/json")]
     async public Task<IActionResult> EditBiography(
         [Required]
-        [FromQuery(Name = "portfolioID")]
+        [FromRoute]
         string portfolioId,
         [Required]
-        [FromQuery(Name = "biography")]
+        [FromBody]
         string biography)
     {
         try
@@ -819,20 +634,25 @@ public class PortfolioController(
     /// <response code="200">Returns the portfolio that had the background theme and/or the main color edited.</response>
     /// <response code="401">If the user is unauthorized (invalid or missing JWT).</response>
     /// <response code="500">If there is a server error.</response>
-    [HttpPatch("editTheme")]
+    [HttpPatch("{portfolioId}/theme")]
     [ProducesResponseType(typeof(MODELS.Portfolio), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     [Produces("application/json")]
     async public Task<IActionResult> EditTheme(
         [Required]
-        [FromQuery(Name = "portfolioID")]
+        [FromRoute]
         string portfolioId,
-        [FromQuery(Name = "backgroundTheme")]
-        string? backgroundTheme,
-        [FromQuery(Name = "mainColor")]
-        string? mainColor)
+        [Required]
+        [FromBody]
+        REQUESTS.ThemeUpdateRequest request)
     {
+        if (request is null)
+        {
+            logger.LogError("Request not specified.");
+            return BadRequest("Invalid request.");
+        }
+
         try
         {
             #region Get User
@@ -874,8 +694,8 @@ public class PortfolioController(
                 .EditThemeByPortfolioId(
                     portfolioId,
                     user.Id,
-                    backgroundTheme,
-                    mainColor);
+                    request.BackgroundTheme,
+                    request.MainColor);
 
             return Ok(modifiedPortfolio);
         }
@@ -915,14 +735,14 @@ public class PortfolioController(
     /// <response code="200">Returns the portfolio that had the background theme and the main color set to default.</response>
     /// <response code="401">If the user is unauthorized (invalid or missing JWT).</response>
     /// <response code="500">If there is a server error.</response>
-    [HttpPatch("setDefaultTheme")]
+    [HttpPatch("{portfolioId}/theme/default")]
     [ProducesResponseType(typeof(MODELS.Portfolio), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     [Produces("application/json")]
     async public Task<IActionResult> SetDefaultTheme(
         [Required]
-        [FromQuery(Name = "portfolioID")]
+        [FromRoute]
         string portfolioId)
     {
         try
@@ -1006,17 +826,17 @@ public class PortfolioController(
     /// <response code="200">Returns the portfolio that had the names edited.</response>
     /// <response code="401">If the user is unauthorized (invalid or missing JWT).</response>
     /// <response code="500">If there is a server error.</response>
-    [HttpPatch("editNames")]
+    [HttpPatch("{portfolioId}/names")]
     [ProducesResponseType(typeof(MODELS.Portfolio), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     [Produces("application/json")]
     async public Task<IActionResult> EditNames(
         [Required]
-        [FromQuery(Name = "portfolioID")]
+        [FromRoute]
         string portfolioId,
         [Required]
-        [FromQuery(Name = "names")]
+        [FromBody]
         string[] names)
     {
         try
@@ -1101,17 +921,17 @@ public class PortfolioController(
     /// <response code="200">Returns the portfolio that had the visability edited.</response>
     /// <response code="401">If the user is unauthorized (invalid or missing JWT).</response>
     /// <response code="500">If there is a server error.</response>
-    [HttpPatch("editVisability")]
+    [HttpPatch("{portfolioId}/visibility")]
     [ProducesResponseType(typeof(MODELS.Portfolio), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     [Produces("application/json")]
     async public Task<IActionResult> EditVisability(
         [Required]
-        [FromQuery(Name = "portfolioID")]
+        [FromRoute]
         string portfolioId,
         [Required]
-        [FromQuery(Name = "isPublic")]
+        [FromBody]
         bool isPublic)
     {
         try
@@ -1189,6 +1009,200 @@ public class PortfolioController(
 
     #endregion
 
+    #region PUT Requests:
+
+    /// <summary>
+    /// Uploads a new avatar url to a portfolio by a specified portfolio ID.
+    /// </summary>
+    /// <param name="portfolioId">the portfolio ID</param>
+    /// <param name="avatarURL">the avatar url to be added</param>
+    /// <returns>The portfolio that had an avatar uploaded.</returns>
+    /// <response code="200">Returns the portfolio that had an avatar uploaded.</response>
+    /// <response code="401">If the user is unauthorized (invalid or missing JWT).</response>
+    /// <response code="500">If there is a server error.</response>
+    [HttpPut("{portfolioId}/avatar")]
+    [ProducesResponseType(typeof(MODELS.Portfolio), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    [Produces("application/json")]
+    async public Task<IActionResult> UploadAvatar(
+        [Required]
+        [FromRoute]
+        string portfolioId,
+        [Required]
+        [FromBody]
+        string avatarURL)
+    {
+        try
+        {
+            #region Get User
+
+            DTO.TokenResponse decodedToken;
+
+            try
+            {
+                decodedToken = Request.Cookies
+                    .TryGetDecodedToken();
+            }
+            catch (ArgumentNullException ex)
+            {
+                logger.LogError(ex.Message);
+
+                return StatusCode(StatusCodes.Status500InternalServerError, ex.Message);
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex, "Unexpected error while decoding cookies.");
+
+                return StatusCode(StatusCodes.Status500InternalServerError, "An unexpected error occurred. Please contact support.");
+            }
+
+            var user = await supabase.Auth
+                 .GetUser(decodedToken.AccessToken)
+                  ?? throw new EXCEPTIONS.NotAuthorizedException("User not found.");
+
+            if (string.IsNullOrEmpty(user.Id))
+            {
+                throw new EXCEPTIONS.NotAuthorizedException("User doesn't have ID.");
+            }
+
+            #endregion
+
+            logger.LogInformation("Attempting to upload avatar URL for portfolio with ID: {PortfolioId}.", portfolioId);
+
+            MODELS.Portfolio modifiedPortfolio = await portfolioService
+                .UplaodAvatarByPortfolioId(
+                    portfolioId,
+                    user.Id,
+                    avatarURL);
+
+            return Ok(modifiedPortfolio);
+        }
+        catch (EXCEPTIONS.NotAuthorizedException ex)
+        {
+            logger.LogError(ex, "Problem with authorization occured.");
+
+            return StatusCode(StatusCodes.Status401Unauthorized, "Could not authorize for the certian action");
+        }
+        catch (ArgumentNullException ex)
+        {
+            logger.LogError(ex, "Portfolio with ID {PortfolioId} not found.", portfolioId);
+            return NotFound($"Portfolio with ID {portfolioId} not found.");
+        }
+        catch (EXCEPTIONS.ItemNotUpdatedException ex)
+        {
+            logger.LogError(ex, "Portfolio with ID {PortfolioId} couldn't be updated.", portfolioId);
+            return StatusCode(StatusCodes.Status500InternalServerError, $"Portfolio couldn't be updated.");
+        }
+        catch (FormatException ex)
+        {
+            logger.LogError(ex, "ID was not in the correct GUID format.");
+            return NotFound("ID not in the correct format.");
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "Unexpected error while uploadding avatar URL for portfolio with ID: {PortfolioId}.", portfolioId);
+            return StatusCode(StatusCodes.Status500InternalServerError, "An error occurred while uploadding the avatar URL.");
+        }
+    }
+
+    /// <summary>
+    /// Uploads a new cv url to a portfolio by a specified portfolio ID.
+    /// </summary>
+    /// <param name="portfolioId">the portfolio ID</param>
+    /// <param name="cvURL">the cv url to be added</param>
+    /// <returns>The portfolio that had an cv uploaded.</returns>
+    /// <response code="200">Returns the portfolio that had a cv uploaded.</response>
+    /// <response code="401">If the user is unauthorized (invalid or missing JWT).</response>
+    /// <response code="500">If there is a server error.</response>
+    [HttpPut("{portfolioId}/cv")]
+    [ProducesResponseType(typeof(MODELS.Portfolio), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    [Produces("application/json")]
+    async public Task<IActionResult> UploadCV(
+        [Required]
+        [FromRoute]
+        string portfolioId,
+        [Required]
+        [FromBody]
+        string cvURL)
+    {
+        try
+        {
+            #region Get User
+
+            DTO.TokenResponse decodedToken;
+
+            try
+            {
+                decodedToken = Request.Cookies
+                    .TryGetDecodedToken();
+            }
+            catch (ArgumentNullException ex)
+            {
+                logger.LogError(ex.Message);
+
+                return StatusCode(StatusCodes.Status500InternalServerError, ex.Message);
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex, "Unexpected error while decoding cookies.");
+
+                return StatusCode(StatusCodes.Status500InternalServerError, "An unexpected error occurred. Please contact support.");
+            }
+
+            var user = await supabase.Auth
+                  .GetUser(decodedToken.AccessToken)
+                   ?? throw new EXCEPTIONS.NotAuthorizedException("User not found.");
+
+            if (string.IsNullOrEmpty(user.Id))
+            {
+                throw new EXCEPTIONS.NotAuthorizedException("User doesn't have ID.");
+            }
+
+            #endregion
+
+            logger.LogInformation("Attempting to upload CV URL for portfolio with ID: {PortfolioId}.", portfolioId);
+
+            MODELS.Portfolio modifiedPortfolio = await portfolioService
+                .UplaodCVByPortfolioId(
+                    portfolioId,
+                    user.Id,
+                    cvURL);
+
+            return Ok(modifiedPortfolio);
+        }
+        catch (EXCEPTIONS.NotAuthorizedException ex)
+        {
+            logger.LogError(ex, "Problem with authorization occured.");
+
+            return StatusCode(StatusCodes.Status401Unauthorized, "Could not authorize for the certian action");
+        }
+        catch (ArgumentNullException ex)
+        {
+            logger.LogError(ex, "Portfolio with ID {PortfolioId} not found.", portfolioId);
+            return NotFound($"Portfolio with ID {portfolioId} not found.");
+        }
+        catch (EXCEPTIONS.ItemNotUpdatedException ex)
+        {
+            logger.LogError(ex, "Portfolio with ID {PortfolioId} couldn't be updated.", portfolioId);
+            return StatusCode(StatusCodes.Status500InternalServerError, $"Portfolio couldn't be updated.");
+        }
+        catch (FormatException ex)
+        {
+            logger.LogError(ex, "ID was not in the correct GUID format.");
+            return NotFound("ID not in the correct format.");
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "Unexpected error while uploadding CV URL for portfolio with ID: {PortfolioId}.", portfolioId);
+            return StatusCode(StatusCodes.Status500InternalServerError, "An error occurred while uploadding the CV URL.");
+        }
+    }
+
+    #endregion
+
     #region DELETE Requests:
 
     /// <summary>
@@ -1199,14 +1213,14 @@ public class PortfolioController(
     /// <response code="200">Returns the portfolio that had social media link removed.</response>
     /// <response code="401">If the user is unauthorized (invalid or missing JWT).</response>
     /// <response code="500">If there is a server error.</response>
-    [HttpDelete("removeSocialMediaLink")]
+    [HttpDelete("socialMediaLinks/{socialMediaLinkId}")]
     [ProducesResponseType(typeof(MODELS.Portfolio), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     [Produces("application/json")]
     async public Task<IActionResult> RemoveSocialMediaLink(
         [Required]
-        [FromQuery(Name = "socialMediaLinkID")]
+        [FromRoute]
         string socialMediaLinkId)
     {
         try
@@ -1287,14 +1301,14 @@ public class PortfolioController(
     /// <response code="200">Returns the portfolio that had the avatar removed.</response>
     /// <response code="401">If the user is unauthorized (invalid or missing JWT).</response>
     /// <response code="500">If there is a server error.</response>
-    [HttpDelete("removeAvatar")]
+    [HttpDelete("{portfolioId}/avatar")]
     [ProducesResponseType(typeof(MODELS.Portfolio), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     [Produces("application/json")]
     async public Task<IActionResult> RemoveAvatar(
         [Required]
-        [FromQuery(Name = "portfolioID")]
+        [FromRoute]
         string portfolioId)
     {
         try
@@ -1375,14 +1389,14 @@ public class PortfolioController(
     /// <response code="200">Returns the portfolio that had the CV removed.</response>
     /// <response code="401">If the user is unauthorized (invalid or missing JWT).</response>
     /// <response code="500">If there is a server error.</response>
-    [HttpDelete("removeCV")]
+    [HttpDelete("{portfolioId}/cv")]
     [ProducesResponseType(typeof(MODELS.Portfolio), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     [Produces("application/json")]
     async public Task<IActionResult> RemoveCV(
         [Required]
-        [FromQuery(Name = "portfolioID")]
+        [FromRoute]
         string portfolioId)
     {
         try
