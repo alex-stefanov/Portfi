@@ -16,6 +16,7 @@ export const getPortfolioById = async (id: string) => {
       data,
     };
   } catch (error) {
+    console.log(error);
     return {
       error: error as api.ApiError,
     };

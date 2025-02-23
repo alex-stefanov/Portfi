@@ -4,7 +4,7 @@ const v1 = API_CONFIG.BASE_PATH;
 
 export const apiRoutes = {
   portfolio: {
-    getById: (id: string) => `${v1}/portfolio/getPortfolioById?portfolioID=${id}`,
+    getById: (id: string) => `${v1}/portfolio/${id}`,
     updateSocialLinks: `${v1}/portfolio/updateSocialLinks`,
   },
   projects: {

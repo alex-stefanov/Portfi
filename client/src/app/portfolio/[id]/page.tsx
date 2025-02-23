@@ -36,7 +36,7 @@ export default async function PortfolioPage({
 
 const portfolios: PortfolioType[] = [
   {
-    id: '1',
+    id: 'af7c1fe6-d669-414e-b066-e9733f0de7a8',
     authorId: 'author-b1c',
     userDetails: {
       id: 'author-b1c',
