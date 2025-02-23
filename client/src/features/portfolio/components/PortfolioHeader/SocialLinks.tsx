@@ -9,6 +9,7 @@ import {
   SiInstagram,
   SiX,
 } from '@icons-pack/react-simple-icons';
+import { toast } from 'sonner';
 
 import {
   Dialog,
@@ -47,9 +48,15 @@ export const SocialLinks = ({ socialLinks }: { socialLinks: TSocialLinks }) => {
     startTransition(async () => {
       const isSuccess = await updateSocialLinksAction(socialLinks);
 
-      // add toast notification
       if (isSuccess) {
         setIsOpen(false);
+        toast.success('Social links updated successfully.', {
+          position: 'top-center',
+        });
+      } else {
+        toast.error('Failed to update social links. Please try again.', {
+          position: 'top-center',
+        });
       }
     });
   };
