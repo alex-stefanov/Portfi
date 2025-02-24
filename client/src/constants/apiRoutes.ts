@@ -6,6 +6,7 @@ export const apiRoutes = {
   portfolio: {
     getById: (id: string) => `${v1}/portfolio/${id}`,
     updateSocialLinks: `${v1}/portfolio/updateSocialLinks`,
+    top: `${v1}/portfolio/top`,
   },
   projects: {
     getProjectsByUsername: (username: string) => {

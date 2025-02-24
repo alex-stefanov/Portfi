@@ -1,8 +1,7 @@
 'use server';
 
 // import { updateSocialLinks } from '../data-access/updateSocialLinks';
-import { socialLinksSchema } from '../schemas/portfolioSchemas';
-
+// import { socialLinksSchema } from '../schemas/portfolioSchemas';
 import type { SocialLinks } from '../schemas/portfolioSchemas';
 
 export const updateSocialLinksAction = async (socialLinks: SocialLinks) => {

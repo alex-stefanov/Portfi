@@ -1,9 +1,9 @@
-import { PortfolioDetails } from './PortfolioDetails';
+import { PortfolioDetails } from '../PortfolioDetails';
+import { ProjectList } from '../ProjectList';
 import { PortfolioHeader } from './PortfolioHeader/PortfolioHeader';
-import { ProjectList } from './ProjectList';
-import { RateAndLike } from './RatingAndLikes';
+import { RateAndLike } from './RateAndLike';
 
-import type { Portfolio as TPortfolio } from '../schemas/portfolioSchemas';
+import type { Portfolio as TPortfolio } from '../../schemas/portfolioSchemas';
 
 export const Portfolio = ({ portfolio }: { portfolio: TPortfolio }) => {
   return (

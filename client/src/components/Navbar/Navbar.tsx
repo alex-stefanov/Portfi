@@ -5,6 +5,8 @@ import { useRouter } from 'next/navigation';
 
 import { Activity, LogOut, User } from 'lucide-react';
 
+import { siteRoutes } from '@/config/site';
+
 import { useAuthSession } from '@/hooks/useAuthSession';
 
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -22,7 +24,7 @@ export const Navbar = () => {
   const { user, isLoading } = useAuthSession();
 
   const handleSignIn = () => {
-    router.push('/login');
+    router.push(siteRoutes.public.login);
   };
 
   const isLoggedIn = !!user;
@@ -30,7 +32,7 @@ export const Navbar = () => {
   return (
     <header className="border-b bg-white px-6 py-4">
       <div className="container flex items-center justify-between">
-        <Link href="/" className="flex items-center space-x-2">
+        <Link href={siteRoutes.public.home} className="flex items-center space-x-2">
           <Activity className="h-6 w-6 text-primary" />
           <span className="text-xl font-bold text-gray-900">Portfio</span>
         </Link>

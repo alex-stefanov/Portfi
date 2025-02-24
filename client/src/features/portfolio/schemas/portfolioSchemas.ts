@@ -54,20 +54,38 @@ type UserDetails = {
 
 export type Portfolio = {
   id: string;
-  authorId: string;
+  person_id: string;
   title: string;
   description: string;
   tags: string[];
   technologies: string[];
-  projectCount: number;
+  biography: string;
   likes: number;
+  is_public: boolean;
   views: number;
   rating: number;
   images: string[];
-  cv: string;
-  socialLinks: SocialLinks;
+  cv: string | null;
+  social_media_links: SocialLinks;
   projects: Project[];
-  userDetails: UserDetails;
+  user_details: UserDetails;
+};
+
+// Required data for each portfolio component (on Discover portfolios page or top portfolios on landing page)
+// e.g. /api/portfolio/top or /api/portfolio?cursor=init
+
+export type PortfolioDiscover = {
+  id: string;
+  title: string;
+  user_details: {
+    avatar: string;
+    realName: string;
+  };
+  images: string[];
+  description: string;
+  tags: string[];
+  technologies: string[];
+  likes: number;
 };
 
 export enum SocialLinksEnum {

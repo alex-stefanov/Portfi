@@ -8,7 +8,7 @@ import { Separator } from '@/components/ui/separator';
 import { PortfolioTitle } from './PortfolioTitle';
 import { SocialLinks } from './SocialLinks';
 
-import type { Portfolio } from '../../schemas/portfolioSchemas';
+import type { Portfolio } from '../../../schemas/portfolioSchemas';
 
 export const PortfolioHeader = ({ portfolio }: { portfolio: Portfolio }) => {
   return (
@@ -22,17 +22,17 @@ export const PortfolioHeader = ({ portfolio }: { portfolio: Portfolio }) => {
       <section className="flex flex-col items-center justify-center space-y-10 md:flex-row-reverse md:items-end md:justify-between md:space-y-0">
         <PortfolioStats views={portfolio.views} />
 
-        <SocialLinks socialLinks={portfolio.socialLinks} />
+        <SocialLinks socialLinks={portfolio.social_media_links} />
       </section>
     </header>
   );
 };
 
 const UserProfile = ({ portfolio }: { portfolio: Portfolio }) => {
-  const { userDetails, title } = portfolio;
-  const { avatar, email, realName, education, location } = userDetails;
+  const { user_details, title } = portfolio;
+  const { avatar, email, realName, education, location } = user_details;
 
-  const currentWork = userDetails.currentPosition;
+  const currentWork = user_details.currentPosition;
 
   return (
     <>

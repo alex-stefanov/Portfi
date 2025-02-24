@@ -24,11 +24,11 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { LoadingButton } from '@/components/ui/loading-button';
 
-import { SocialLinksArr } from '../../schemas/portfolioSchemas';
-import { updateSocialLinksAction } from '../../server-actions/updateSocialLinksAction';
-import { EditButton } from '../EditButton';
+import { SocialLinksArr } from '../../../schemas/portfolioSchemas';
+import { updateSocialLinksAction } from '../../../server-actions/updateSocialLinksAction';
+import { EditButton } from '../../EditButton';
 
-import type { SocialLinks as TSocialLinks } from '../../schemas/portfolioSchemas';
+import type { SocialLinks as TSocialLinks } from '../../../schemas/portfolioSchemas';
 
 const socialIcons: Record<keyof TSocialLinks, React.ElementType> = {
   github: SiGithub,

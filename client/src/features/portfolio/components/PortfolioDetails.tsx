@@ -63,7 +63,7 @@ const WorkExperience = ({ portfolio }: { portfolio: Portfolio }) => {
     <div className="flex-1 p-6">
       <h2 className="mb-4 text-2xl font-bold">Work Experience</h2>
       <div className="space-y-6">
-        {portfolio.userDetails.workExperience
+        {portfolio.user_details.workExperience
           ?.sort((a, b) => a.yearFrom - b.yearFrom)
           .map((experience, index) => (
             <div key={index} className="ml-2 border-l-2 border-gray-200 pl-4">
