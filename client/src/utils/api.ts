@@ -1,8 +1,8 @@
 import 'server-only';
 
-import { API_CONFIG } from '@/config/apiConfig';
-
 import { extractAuthCookie } from '@/utils/supabase/extractAuthCookie';
+
+import { API_CONFIG } from '../config/apiConfig';
 
 type RequestMethod = 'GET' | 'POST' | 'PUT' | 'DELETE';
 type DataProps = Record<string, unknown>;

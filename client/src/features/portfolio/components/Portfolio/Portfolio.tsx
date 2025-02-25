@@ -1,5 +1,5 @@
-import { PortfolioDetails } from '../PortfolioDetails';
-import { ProjectList } from '../ProjectList';
+import { PortfolioDetails } from './PortfolioDetails';
+import { ProjectList } from './ProjectList';
 import { PortfolioHeader } from './PortfolioHeader/PortfolioHeader';
 import { RateAndLike } from './RateAndLike';
 

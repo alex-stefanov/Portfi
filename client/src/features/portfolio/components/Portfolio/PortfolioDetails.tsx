@@ -6,7 +6,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 
-import type { Portfolio } from '../schemas/portfolioSchemas';
+import type { Portfolio } from '../../schemas/portfolioSchemas';
 
 export const PortfolioDetails = ({ portfolio }: { portfolio: Portfolio }) => {
   return (

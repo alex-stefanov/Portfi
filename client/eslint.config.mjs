@@ -26,6 +26,7 @@ const eslintConfig = [
           pattern: [
             'src/components/**/*',
             'src/constants/**/*',
+            'src/config/**/*',
             'src/data-access/**/*',
             'src/hooks/**/*',
             'src/lib/**/*',
@@ -115,7 +116,15 @@ const eslintConfig = [
       'no-unused-vars': 'off',
       '@typescript-eslint/no-unused-vars': [
         'error',
-        { argsIgnorePattern: '^_', varsIgnorePattern: '^_' },
+        {
+          args: 'all',
+          argsIgnorePattern: '^_',
+          caughtErrors: 'all',
+          caughtErrorsIgnorePattern: '^_',
+          destructuredArrayIgnorePattern: '^_',
+          varsIgnorePattern: '^_',
+          ignoreRestSiblings: true,
+        },
       ],
       'import/order': 'off',
     },

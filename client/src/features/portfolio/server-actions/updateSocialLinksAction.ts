@@ -4,7 +4,7 @@
 // import { socialLinksSchema } from '../schemas/portfolioSchemas';
 import type { SocialLinks } from '../schemas/portfolioSchemas';
 
-export const updateSocialLinksAction = async (socialLinks: SocialLinks) => {
+export const updateSocialLinksAction = async (_socialLinks: SocialLinks) => {
   // const result = socialLinksSchema.safeParse(socialLinks);
 
   // if (!result.success) {
@@ -18,7 +18,7 @@ export const updateSocialLinksAction = async (socialLinks: SocialLinks) => {
     await new Promise((resolve) => setTimeout(resolve, 2000));
     // await updateSocialLinks(result.data);
     return true;
-  } catch (err) {
+  } catch (_unusedErr) {
     return false;
   }
 };
