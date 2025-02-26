@@ -4,7 +4,10 @@
 // import { socialLinksSchema } from '../schemas/portfolioSchemas';
 import type { SocialLinks } from '../schemas/portfolioSchemas';
 
-export const updateSocialLinksAction = async (_socialLinks: SocialLinks) => {
+export const updateSocialLinksAction = async (
+  currentState: { socials: SocialLinks; error: boolean },
+  formData: FormData,
+) => {
   // const result = socialLinksSchema.safeParse(socialLinks);
 
   // if (!result.success) {
@@ -17,8 +20,17 @@ export const updateSocialLinksAction = async (_socialLinks: SocialLinks) => {
     // add artificial delay for testing
     await new Promise((resolve) => setTimeout(resolve, 2000));
     // await updateSocialLinks(result.data);
-    return true;
+    return {
+      socials: {
+        ...currentState.socials,
+        github: 'https://github.com/flnx',
+      },
+      error: false,
+    };
   } catch (_unusedErr) {
-    return false;
+    return {
+      socials: currentState.socials,
+      error: true,
+    };
   }
 };

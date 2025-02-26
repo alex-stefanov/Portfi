@@ -10,7 +10,7 @@ export const siteRoutes = {
     dashboard: '/dashboard',
     profile: '/profile',
     settings: '/settings',
-    portfolios: '/portfolios',
+    portfolio: '/portfolio',
   },
   social: {
     facebook: 'https://www.facebook.com/',

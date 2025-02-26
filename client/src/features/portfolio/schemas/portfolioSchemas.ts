@@ -96,4 +96,4 @@ export enum SocialLinksEnum {
   Facebook = 'Facebook',
 }
 
-export const SocialLinksArr = Object.values(SocialLinksEnum);
+export const supportedSocialMediasArr = Object.values(SocialLinksEnum);

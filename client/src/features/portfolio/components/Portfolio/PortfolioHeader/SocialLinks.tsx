@@ -1,7 +1,7 @@
 'use client';
 
 import { Linkedin } from 'lucide-react';
-import { useState, useTransition } from 'react';
+import { useActionState, useEffect, useState } from 'react';
 
 import {
   SiFacebook,
@@ -24,7 +24,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { LoadingButton } from '@/components/ui/loading-button';
 
-import { SocialLinksArr } from '../../../schemas/portfolioSchemas';
+import { supportedSocialMediasArr } from '../../../schemas/portfolioSchemas';
 import { updateSocialLinksAction } from '../../../server-actions/updateSocialLinksAction';
 import { EditButton } from './EditButton';
 
@@ -40,30 +40,25 @@ const socialIcons: Record<keyof TSocialLinks, React.ElementType> = {
 
 export const SocialLinks = ({ socialLinks }: { socialLinks: TSocialLinks }) => {
   const [isOpen, setIsOpen] = useState(false);
-  const [isPending, startTransition] = useTransition();
+  const [state, formAction, isPending] = useActionState(updateSocialLinksAction, {
+    socials: socialLinks,
+    error: false,
+  });
 
-  const socialLinksArr = Object.values(socialLinks);
+  const socialMediaLinksArr = Object.values(state.socials);
 
-  const updateSocialLinks = () => {
-    startTransition(async () => {
-      const isSuccess = await updateSocialLinksAction(socialLinks);
-
-      if (isSuccess) {
-        setIsOpen(false);
-        toast.success('Social links updated successfully.', {
-          position: 'top-center',
-        });
-      } else {
-        toast.error('Failed to update social links. Please try again.', {
-          position: 'top-center',
-        });
-      }
-    });
-  };
+  useEffect(() => {
+    if (!state.error) {
+      toast.success('Social links updated successfully.');
+      setIsOpen(false);
+    } else {
+      toast.error('Failed to update social links. Please try again.');
+    }
+  }, [state]);
 
   const getUserLink = (platform: string) => {
     return (
-      socialLinksArr.find((link: string) =>
+      socialMediaLinksArr.find((link: string) =>
         link.toLowerCase().includes(platform.toLowerCase()),
       ) || ''
     );
@@ -71,19 +66,7 @@ export const SocialLinks = ({ socialLinks }: { socialLinks: TSocialLinks }) => {
 
   return (
     <div className="relative flex items-start justify-start gap-1.5">
-      <div className="relative flex space-x-6">
-        {Object.entries(socialLinks).map(([platform, link]) => {
-          const Icon = socialIcons[platform as keyof TSocialLinks];
-
-          return (
-            <div key={platform} className="relative">
-              <a href={link} target="_blank" rel="noopener noreferrer">
-                <Icon className="h-7 w-7" />
-              </a>
-            </div>
-          );
-        })}
-      </div>
+      <IconsWithSocialLinks socials={state.socials} />
       <Dialog open={isOpen} onOpenChange={setIsOpen}>
         <DialogTrigger asChild>
           <EditButton />
@@ -95,28 +78,56 @@ export const SocialLinks = ({ socialLinks }: { socialLinks: TSocialLinks }) => {
               Make changes to your social links here. Click save when you're done.
             </DialogDescription>
           </DialogHeader>
-          <div className="grid gap-4 py-4">
-            {SocialLinksArr.map((socialMedia) => (
-              <div className="grid grid-cols-4 items-center gap-4" key={socialMedia}>
-                <Label htmlFor={socialMedia} className="text-right">
-                  {socialMedia}
-                </Label>
-                <Input
-                  id={socialMedia}
-                  className="col-span-3 h-8"
-                  type="url"
-                  defaultValue={getUserLink(socialMedia)}
-                />
-              </div>
-            ))}
-          </div>
+          <form action={formAction} id="social-links">
+            <div className="grid gap-4 py-4">
+              {supportedSocialMediasArr.map((socialMedia) => (
+                <div
+                  className="grid grid-cols-4 items-center gap-4"
+                  key={socialMedia}
+                >
+                  <Label htmlFor={socialMedia} className="text-right">
+                    {socialMedia}
+                  </Label>
+                  <Input
+                    id={socialMedia}
+                    className="col-span-3 h-8"
+                    type="url"
+                    defaultValue={getUserLink(socialMedia)}
+                  />
+                </div>
+              ))}
+            </div>
+          </form>
           <DialogFooter>
-            <LoadingButton loading={isPending} onClick={updateSocialLinks}>
+            <LoadingButton loading={isPending} form="social-links">
               Save changes
             </LoadingButton>
           </DialogFooter>
         </DialogContent>
       </Dialog>
+    </div>
+  );
+};
+
+const IconsWithSocialLinks = ({ socials }: { socials: TSocialLinks }) => {
+  return (
+    <div className="relative flex space-x-6">
+      {Object.entries(socials)
+        .filter(([_, link]) => link) // filter out empty links
+        .map(([platform, link]) => {
+          const Icon = socialIcons[platform as keyof TSocialLinks];
+          return (
+            <a
+              key={platform}
+              href={link}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="relative"
+            >
+              <Icon className="h-7 w-7" />
+            </a>
+          );
+        })}
     </div>
   );
 };

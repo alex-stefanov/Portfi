@@ -28,7 +28,7 @@ export const TopPortfolios = async () => {
           {portfolios.map((portfolio) => (
             <Link
               key={portfolio.id}
-              href={`${siteRoutes.private.portfolios}/${portfolio.id}`}
+              href={`${siteRoutes.private.portfolio}/${portfolio.id}`}
             >
               <Card className="flex flex-col overflow-hidden">
                 <CardHeader className="p-0">
