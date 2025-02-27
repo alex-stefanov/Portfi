@@ -6,7 +6,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 
-import type { Portfolio } from '../types/Portfolio';
+import type { Portfolio } from '../../schemas/portfolioSchemas';
 
 export const PortfolioDetails = ({ portfolio }: { portfolio: Portfolio }) => {
   return (
@@ -63,7 +63,7 @@ const WorkExperience = ({ portfolio }: { portfolio: Portfolio }) => {
     <div className="flex-1 p-6">
       <h2 className="mb-4 text-2xl font-bold">Work Experience</h2>
       <div className="space-y-6">
-        {portfolio.userDetails.workExperience
+        {portfolio.user_details.workExperience
           ?.sort((a, b) => a.yearFrom - b.yearFrom)
           .map((experience, index) => (
             <div key={index} className="ml-2 border-l-2 border-gray-200 pl-4">

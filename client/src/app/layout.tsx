@@ -8,6 +8,7 @@ import { ReactQueryProvider } from '@/utils/providers';
 
 import { Footer } from '@/components/Footer/Footer';
 import { Navbar } from '@/components/Navbar/Navbar';
+import { Toaster } from '@/components/ui/sonner';
 
 const globalFont = Open_Sans({
   variable: '--font-global',
@@ -34,6 +35,7 @@ export default function RootLayout({
             <Footer />
           </ReactQueryProvider>
         </div>
+        <Toaster />
       </body>
     </html>
   );

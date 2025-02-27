@@ -11,7 +11,7 @@ import {
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 
-import { EditButton } from '../EditButton';
+import { EditButton } from './EditButton';
 
 export const PortfolioTitle = ({ title }: { title: string }) => {
   return (

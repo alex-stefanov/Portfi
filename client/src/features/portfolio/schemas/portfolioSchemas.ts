@@ -1,10 +1,14 @@
-export type SocialLinks = {
-  github?: string;
-  linkedin?: string;
-  twitter?: string;
-  instagram?: string;
-  facebook?: string;
-};
+import { z } from 'zod';
+
+export const socialLinksSchema = z.object({
+  github: z.string().trim().max(255),
+  linkedin: z.string().trim().max(255),
+  twitter: z.string().trim().max(255),
+  instagram: z.string().trim().max(255),
+  facebook: z.string().trim().max(255),
+});
+
+export type SocialLinks = z.infer<typeof socialLinksSchema>;
 
 export type Project = {
   id: string;
@@ -50,20 +54,38 @@ type UserDetails = {
 
 export type Portfolio = {
   id: string;
-  authorId: string;
+  person_id: string;
   title: string;
   description: string;
   tags: string[];
   technologies: string[];
-  projectCount: number;
+  biography: string;
   likes: number;
+  is_public: boolean;
   views: number;
   rating: number;
   images: string[];
-  cv: string;
-  socialLinks: SocialLinks;
+  cv: string | null;
+  social_media_links: SocialLinks;
   projects: Project[];
-  userDetails: UserDetails;
+  user_details: UserDetails;
+};
+
+// Required data for each portfolio component (on Discover portfolios page or top portfolios on landing page)
+// e.g. /api/portfolio/top or /api/portfolio?cursor=init
+
+export type PortfolioDiscover = {
+  id: string;
+  title: string;
+  user_details: {
+    avatar: string;
+    realName: string;
+  };
+  images: string[];
+  description: string;
+  tags: string[];
+  technologies: string[];
+  likes: number;
 };
 
 export enum SocialLinksEnum {
@@ -74,4 +96,4 @@ export enum SocialLinksEnum {
   Facebook = 'Facebook',
 }
 
-export const SocialLinksArr = Object.values(SocialLinksEnum);
+export const supportedSocialMediasArr = Object.values(SocialLinksEnum);

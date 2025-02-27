@@ -42,14 +42,31 @@ public static class DecoderHelper
             ?? throw new ArgumentNullException("Token couldn't be decoded.");
     }
 
-    private static string DecodeBase64(
-        string base64String)
+    private static string DecodeBase64(string base64String)
     {
-        byte[] data = Convert
-            .FromBase64String(base64String);
+        if (string.IsNullOrWhiteSpace(base64String))
+        {
+            throw new ArgumentException("Base64 string is empty.");
+        }
 
-        return Encoding.UTF8
-            .GetString(data);
+        // Convert URL-safe Base64 to standard Base64
+        base64String = base64String.Replace('-', '+').Replace('_', '/');
+
+        // Ensure padding
+        while (base64String.Length % 4 != 0)
+        {
+            base64String += "=";
+        }
+
+        try
+        {
+            byte[] data = Convert.FromBase64String(base64String);
+            return Encoding.UTF8.GetString(data);
+        }
+        catch (FormatException)
+        {
+            throw new Exception("Invalid Base64 token detected.");
+        }
     }
 }
 
