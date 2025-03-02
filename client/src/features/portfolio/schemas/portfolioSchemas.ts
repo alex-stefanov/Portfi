@@ -1,14 +1,20 @@
 import { z } from 'zod';
 
 export const socialLinksSchema = z.object({
-  github: z.string().trim().max(255),
-  linkedin: z.string().trim().max(255),
-  twitter: z.string().trim().max(255),
-  instagram: z.string().trim().max(255),
-  facebook: z.string().trim().max(255),
+  github: z.string().trim().max(255).url().or(z.literal('')),
+  linkedin: z.string().trim().max(255).url().or(z.literal('')),
+  x: z.string().trim().max(255).url().or(z.literal('')),
+  instagram: z.string().trim().max(255).url().or(z.literal('')),
+  facebook: z.string().trim().max(255).url().or(z.literal('')),
 });
 
 export type SocialLinks = z.infer<typeof socialLinksSchema>;
+
+type SocialMediaKey = keyof SocialLinks;
+
+export const socialMediaNames = Object.keys(
+  socialLinksSchema.shape,
+) as SocialMediaKey[];
 
 export type Project = {
   id: string;
@@ -87,13 +93,3 @@ export type PortfolioDiscover = {
   technologies: string[];
   likes: number;
 };
-
-export enum SocialLinksEnum {
-  Github = 'Github',
-  LinkedIn = 'LinkedIn',
-  X = 'X',
-  Instagram = 'Instagram',
-  Facebook = 'Facebook',
-}
-
-export const supportedSocialMediasArr = Object.values(SocialLinksEnum);

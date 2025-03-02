@@ -1,23 +1,8 @@
-import { Button } from '@/components/ui/button';
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from '@/components/ui/dialog';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-
-import { EditButton } from './EditButton';
-
 export const PortfolioTitle = ({ title }: { title: string }) => {
   return (
     <div className="flex items-center gap-2">
       <h1 className="text-3xl font-bold">{title}</h1>
-      <Dialog>
+      {/* <Dialog>
         <DialogTrigger asChild>
           <EditButton />
         </DialogTrigger>
@@ -45,7 +30,7 @@ export const PortfolioTitle = ({ title }: { title: string }) => {
             <Button type="submit">Save changes</Button>
           </DialogFooter>
         </DialogContent>
-      </Dialog>
+      </Dialog> */}
     </div>
   );
 };

@@ -14,7 +14,7 @@ export const siteRoutes = {
   },
   social: {
     facebook: 'https://www.facebook.com/',
-    twitter: 'https://twitter.com/',
+    x: 'https://x.com/',
     linkedin: 'https://www.linkedin.com/',
     instagram: 'https://www.instagram.com/',
   },

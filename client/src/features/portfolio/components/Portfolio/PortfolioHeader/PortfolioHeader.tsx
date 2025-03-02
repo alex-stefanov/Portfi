@@ -2,15 +2,19 @@ import { Briefcase, GraduationCap, Mail, MapPin } from 'lucide-react';
 
 import { AvatarFallback, AvatarImage } from '@radix-ui/react-avatar';
 
+import { SocialMediaIconLinks } from '@/features/portfolio/components/Portfolio/PortfolioHeader/SocialMediaIconLinks';
 import { Avatar } from '@/components/ui/avatar';
 import { Separator } from '@/components/ui/separator';
 
+import { EditableSocialLinks } from './EditableSocialLinks';
 import { PortfolioTitle } from './PortfolioTitle';
-import { SocialLinks } from './SocialLinks';
 
 import type { Portfolio } from '../../../schemas/portfolioSchemas';
 
 export const PortfolioHeader = ({ portfolio }: { portfolio: Portfolio }) => {
+  const { social_media_links } = portfolio;
+  const isEditable = true;
+
   return (
     <header className="rounded-xl bg-slate-800 px-4 pb-8 pt-16 text-primary-foreground sm:px-8 md:px-12">
       <section>
@@ -22,7 +26,11 @@ export const PortfolioHeader = ({ portfolio }: { portfolio: Portfolio }) => {
       <section className="flex flex-col items-center justify-center space-y-10 md:flex-row-reverse md:items-end md:justify-between md:space-y-0">
         <PortfolioStats views={portfolio.views} />
 
-        <SocialLinks socialLinks={portfolio.social_media_links} />
+        {isEditable ? (
+          <EditableSocialLinks socialLinks={social_media_links} />
+        ) : (
+          <SocialMediaIconLinks socials={social_media_links} />
+        )}
       </section>
     </header>
   );

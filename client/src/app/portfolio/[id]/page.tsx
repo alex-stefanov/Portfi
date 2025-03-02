@@ -92,7 +92,7 @@ const portfolio: PortfolioType = {
   social_media_links: {
     github: 'https://github.com/alicejohnson',
     linkedin: 'https://linkedin.com/in/alicejohnson',
-    twitter: 'https://x.com/alicejohnson',
+    x: 'https://x.com/alicejohnson',
     instagram: 'https://instagram.com/alicejohnson',
     facebook: 'https://facebook.com/alicejohnson',
   },
